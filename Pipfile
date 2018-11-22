@@ -6,8 +6,14 @@ verify_ssl = true
 [dev-packages]
 flake8 = "*"
 yapf = "*"
+setuptools = "*"
+wheel = "*"
+twine = "*"
 
 [packages]
+django = "*"
+setuptools = "*"
+wheel = "*"
 
 [requires]
 python_version = "3.7"

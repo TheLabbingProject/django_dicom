@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class DicomConfig(AppConfig):
-    name = 'dicom'
+    name = 'dicomdj'
 
     def ready(self):
-        import dicom.signals
+        import dicomdj.signals
