@@ -15,7 +15,7 @@ Quick start
 1. Add "dicom" to your INSTALLED_APPS setting like this::
 
 <pre>
-    INSTALLED_APPS = \[  
+    INSTALLED_APPS = [  
         ...  
         'dicom',  
     ]  
