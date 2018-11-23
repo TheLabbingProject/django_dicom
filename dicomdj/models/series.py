@@ -2,9 +2,9 @@ import numpy as np
 
 from django.db import models
 from django.urls import reverse
-from .patient import Patient
-from .study import Study
-from .validators import digits_and_dots_only
+from dicomdj.models.patient import Patient
+from dicomdj.models.study import Study
+from dicomdj.models.validators import digits_and_dots_only
 
 
 class Series(models.Model):
@@ -12,12 +12,14 @@ class Series(models.Model):
         max_length=64,
         unique=True,
         validators=[digits_and_dots_only],
+        verbose_name='Series UID',
     )
     number = models.IntegerField(verbose_name='Series Number')
     date = models.DateField()
     time = models.TimeField()
-    created_at = models.DateTimeField(auto_now_add=True)
     description = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+
     study = models.ForeignKey(
         Study, blank=True, null=True, on_delete=models.PROTECT)
     patient = models.ForeignKey(

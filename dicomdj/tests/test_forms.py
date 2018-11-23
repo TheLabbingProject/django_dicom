@@ -1,6 +1,6 @@
 import os
 
-from dicom.forms import CreateInstancesForm
+from dicomdj.forms import CreateInstancesForm
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 

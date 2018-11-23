@@ -2,9 +2,9 @@ import glob
 import factory
 import os
 
-from dicom.models import Instance
+from dicomdj.models import Instance
 
-TEST_FILES_PATH = './dicom/tests/files/'
+TEST_FILES_PATH = './tests/files/'
 SERIES_DIR = os.path.abspath(os.path.join(TEST_FILES_PATH, 'whole_series'))
 SERIES_FILES = glob.glob(os.path.join(SERIES_DIR, '*.dcm'))
 

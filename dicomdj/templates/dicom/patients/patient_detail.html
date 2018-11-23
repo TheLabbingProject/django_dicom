@@ -2,7 +2,7 @@
 
 
 {% block data-content %}
-    <p>Patient ID: {{ object.patient_uid }}</p>
+    <p>Patient ID: {{ object.patient_id }}</p>
     <p>First Name: {{ object.given_name }}</p>
     <p>Last Name: {{ object.family_name }}</p>
     <p>Date of Birth: {{ object.date_of_birth | date:"SHORT_DATE_FORMAT" }}</p>

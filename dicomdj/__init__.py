@@ -1,1 +1,1 @@
-default_app_config = 'dicom.apps.DicomConfig'
+default_app_config = 'dicomdj.apps.DicomDjConfig'

@@ -1,7 +1,7 @@
 from accounts.tests.utils import LoggedInTestCase
 from django.test import TestCase
 from django.urls import reverse
-from .factories import InstanceFactory, get_test_file_path
+from dicomdj.tests.factories import InstanceFactory, get_test_file_path
 
 
 class LoggedOutInstanceViewTestCase(TestCase):

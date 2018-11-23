@@ -30,7 +30,7 @@
                         <a href="{% url 'patient_detail' dcm.patient.id %}">
                             {{ dcm.patient.id }}
                         </a>
-                        ({{ dcm.patient.patient_uid }})
+                        ({{ dcm.patient.patient_id }})
                     </td>
                     <td>
                         <a href="{% url 'series_detail' dcm.series.id %}">

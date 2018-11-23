@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Instance, Series, Study, Patient, SMBDirectory
+from dicomdj.models import (
+    Instance,
+    Series,
+    Study,
+    Patient,
+)
 
 
 class InstanceAdmin(admin.ModelAdmin):
@@ -89,7 +94,7 @@ class PatientInLine(admin.StackedInline):
 class PatientAdmin(admin.ModelAdmin):
     list_display = (
         'id',
-        'patient_uid',
+        'patient_id',
         'given_name',
         'family_name',
         'sex',
@@ -98,7 +103,7 @@ class PatientAdmin(admin.ModelAdmin):
     inlines = (InstanceInLine, )
     fieldsets = (
         (None, {
-            'fields': ('patient_uid', ),
+            'fields': ('patient_id', ),
         }),
         ('Name', {
             'fields': (
@@ -121,18 +126,7 @@ class PatientAdmin(admin.ModelAdmin):
     )
 
 
-class SMBAdmin(admin.ModelAdmin):
-    list_display = (
-        'id',
-        'name',
-        'server_name',
-        'share_name',
-        'user_id',
-    )
-
-
 admin.site.register(Instance, InstanceAdmin)
 admin.site.register(Series, SeriesAdmin)
 admin.site.register(Study, StudyAdmin)
 admin.site.register(Patient, PatientAdmin)
-admin.site.register(SMBDirectory, SMBAdmin)

@@ -3,20 +3,17 @@ import pydicom
 import shutil
 import zipfile
 
-from cryptography.fernet import Fernet
 from datetime import datetime
+from dicomdj.models.patient import Patient
+from dicomdj.models.series import Series
+from dicomdj.models.study import Study
+from dicomdj.models.validators import digits_and_dots_only
 from django.db.utils import IntegrityError
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import models
 from django.urls import reverse
-from faker import Faker
-from .patient import Patient
-from .series import Series
-from .study import Study
-from .validators import digits_and_dots_only
-from ..settings import ANONYMIZATION_KEY
 
 
 class InstanceManager(models.Manager):
@@ -62,6 +59,7 @@ class Instance(models.Model):
         blank=False,
         null=False,
         validators=[digits_and_dots_only],
+        verbose_name='Instance UID',
     )
 
     file = models.FileField(upload_to='dicom', blank=True)
@@ -79,9 +77,6 @@ class Instance(models.Model):
         Study, blank=True, null=True, on_delete=models.PROTECT)
     patient = models.ForeignKey(
         Patient, blank=True, null=True, on_delete=models.PROTECT)
-
-    has_raw_backup = models.BooleanField(default=False)
-    is_anonymized = models.BooleanField(default=False)
 
     objects = InstanceManager()
 
@@ -160,7 +155,7 @@ class Instance(models.Model):
 
     def get_patient_attributes(self) -> dict:
         return {
-            'patient_uid':
+            'patient_id':
             self.headers.PatientID,
             'given_name':
             self.headers.PatientName.given_name,
@@ -182,8 +177,8 @@ class Instance(models.Model):
         return Patient.objects.create(**self.get_patient_attributes())
 
     def get_patient(self) -> Patient:
-        patient_uid = self.headers.PatientID
-        patient = Patient.objects.filter(patient_uid=patient_uid).first()
+        patient_id = self.headers.PatientID
+        patient = Patient.objects.filter(patient_id=patient_id).first()
         if not patient:
             patient = self.create_patient()
         return patient
@@ -232,26 +227,6 @@ class Instance(models.Model):
         shutil.copyfile(self.file.path, dest)
         self.has_raw_backup = True
         self.save()
-
-    def anonymize(self, key: bytes, name: str = None):
-        if self.has_raw_backup:
-            data = self.read_data()
-
-            patient_id = bytes(data.PatientID, 'utf-8')
-            fernet = Fernet(key)
-            enc_id = fernet.encrypt(patient_id).decode('utf-8')
-
-            faker = Faker()
-
-            data.PatientID = enc_id
-            if isinstance(name, str):
-                data.PatientName = name
-            else:
-                if data.PatientSex is 'M':
-                    data.PatientName = faker.name_male()
-                else:
-                    data.PatientName = faker.name_female()
-            data.save_as(self.file.path)
 
     @property
     def headers(self):

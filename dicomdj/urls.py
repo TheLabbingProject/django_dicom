@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from dicomdj import views
 
 urlpatterns = [
     path(
@@ -47,30 +47,5 @@ urlpatterns = [
         'patients/<int:pk>/',
         views.PatientDetailView.as_view(),
         name='patient_detail',
-    ),
-    path(
-        'data_sources/',
-        views.SMBDirectoryListView.as_view(),
-        name='smb_directory_list',
-    ),
-    path(
-        'smb_files/',
-        views.SMBFileListView.as_view(),
-        name='smb_file_list',
-    ),
-    path(
-        'data_sources/smb_create',
-        views.SMBDirectoryCreateView.as_view(),
-        name='smb_directory_create',
-    ),
-    path(
-        'data_sources/smb_update/<int:pk>/',
-        views.sync_smb_directory,
-        name='smb_file_update',
-    ),
-    path(
-        'data_sources/smb_archive_all/',
-        views.archive_files,
-        name='smb_archive_all',
     ),
 ]

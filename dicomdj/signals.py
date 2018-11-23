@@ -1,6 +1,8 @@
+import os
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Instance, Patient
+from .models import Instance
 
 
 @receiver(post_save, sender=Instance)
@@ -15,22 +17,9 @@ def post_save_instance_model_receiver(sender, instance, created, *args,
                 instance.move_file()
                 instance.save()
             else:
-                Instance.objects.get(id=instance.id).delete()
+                os.remove(instance.file.path)
+                instance.delete()
         except Exception as e:
             print(
                 'failed to update DICOM fields with the following exception:')
-            print(e)
-
-
-@receiver(post_save, sender=Patient)
-def post_save_patient_model_receiver(sender, instance, created, *args,
-                                     **kwargs):
-    if created:
-        try:
-            instance.subject = instance.get_subject()
-            instance.save()
-        except Exception as e:
-            print(
-                'failed to get or create subject with the following exception:'
-            )
             print(e)

@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-from .validators import digits_and_dots_only
+from dicomdj.models.validators import digits_and_dots_only
 
 
 class Study(models.Model):
@@ -8,6 +8,7 @@ class Study(models.Model):
         max_length=64,
         unique=True,
         validators=[digits_and_dots_only],
+        verbose_name='Study UID',
     )
     description = models.CharField(max_length=64)
     date = models.DateField()

@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class DicomConfig(AppConfig):
+class DicomDjConfig(AppConfig):
     name = 'dicomdj'
 
     def ready(self):

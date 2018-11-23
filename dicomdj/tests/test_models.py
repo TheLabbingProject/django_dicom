@@ -3,15 +3,15 @@ import os
 import pydicom
 
 from datetime import date, time
-from django.core.files.uploadedfile import SimpleUploadedFile
-from dicom.models import Instance
-from django.test import TestCase
-from .factories import (
+from dicomdj.models import Instance
+from dicomdj.tests.factories import (
     InstanceFactory,
     get_test_file_path,
     TEST_FILES_PATH,
     SERIES_FILES,
 )
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
 
 
 class InstanceModelTestCase(TestCase):
@@ -141,8 +141,8 @@ class InstanceModelTestCase(TestCase):
         self.assertEqual(self.test_instance.patient,
                          self.test_instance.series.patient)
 
-    def test_patient_uid(self):
-        self.assertEqual(self.test_instance.patient.patient_uid,
+    def test_patient_id(self):
+        self.assertEqual(self.test_instance.patient.patient_id,
                          self.test_instance.headers.PatientID)
 
     def test_patient_given_name(self):
@@ -295,7 +295,7 @@ class PatientModelTestCase(TestCase):
         self.test_patient = test_instance.patient
 
     def test_str(self):
-        self.assertEqual(str(self.test_patient), self.test_patient.patient_uid)
+        self.assertEqual(str(self.test_patient), self.test_patient.patient_id)
 
     def test_name_id(self):
         first_name = self.test_patient.given_name
@@ -303,36 +303,12 @@ class PatientModelTestCase(TestCase):
         expected = f'{last_name[:2]}{first_name[:2]}'
         self.assertEqual(self.test_patient.get_name_id(), expected)
 
-    def test_getting_subject_attributes(self):
+    def test_getting_patient_attributes(self):
         expected = {
             'first_name': self.test_patient.given_name,
             'last_name': self.test_patient.family_name,
             'date_of_birth': self.test_patient.date_of_birth,
             'sex': self.test_patient.sex,
-            'id_number': self.test_patient.patient_uid,
+            'id_number': self.test_patient.patient_id,
         }
-        self.assertEqual(self.test_patient.get_subject_attributes(), expected)
-
-    def test_subject_created(self):
-        self.assertIsNotNone(self.test_patient.subject)
-
-    def test_get_subject_when_subject_field_is_set(self):
-        self.assertEqual(self.test_patient.subject,
-                         self.test_patient.get_subject())
-
-    def test_find_subject_when_subject_does_not_exist(self):
-        original_id = self.test_patient.patient_uid
-        self.test_patient.patient_uid = '012345678'
-        self.test_patient.save()
-        self.assertIsNone(self.test_patient.find_subject())
-        self.test_patient.patient_uid = original_id
-        self.test_patient.save()
-
-    def test_get_subject_when_subject_exists(self):
-        subject = self.test_patient.subject
-        self.test_patient.subject = None
-        self.test_patient.save()
-        self.assertIsNone(self.test_patient.subject)
-        self.assertEqual(self.test_patient.get_subject(), subject)
-        self.test_patient.subject = subject
-        self.test_patient.save()
+        self.assertEqual(self.test_patient.get_patient_attributes(), expected)
