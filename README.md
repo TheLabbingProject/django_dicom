@@ -17,7 +17,7 @@ Quick start
 <pre>
     INSTALLED_APPS = [  
         ...  
-        'dicom',  
+        'django_dicom',  
     ]  
 </pre>
 

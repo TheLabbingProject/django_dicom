@@ -3,8 +3,8 @@ import os
 import pydicom
 
 from datetime import date, time
-from dicomdj.models import Instance
-from dicomdj.tests.factories import (
+from django_dicom.models import Instance
+from django_dicom.tests.factories import (
     InstanceFactory,
     get_test_file_path,
     TEST_FILES_PATH,

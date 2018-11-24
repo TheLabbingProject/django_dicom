@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-from dicomdj.models.choices import Sex
+from django_dicom.models.choices import Sex
 
 
 class Patient(models.Model):

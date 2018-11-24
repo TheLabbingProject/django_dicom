@@ -1,6 +1,6 @@
 from django.urls import path
 
-from dicomdj import views
+from django_dicom import views
 
 urlpatterns = [
     path(

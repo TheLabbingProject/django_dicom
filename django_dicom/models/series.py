@@ -2,9 +2,9 @@ import numpy as np
 
 from django.db import models
 from django.urls import reverse
-from dicomdj.models.patient import Patient
-from dicomdj.models.study import Study
-from dicomdj.models.validators import digits_and_dots_only
+from django_dicom.models.patient import Patient
+from django_dicom.models.study import Study
+from django_dicom.models.validators import digits_and_dots_only
 
 
 class Series(models.Model):

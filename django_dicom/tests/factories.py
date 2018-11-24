@@ -2,7 +2,7 @@ import glob
 import factory
 import os
 
-from dicomdj.models import Instance
+from django_dicom.models import Instance
 
 TEST_FILES_PATH = './tests/files/'
 SERIES_DIR = os.path.abspath(os.path.join(TEST_FILES_PATH, 'whole_series'))

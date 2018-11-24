@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name='dicomdj',
+    name='django_dicom',
     version='0.1.0',
     packages=find_packages(),
     include_package_data=True,
@@ -16,7 +16,7 @@ setup(
     description='A simple Django app to manage DICOM files.',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url='https://github.com/ZviBaratz/dicomdj',
+    url='https://github.com/ZviBaratz/django_dicom',
     author='Zvi Baratz',
     author_email='z.baratz@gmail.com',
     keywords='django mri dicom dcm neuroimaging',

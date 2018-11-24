@@ -4,10 +4,10 @@ import shutil
 import zipfile
 
 from datetime import datetime
-from dicomdj.models.patient import Patient
-from dicomdj.models.series import Series
-from dicomdj.models.study import Study
-from dicomdj.models.validators import digits_and_dots_only
+from django_dicom.models.patient import Patient
+from django_dicom.models.series import Series
+from django_dicom.models.study import Study
+from django_dicom.models.validators import digits_and_dots_only
 from django.db.utils import IntegrityError
 from django.conf import settings
 from django.core.files.base import ContentFile

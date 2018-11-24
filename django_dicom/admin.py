@@ -1,5 +1,5 @@
 from django.contrib import admin
-from dicomdj.models import (
+from django_dicom.models import (
     Instance,
     Series,
     Study,
