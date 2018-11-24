@@ -9,6 +9,7 @@ yapf = "*"
 setuptools = "*"
 wheel = "*"
 twine = "*"
+keyring = "*"
 
 [packages]
 django = "*"

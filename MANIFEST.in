@@ -1,4 +1,4 @@
 include LICENSE
 include README.md
 recursive-include docs *
-recursive-include dicom/templates *
+recursive-include django_dicom/templates *
