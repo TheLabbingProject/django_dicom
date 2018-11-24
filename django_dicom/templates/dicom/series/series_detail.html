@@ -1,7 +1,6 @@
 {% extends "research/data/data_nav.html" %}
 
 {% block data-content %}
-    <hr>
     <p>Series UID: {{ object.series_uid }}</p>
     <p>Date: {{ object.date | date:"SHORT_DATE_FORMAT" }}&nbsp&nbsp&nbsp&nbsp&nbsp&nbspTime: {{ object.time | date:"TIME_FORMAT" }}</p>
     <p>Description: {{ object.description }}</p>
