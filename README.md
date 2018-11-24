@@ -12,7 +12,7 @@ The models are complemented with some utility methods to facilitate data access.
 Quick start
 -----------
 
-1. Add "dicom" to your INSTALLED_APPS setting like this::
+1. Add "django_dicom" to your INSTALLED_APPS setting like this::
 
 <pre>
     INSTALLED_APPS = [  
@@ -23,7 +23,9 @@ Quick start
 
 2. Include the dicom URLconf in your project urls.py like this::
 
+<pre>
     path('dicom/', include('django_dicom.urls')),
+</pre>
 
 3. Run `python manage.py migrate` to create the dicom models.
 
