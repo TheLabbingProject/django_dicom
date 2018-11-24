@@ -1,12 +1,6 @@
 {% extends "research/data/data_nav.html" %}
 
 {% block data-content %}
-    {% comment %} {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css'%}"> {% endcomment %}
-
-    <div>
-        {{ server_script | safe }}
-    </div>
     <hr>
     <p>Series UID: {{ object.series_uid }}</p>
     <p>Date: {{ object.date | date:"SHORT_DATE_FORMAT" }}&nbsp&nbsp&nbsp&nbsp&nbsp&nbspTime: {{ object.time | date:"TIME_FORMAT" }}</p>

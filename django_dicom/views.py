@@ -1,7 +1,3 @@
-import numpy as np
-
-from bokeh.embed import server_session
-from bokeh.util import session_id
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView
@@ -50,22 +46,6 @@ class InstancesCreateView(LoginRequiredMixin, FormView):
 class SeriesDetailView(LoginRequiredMixin, DetailView):
     model = Series
     template_name = 'dicom/series/series_detail.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(SeriesDetailView, self).get_context_data(**kwargs)
-        bokeh_server_url = 'http://127.0.0.1:5006/app'
-        data = context['object'].get_data()
-        np.save('/home/zvi/Projects/series_viewer/data', data)
-        server_script = server_session(
-            None,
-            session_id=session_id.generate_session_id(),
-            url=bokeh_server_url,
-        )
-        extra = {
-            'server_script': server_script,
-        }
-        context.update(extra)
-        return context
 
 
 class SeriesListView(LoginRequiredMixin, ListView):
