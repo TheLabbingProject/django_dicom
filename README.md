@@ -23,7 +23,7 @@ Quick start
 
 2. Include the dicom URLconf in your project urls.py like this::
 
-    path('dicom/', include('dicom.urls')),
+    path('dicom/', include('django_dicom.urls')),
 
 3. Run `python manage.py migrate` to create the dicom models.
 
