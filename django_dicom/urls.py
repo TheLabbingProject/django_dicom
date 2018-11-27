@@ -2,6 +2,8 @@ from django.urls import path
 
 from django_dicom import views
 
+app_name = 'django_dicom'
+
 urlpatterns = [
     path(
         'new/',
