@@ -33,12 +33,12 @@ urlpatterns = [
     path(
         'studies/',
         views.StudyListView.as_view(),
-        name='dicom_study_list',
+        name='study_list',
     ),
     path(
         'study/<int:pk>/',
         views.StudyDetailView.as_view(),
-        name='dicom_study_detail',
+        name='study_detail',
     ),
     path(
         'patients/',

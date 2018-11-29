@@ -16,24 +16,24 @@
             {% for dcm in object_list %}
                 <tr>
                     <td>
-                        <a href="{% url 'instance_detail' dcm.id %}">
+                        <a href="{% url 'dicom:instance_detail' dcm.id %}">
                             {{ dcm.id }}
                         </a>
                     </td>
                     <td>
-                        <a href="{% url 'dicom_study_detail' dcm.study.id %}">
+                        <a href="{% url 'dicom:study_detail' dcm.study.id %}">
                             {{ dcm.study.id }}
                         </a>
                         ({{ dcm.study.description }})
                     </td>
                     <td>
-                        <a href="{% url 'patient_detail' dcm.patient.id %}">
+                        <a href="{% url 'dicom:patient_detail' dcm.patient.id %}">
                             {{ dcm.patient.id }}
                         </a>
                         ({{ dcm.patient.patient_id }})
                     </td>
                     <td>
-                        <a href="{% url 'series_detail' dcm.series.id %}">
+                        <a href="{% url 'dicom:series_detail' dcm.series.id %}">
                             {{ dcm.series.id }}
                         </a>
                         ({{ dcm.series.description }})

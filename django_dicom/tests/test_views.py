@@ -132,7 +132,7 @@ class LoggedOutStudyViewTestCase(TestCase):
         self.test_study = instance.study
 
     def test_study_list_redirects_to_login(self):
-        url = reverse('dicom_study_list')
+        url = reverse('dicom:study_list')
         response = self.client.get(url, follow=True)
         self.assertRedirects(response, f'/accounts/login/?next={url}')
 
@@ -150,7 +150,7 @@ class LoggedInStudyViewTestCase(LoggedInTestCase):
         super(LoggedInStudyViewTestCase, self).setUp()
 
     def test_list_view(self):
-        response = self.client.get(reverse('dicom_study_list'))
+        response = self.client.get(reverse('dicom:study_list'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'dicom/studies/study_list.html')
 

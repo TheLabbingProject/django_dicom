@@ -19,7 +19,7 @@ class Study(models.Model):
         return self.study_uid
 
     def get_absolute_url(self):
-        return reverse('dicom_study_detail', args=[str(self.id)])
+        return reverse('dicom:study_detail', args=[str(self.id)])
 
     class Meta:
         verbose_name_plural = 'Studies'

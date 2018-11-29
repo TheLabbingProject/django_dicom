@@ -6,7 +6,7 @@
     <p>Description: {{ object.description }}</p>
     <p>
         Study: 
-        <a href="{% url 'dicom_study_detail' object.study.id %}">
+        <a href="{% url 'dicom:study_detail' object.study.id %}">
             {{ object.study }}
         </a>
     </p>

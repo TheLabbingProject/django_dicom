@@ -15,7 +15,7 @@
             {% for study in object_list %}
                 <tr>
                     <td>
-                        <a href="{% url 'dicom_study_detail' study.id %}">
+                        <a href="{% url 'dicom:study_detail' study.id %}">
                             {{ study.id }}
                         </a>
                     </td>
