@@ -84,7 +84,7 @@ class Instance(models.Model):
         return self.instance_uid
 
     def get_absolute_url(self):
-        return reverse('instance_detail', args=[str(self.id)])
+        return reverse('dicom:instance_detail', args=[str(self.id)])
 
     def read_data(self) -> pydicom.dataset.FileDataset:
         return pydicom.dcmread(self.file.path)

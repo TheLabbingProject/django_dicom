@@ -22,7 +22,7 @@ class Patient(models.Model):
         return self.patient_id
 
     def get_absolute_url(self):
-        return reverse('patient_detail', args=[str(self.id)])
+        return reverse('dicom:patient_detail', args=[str(self.id)])
 
     def get_name_id(self):
         return f'{self.family_name[:2]}{self.given_name[:2]}'

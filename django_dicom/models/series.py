@@ -29,7 +29,7 @@ class Series(models.Model):
         return self.series_uid
 
     def get_absolute_url(self):
-        return reverse('series_detail', args=[str(self.id)])
+        return reverse('dicom:series_detail', args=[str(self.id)])
 
     def get_data(self) -> np.ndarray:
         instances = self.instance_set.order_by('number')

@@ -24,7 +24,7 @@ class InstanceDetailView(LoginRequiredMixin, DetailView):
 class InstancesCreateView(LoginRequiredMixin, FormView):
     form_class = CreateInstancesForm
     template_name = 'dicom/instances/instances_create.html'
-    success_url = reverse_lazy('instance_list')
+    success_url = reverse_lazy('dicom:instance_list')
     temp_file_name = 'tmp.dcm'
     temp_zip_name = 'tmp.zip'
 
