@@ -21,7 +21,7 @@
             {% for series in object.series_set.all %}
                 <tr>
                     <td>
-                        <a href="{% url 'series_detail' series.id %}">
+                        <a href="{% url 'dicom:series_detail' series.id %}">
                             {{ series.id }}
                         </a>
                     </td>
@@ -29,7 +29,7 @@
                     <td>{{ series.series_uid }}</td>
                     <td>{{ series.description }}</td>
                     <td>
-                        <a href="{% url 'patient_detail' series.patient.id %}">
+                        <a href="{% url 'dicom:patient_detail' series.patient.id %}">
                             {{ series.patient }}
                         </a>
                     </td>

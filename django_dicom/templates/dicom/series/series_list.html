@@ -15,18 +15,18 @@
             {% for series in object_list %}
                 <tr>
                     <td>
-                        <a href="{% url 'series_detail' series.id %}">
+                        <a href="{% url 'dicom:series_detail' series.id %}">
                             {{ series.id }}
                         </a>
                     </td>
                     <td>
-                        <a href="{% url 'study_detail' series.study.id %}">
+                        <a href="{% url 'dicom:study_detail' series.study.id %}">
                             {{ series.study.id }}
                         </a>    
                         ({{ series.study.description }})
                     </td>
                     <td>
-                        <a href="{% url 'patient_detail' series.patient.id %}">
+                        <a href="{% url 'dicom:patient_detail' series.patient.id %}">
                             {{ series.patient.id }}
                         </a>
                         ({{ series.patient.get_name_id }})

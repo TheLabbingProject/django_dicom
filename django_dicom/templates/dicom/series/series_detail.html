@@ -12,7 +12,7 @@
     </p>
     <p>
         Patient: 
-        <a href="{% url 'patient_detail' object.patient.id %}">
+        <a href="{% url 'dicom:patient_detail' object.patient.id %}">
             {{ object.patient }}
         </a>
     </p>

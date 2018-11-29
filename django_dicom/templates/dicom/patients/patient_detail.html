@@ -9,7 +9,7 @@
     <p>Sex: {{ object.sex }}</p>
     {% if object.subject %}
         <p>Research Subject Instance: 
-            <a href="{% url 'subject_detail' object.subject.id %}">
+            <a href="{% url 'dicom:subject_detail' object.subject.id %}">
                 {{ object.subject }}
             </a>
         </p>
@@ -32,7 +32,7 @@
                     <td>{{ series.date | date:"SHORT_DATE_FORMAT"}}</td>
                     <td>{{ series.description }}</td>
                     <td>
-                        <a href="{% url 'series_detail' series.id %}">
+                        <a href="{% url 'dicom:series_detail' series.id %}">
                             {{ series.series_uid }}
                         </a>
                     </td>
