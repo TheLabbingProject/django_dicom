@@ -37,5 +37,12 @@ class Series(models.Model):
             [instance.read_data().pixel_array for instance in instances],
             axis=-1)
 
+    def to_dict(self):
+        return {
+            'id': f'series_{self.id}',
+            'icon': 'fas fa-flushed',
+            'text': self.description,
+        }
+
     class Meta:
         verbose_name_plural = 'Series'

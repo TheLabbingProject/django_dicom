@@ -35,3 +35,6 @@ class Patient(models.Model):
             'sex': self.sex,
             'id_number': self.patient_id,
         }
+
+    def to_tree(self) -> list:
+        return [series.to_dict() for series in self.series_set.all()]
