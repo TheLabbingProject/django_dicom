@@ -18,6 +18,13 @@ class Patient(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    subject = models.ForeignKey(
+        'research.Subject',
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        related_name='mri')
+
     def __str__(self):
         return self.patient_id
 

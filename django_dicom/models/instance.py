@@ -201,7 +201,7 @@ class Instance(models.Model):
 
     def get_default_file_name(self) -> str:
         return os.path.join(
-            'MRI', 
+            'MRI',
             self.headers.PatientID,
             self.headers.SeriesInstanceUID,
             'DICOM',

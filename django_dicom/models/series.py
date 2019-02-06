@@ -31,9 +31,17 @@ class Series(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     study = models.ForeignKey(
-        Study, blank=True, null=True, on_delete=models.PROTECT)
+        Study,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        related_name='series')
     patient = models.ForeignKey(
-        Patient, blank=True, null=True, on_delete=models.PROTECT)
+        Patient,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        related_name='series')
 
     def __str__(self):
         return self.series_uid
@@ -61,33 +69,38 @@ class Series(models.Model):
         return os.path.join(os.path.dirname(self.get_path()), 'NIfTI')
 
     def to_nifti(self, dest: str = None):
-        dcm2nii = getattr(DjangoDicomConfig, 'dcm2niix_path')
-        if dcm2nii:
-            if not dest:
-                dest = self.get_default_nifti_dir()
-                os.makedirs(dest, exist_ok=True)
-            command = [
-                dcm2nii, '-z', 'y', '-b', 'n', '-o', dest, '-f', f'{self.id}',
-                self.get_path()
-            ]
-            subprocess.check_output(command)
-            path = os.path.join(dest, f'{self.id}.nii.gz')
-            nifti_instance = NIfTI(path=path)
-            nifti_instance.save()
-            self.nifti = nifti_instance
-            self.save()
+        if not self.nifti:
+            dcm2nii = getattr(DjangoDicomConfig, 'dcm2niix_path')
+            if dcm2nii:
+                if not dest:
+                    dest = self.get_default_nifti_dir()
+                    os.makedirs(dest, exist_ok=True)
+                command = [
+                    dcm2nii, '-z', 'y', '-b', 'n', '-o', dest, '-f',
+                    f'{self.id}',
+                    self.get_path()
+                ]
+                subprocess.check_output(command)
+                path = os.path.join(dest, f'{self.id}.nii.gz')
+                nifti_instance = NIfTI(path=path)
+                nifti_instance.save()
+                self.nifti = nifti_instance
+                self.save()
+            else:
+                raise NotImplementedError(
+                    'Could not call dcm2niix! Please check settings configuration.'
+                )
         else:
-            raise NotImplementedError(
-                'Could not call dcm2niix! Please check settings configuration.'
-            )
+            return self.nifti
 
     def show(self):
         mricrogl_path = getattr(DjangoDicomConfig, 'mricrogl_path')
 
         if self.nifti is None:
             self.to_nifti()
-        with open('/home/zvi/Projects/django_dicom/django_dicom/template.gls',
-                  'r') as template_file:
+        with open(
+                '/home/flavus/Projects/django_dicom/django_dicom/template.gls',
+                'r') as template_file:
             template = template_file.read()
 
         edited = template.replace('FILE_PATH', self.nifti.path)

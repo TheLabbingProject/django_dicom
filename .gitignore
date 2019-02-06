@@ -40,3 +40,4 @@ htmlcov
 # DICOM files
 **.dcm
 **.zip
+venv
