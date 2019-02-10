@@ -19,6 +19,9 @@ class Series(models.Model):
         verbose_name='Series UID',
     )
     number = models.IntegerField(verbose_name='Series Number')
+    echo_time = models.FloatField(blank=True, null=True)
+    inversion_time = models.PositiveIntegerField(blank=True, null=True)
+
     date = models.DateField()
     time = models.TimeField()
     description = models.CharField(max_length=64)
@@ -111,6 +114,22 @@ class Series(models.Model):
         except subprocess.CalledProcessError:
             pass
         os.remove('tmp.gls')
+
+    def get_echo_time(self) -> float:
+        echo_times = self.instances.values_list(
+            'echo_time', flat=True).distinct()
+        if echo_times.count() != 1:
+            return None
+        else:
+            return echo_times[0]
+
+    def get_inversion_time(self) -> int:
+        inversion_times = self.instances.values_list(
+            'inversion_time', flat=True).distinct()
+        if inversion_times.count() != 1:
+            return None
+        else:
+            return inversion_times[0]
 
     class Meta:
         verbose_name_plural = 'Series'

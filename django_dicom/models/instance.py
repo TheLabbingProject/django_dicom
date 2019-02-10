@@ -70,13 +70,28 @@ class Instance(models.Model):
     )
     date = models.DateField(blank=True, null=True)
     time = models.TimeField(blank=True, null=True)
+    echo_time = models.FloatField(blank=True, null=True)
+    inversion_time = models.PositiveIntegerField(blank=True, null=True)
+
     uploaded_at = models.DateTimeField(auto_now_add=True)
     series = models.ForeignKey(
-        Series, blank=True, null=True, on_delete=models.PROTECT)
+        Series,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        related_name='instances')
     study = models.ForeignKey(
-        Study, blank=True, null=True, on_delete=models.PROTECT)
+        Study,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        related_name='instances')
     patient = models.ForeignKey(
-        Patient, blank=True, null=True, on_delete=models.PROTECT)
+        Patient,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        related_name='instances')
 
     objects = InstanceManager()
 
