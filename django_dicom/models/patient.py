@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django_dicom.apps import DjangoDicomConfig
 from django_dicom.models.choices import Sex
 
 
@@ -45,3 +46,15 @@ class Patient(models.Model):
 
     def to_tree(self) -> list:
         return [series.to_dict() for series in self.series_set.all()]
+
+    def get_anatomicals(self, by_date=True):
+        anatomicals = self.series.filter(DjangoDicomConfig.anatomical_query())
+        if by_date:
+            dates = anatomicals.values_list('date', flat=True).distinct()
+            return {date: anatomicals.filter(date=date) for date in dates}
+        return anatomicals
+
+    def get_inversion_recovery(self):
+        return self.series.filter(
+            DjangoDicomConfig.inversion_recovery_query()).order_by(
+                'inversion_time')
