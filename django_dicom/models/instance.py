@@ -70,8 +70,6 @@ class Instance(models.Model):
     )
     date = models.DateField(blank=True, null=True)
     time = models.TimeField(blank=True, null=True)
-    echo_time = models.FloatField(blank=True, null=True)
-    inversion_time = models.PositiveIntegerField(blank=True, null=True)
 
     uploaded_at = models.DateTimeField(auto_now_add=True)
     series = models.ForeignKey(

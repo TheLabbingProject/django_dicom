@@ -58,3 +58,7 @@ class Patient(models.Model):
         return self.series.filter(
             DjangoDicomConfig.inversion_recovery_query()).order_by(
                 'inversion_time')
+
+    # def get_anatomical(self):
+    #     anatomicals = self.get_anatomicals(by_date=True)
+    #     latest = max(anatomicals)
