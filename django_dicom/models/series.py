@@ -28,17 +28,13 @@ class Series(models.Model):
         verbose_name="Series UID",
     )
     number = models.IntegerField(
-        verbose_name="Series Number", validators=[MinValueValidator(0)]
-    )
+        verbose_name="Series Number", validators=[MinValueValidator(0)])
     echo_time = models.FloatField(
-        blank=True, null=True, validators=[MinValueValidator(0)]
-    )
+        blank=True, null=True, validators=[MinValueValidator(0)])
     inversion_time = models.FloatField(
-        blank=True, null=True, validators=[MinValueValidator(0)]
-    )
+        blank=True, null=True, validators=[MinValueValidator(0)])
     repetition_time = models.FloatField(
-        blank=True, null=True, validators=[MinValueValidator(0)]
-    )
+        blank=True, null=True, validators=[MinValueValidator(0)])
 
     SPIN_ECHO = "SE"
     INVERSION_RECOVERY = "IR"
@@ -62,24 +58,29 @@ class Series(models.Model):
     time = models.TimeField()
     description = models.CharField(max_length=64)
     nifti = models.OneToOneField(
-        "django_dicom.nifti", on_delete=models.CASCADE, blank=True, null=True
-    )
+        "django_dicom.nifti", on_delete=models.CASCADE, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     study = models.ForeignKey(
-        Study, blank=True, null=True, on_delete=models.PROTECT, related_name="series"
-    )
+        Study,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        related_name="series")
     patient = models.ForeignKey(
-        Patient, blank=True, null=True, on_delete=models.PROTECT, related_name="series"
-    )
+        Patient,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        related_name="series")
 
     ATTRIBUTE_FORMATTING = {
-        "InversionTime": int,
+        "InversionTime": float,
         "EchoTime": float,
-        "RepetitionTime": int,
-        "PixelBandwidth": int,
+        "RepetitionTime": float,
+        "PixelBandwidth": float,
         "SAR": float,
-        "FlipAngle": int,
+        "FlipAngle": float,
         "ScanningSequence": fix_scanning_sequence_value,
     }
 
@@ -92,8 +93,8 @@ class Series(models.Model):
     def get_data(self) -> np.ndarray:
         instances = self.instance_set.order_by("number")
         return np.stack(
-            [instance.read_data().pixel_array for instance in instances], axis=-1
-        )
+            [instance.read_data().pixel_array for instance in instances],
+            axis=-1)
 
     def to_dict(self):
         return {
@@ -146,8 +147,8 @@ class Series(models.Model):
         if self.nifti is None:
             self.to_nifti()
         with open(
-            "/home/flavus/Projects/django_dicom/django_dicom/template.gls", "r"
-        ) as template_file:
+                "/home/flavus/Projects/django_dicom/django_dicom/template.gls",
+                "r") as template_file:
             template = template_file.read()
 
         edited = template.replace("FILE_PATH", self.nifti.path)
@@ -184,6 +185,13 @@ class Series(models.Model):
             except (TypeError, KeyError):
                 pass
         return None
+
+    def get_scanning_sequence_display(self) -> list:
+        return [[
+            sequence_name
+            for sequence_code, sequence_name in self.SCANNING_SEQUENCE_CHOICES
+            if sequence_code == sequence_type
+        ][0] for sequence_type in self.scanning_sequence]
 
     class Meta:
         verbose_name_plural = "Series"
