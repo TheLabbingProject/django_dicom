@@ -159,7 +159,7 @@ class Series(models.Model):
             pass
         os.remove("tmp.gls")
 
-    def get_instances_values(self, field_name: str):
+    def get_instances_values(self, field_name):
         return {
             instance: instance.headers.get(field_name)
             for instance in self.instances.all()

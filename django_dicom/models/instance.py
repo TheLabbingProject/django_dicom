@@ -1,24 +1,27 @@
+import array
 import os
 import pydicom
 import shutil
 import zipfile
 
 from datetime import datetime
-from django_dicom.models.patient import Patient
-from django_dicom.models.series import Series
-from django_dicom.models.study import Study
-from django_dicom.models.validators import digits_and_dots_only
+from django.contrib.postgres.fields import ArrayField
+from django.core.validators import MinValueValidator
 from django.db.utils import IntegrityError
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import models
 from django.urls import reverse
+from django_dicom.models.patient import Patient
+from django_dicom.models.series import Series
+from django_dicom.models.study import Study
+from django_dicom.models.validators import digits_and_dots_only
 
 
 class InstanceManager(models.Manager):
     def from_dcm(self, file):
-        dest_name = default_storage.save('tmp.dcm', ContentFile(file.read()))
+        dest_name = default_storage.save("tmp.dcm", ContentFile(file.read()))
         instance = Instance()
         instance.file = dest_name
         try:
@@ -31,11 +34,11 @@ class InstanceManager(models.Manager):
         return instance
 
     def from_zip(self, file):
-        dest_name = default_storage.save('tmp.zip', ContentFile(file.read()))
+        dest_name = default_storage.save("tmp.zip", ContentFile(file.read()))
         dest_path = os.path.join(settings.MEDIA_ROOT, dest_name)
-        with zipfile.ZipFile(dest_path, 'r') as archive:
+        with zipfile.ZipFile(dest_path, "r") as archive:
             for file_name in archive.namelist():
-                if file_name.endswith('.dcm'):
+                if file_name.endswith(".dcm"):
                     with archive.open(file_name) as dcm_file:
                         self.from_dcm(dcm_file)
         os.remove(dest_path)
@@ -43,15 +46,19 @@ class InstanceManager(models.Manager):
     def from_local_directory(self, path: str):
         for directory, sub_directory, file_list in os.walk(path):
             for file_name in file_list:
-                if file_name.endswith('.dcm'):
+                if file_name.endswith(".dcm"):
                     full_path = os.path.join(directory, file_name)
-                    with open(full_path, 'rb') as f:
+                    with open(full_path, "rb") as f:
                         self.from_dcm(f)
+
+
+def fix_slice_timing(value: bytes) -> list:
+    return [round(slice_time, 5) for slice_time in list(array.array("d", value))]
 
 
 class Instance(models.Model):
     _headers = None
-    SEX_DICT = {'M': 'MALE', 'F': 'FEMALE', 'O': 'OTHER'}
+    SEX_DICT = {"M": "MALE", "F": "FEMALE", "O": "OTHER"}
 
     instance_uid = models.CharField(
         max_length=64,
@@ -59,17 +66,14 @@ class Instance(models.Model):
         blank=False,
         null=False,
         validators=[digits_and_dots_only],
-        verbose_name='Instance UID',
+        verbose_name="Instance UID",
     )
 
-    file = models.FileField(upload_to='dicom', blank=True)
-    number = models.IntegerField(
-        blank=True,
-        null=True,
-        verbose_name='Instance Number',
-    )
+    file = models.FileField(upload_to="dicom", blank=True)
+    number = models.IntegerField(blank=True, null=True, verbose_name="Instance Number")
     date = models.DateField(blank=True, null=True)
     time = models.TimeField(blank=True, null=True)
+    b_value = models.IntegerField(blank=True, null=True)
 
     uploaded_at = models.DateTimeField(auto_now_add=True)
     series = models.ForeignKey(
@@ -77,19 +81,18 @@ class Instance(models.Model):
         blank=True,
         null=True,
         on_delete=models.PROTECT,
-        related_name='instances')
+        related_name="instances",
+    )
     study = models.ForeignKey(
-        Study,
-        blank=True,
-        null=True,
-        on_delete=models.PROTECT,
-        related_name='instances')
+        Study, blank=True, null=True, on_delete=models.PROTECT, related_name="instances"
+    )
     patient = models.ForeignKey(
         Patient,
         blank=True,
         null=True,
         on_delete=models.PROTECT,
-        related_name='instances')
+        related_name="instances",
+    )
 
     objects = InstanceManager()
 
@@ -97,7 +100,7 @@ class Instance(models.Model):
         return self.instance_uid
 
     def get_absolute_url(self):
-        return reverse('dicom:instance_detail', args=[str(self.id)])
+        return reverse("dicom:instance_detail", args=[str(self.id)])
 
     def read_data(self) -> pydicom.dataset.FileDataset:
         return pydicom.dcmread(self.file.path)
@@ -114,7 +117,7 @@ class Instance(models.Model):
         :return: Date.
         :rtype: datetime.date
         """
-        return datetime.strptime(value, '%Y%m%d').date()
+        return datetime.strptime(value, "%Y%m%d").date()
 
     def parse_time_element(self, value: str) -> datetime.time:
         """
@@ -125,17 +128,17 @@ class Instance(models.Model):
         :return: Time.
         :rtype: datetime.time
         """
-        return datetime.strptime(value, '%H%M%S.%f').time()
+        return datetime.strptime(value, "%H%M%S.%f").time()
 
     def get_series_attributes(self) -> dict:
         return {
-            'series_uid': self.headers.SeriesInstanceUID,
-            'number': int(self.headers.SeriesNumber),
-            'date': self.parse_date_element(self.headers.SeriesDate),
-            'time': self.parse_time_element(self.headers.SeriesTime),
-            'description': self.headers.SeriesDescription,
-            'study': self.get_study(),
-            'patient': self.get_patient(),
+            "series_uid": self.headers.SeriesInstanceUID,
+            "number": int(self.headers.SeriesNumber),
+            "date": self.parse_date_element(self.headers.SeriesDate),
+            "time": self.parse_time_element(self.headers.SeriesTime),
+            "description": self.headers.SeriesDescription,
+            "study": self.get_study(),
+            "patient": self.get_patient(),
         }
 
     def create_series(self) -> Series:
@@ -150,10 +153,10 @@ class Instance(models.Model):
 
     def get_study_attributes(self) -> dict:
         return {
-            'study_uid': self.headers.StudyInstanceUID,
-            'date': self.parse_date_element(self.headers.StudyDate),
-            'time': self.parse_time_element(self.headers.StudyTime),
-            'description': self.headers.StudyDescription,
+            "study_uid": self.headers.StudyInstanceUID,
+            "date": self.parse_date_element(self.headers.StudyDate),
+            "time": self.parse_time_element(self.headers.StudyTime),
+            "description": self.headers.StudyDescription,
         }
 
     def create_study(self) -> Study:
@@ -168,22 +171,14 @@ class Instance(models.Model):
 
     def get_patient_attributes(self) -> dict:
         return {
-            'patient_id':
-            self.headers.PatientID,
-            'given_name':
-            self.headers.PatientName.given_name,
-            'family_name':
-            self.headers.PatientName.family_name,
-            'middle_name':
-            self.headers.PatientName.middle_name,
-            'name_prefix':
-            self.headers.PatientName.name_prefix,
-            'name_suffix':
-            self.headers.PatientName.name_suffix,
-            'date_of_birth':
-            self.parse_date_element(self.headers.PatientBirthDate),
-            'sex':
-            self.SEX_DICT[self.headers.PatientSex],
+            "patient_id": self.headers.PatientID,
+            "given_name": self.headers.PatientName.given_name,
+            "family_name": self.headers.PatientName.family_name,
+            "middle_name": self.headers.PatientName.middle_name,
+            "name_prefix": self.headers.PatientName.name_prefix,
+            "name_suffix": self.headers.PatientName.name_suffix,
+            "date_of_birth": self.parse_date_element(self.headers.PatientBirthDate),
+            "sex": self.SEX_DICT[self.headers.PatientSex],
         }
 
     def create_patient(self) -> Patient:
@@ -198,13 +193,13 @@ class Instance(models.Model):
 
     def get_attributes_from_file(self) -> dict:
         return {
-            'instance_uid': self.headers.SOPInstanceUID,
-            'number': int(self.headers.InstanceNumber),
-            'date': self.parse_date_element(self.headers.InstanceCreationDate),
-            'time': self.parse_time_element(self.headers.InstanceCreationTime),
-            'series': self.get_series(),
-            'study': self.get_study(),
-            'patient': self.get_patient(),
+            "instance_uid": self.headers.SOPInstanceUID,
+            "number": int(self.headers.InstanceNumber),
+            "date": self.parse_date_element(self.headers.InstanceCreationDate),
+            "time": self.parse_time_element(self.headers.InstanceCreationTime),
+            "series": self.get_series(),
+            "study": self.get_study(),
+            "patient": self.get_patient(),
         }
 
     def update_attributes_from_file(self) -> None:
@@ -214,11 +209,11 @@ class Instance(models.Model):
 
     def get_default_file_name(self) -> str:
         return os.path.join(
-            'MRI',
+            "MRI",
             self.headers.PatientID,
             self.headers.SeriesInstanceUID,
-            'DICOM',
-            f'{self.number}.dcm',
+            "DICOM",
+            f"{self.number}.dcm",
         )
 
     def move_file(self, new_name: str = None) -> None:
@@ -243,8 +238,24 @@ class Instance(models.Model):
         self.has_raw_backup = True
         self.save()
 
+    def get_slice_timing(self):
+        data_element = self.headers.get(("0019", "1029"))
+        if data_element:
+            return fix_slice_timing(data_element.value)
+        return None
+
+    def get_b_value(self) -> int:
+        data_element = self.headers.get(("0019", "100c"))
+        if data_element:
+            return int(data_element.value)
+        return None
+
     @property
     def headers(self):
         if self._headers is None:
             self._headers = self.read_headers()
         return self._headers
+
+    @property
+    def slice_timing(self):
+        return self.get_slice_timing()
