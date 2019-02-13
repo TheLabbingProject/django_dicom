@@ -32,17 +32,13 @@ class Series(models.Model):
         verbose_name="Series UID",
     )
     number = models.IntegerField(
-        verbose_name="Series Number", validators=[MinValueValidator(0)]
-    )
+        verbose_name="Series Number", validators=[MinValueValidator(0)])
     echo_time = models.FloatField(
-        blank=True, null=True, validators=[MinValueValidator(0)]
-    )
+        blank=True, null=True, validators=[MinValueValidator(0)])
     inversion_time = models.FloatField(
-        blank=True, null=True, validators=[MinValueValidator(0)]
-    )
+        blank=True, null=True, validators=[MinValueValidator(0)])
     repetition_time = models.FloatField(
-        blank=True, null=True, validators=[MinValueValidator(0)]
-    )
+        blank=True, null=True, validators=[MinValueValidator(0)])
 
     SPIN_ECHO = "SE"
     INVERSION_RECOVERY = "IR"
@@ -87,9 +83,12 @@ class Series(models.Model):
     )
 
     manufacturer = models.CharField(max_length=64, blank=True, null=True)
-    manufacturers_model_name = models.CharField(max_length=64, blank=True, null=True)
-    magnetic_field_strength = models.FloatField(validators=[MinValueValidator(0)])
-    device_serial_number = models.CharField(max_length=64, blank=True, null=True)
+    manufacturers_model_name = models.CharField(
+        max_length=64, blank=True, null=True)
+    magnetic_field_strength = models.FloatField(
+        validators=[MinValueValidator(0)])
+    device_serial_number = models.CharField(
+        max_length=64, blank=True, null=True)
     body_part_examined = models.CharField(max_length=16, blank=True, null=True)
 
     HEAD_FIRST_PRONE = "HFP"
@@ -127,15 +126,18 @@ class Series(models.Model):
         (POSTERIOR_FIRST_DECUBITUS_LEFT, "Posterior First-Decubitus Left"),
     )
     patient_position = models.CharField(
-        max_length=4, choices=PATIENT_POSITION_CHOICES, default=HEAD_FIRST_SUPINE
-    )
+        max_length=4,
+        choices=PATIENT_POSITION_CHOICES,
+        default=HEAD_FIRST_SUPINE)
 
     MR_ACQUISITION_2D = "2D"
     MR_ACQUISITION_3D = "3D"
-    MR_ACQUISITION_TYPE_CHOICES = ((MR_ACQUISITION_2D, "2D"), (MR_ACQUISITION_3D, "3D"))
+    MR_ACQUISITION_TYPE_CHOICES = ((MR_ACQUISITION_2D, "2D"),
+                                   (MR_ACQUISITION_3D, "3D"))
     mr_acquisition_type = models.CharField(
-        max_length=2, choices=MR_ACQUISITION_TYPE_CHOICES, default=MR_ACQUISITION_2D
-    )
+        max_length=2,
+        choices=MR_ACQUISITION_TYPE_CHOICES,
+        default=MR_ACQUISITION_2D)
 
     AUTOREFRACTION = "AR"
     CONTENT_ASSESSMENT__RESULTS = "ASMT"
@@ -239,7 +241,8 @@ class Series(models.Model):
         (MANUFACTURING_3D_MODEL, "Model for 3D Manufacturing"),
         (NUCLEAR_MEDICINE, "Nuclear Medicine"),
         (OPHTHALMIC_AXIAL_MEASUREMENTS, "Ophthalmic Axial Measurements"),
-        (OPTICAL_COHERENCE_TOMOGRAPHY, "Optical Coherence Tomography (non-Ophthalmic)"),
+        (OPTICAL_COHERENCE_TOMOGRAPHY,
+         "Optical Coherence Tomography (non-Ophthalmic)"),
         (OPHTHALMIC_PHOTOGRAPHY, "Ophthalmic Photography"),
         (OPHTHALMIC_MAPPING, "Ophthalmic Mapping"),
         (OPHTHALMIC_TOMOGRAPHY, "Ophthalmic Tomography"),
@@ -258,7 +261,8 @@ class Series(models.Model):
         (REGISTRATION, "Registration"),
         (RESPIRATORY_WAVEFORM, "Respiratory Waveform"),
         (RADIO_FLUOROSCOPY, "Radio Fluoroscopy"),
-        (RADIOGRAPHIC_IMAGING, "Radiographic imaging (conventional film/screen)"),
+        (RADIOGRAPHIC_IMAGING,
+         "Radiographic imaging (conventional film/screen)"),
         (RADIOTHERAPY_DOSE, "Radiotherapy Dose"),
         (RADIOTHERAPY_IMAGE, "Radiotherapy Image"),
         (RADIOTHERAPY_PLAN, "Radiotherapy Plan"),
@@ -278,23 +282,27 @@ class Series(models.Model):
         (EXTERNAL_CAMERA_PHOTOGRAPHY, "External-camera Photography"),
     )
     modality = models.CharField(
-        max_length=10, choices=MODALITY_CHOICES, default=MAGNETIC_RESONANCE
-    )
+        max_length=10, choices=MODALITY_CHOICES, default=MAGNETIC_RESONANCE)
 
     date = models.DateField()
     time = models.TimeField()
     description = models.CharField(max_length=64)
     nifti = models.OneToOneField(
-        "django_dicom.nifti", on_delete=models.CASCADE, blank=True, null=True
-    )
+        "django_dicom.nifti", on_delete=models.CASCADE, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     study = models.ForeignKey(
-        Study, blank=True, null=True, on_delete=models.PROTECT, related_name="series"
-    )
+        Study,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        related_name="series")
     patient = models.ForeignKey(
-        Patient, blank=True, null=True, on_delete=models.PROTECT, related_name="series"
-    )
+        Patient,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        related_name="series")
 
     ATTRIBUTE_FORMATTING = {
         "InstanceNumber": int,
@@ -319,10 +327,10 @@ class Series(models.Model):
         return reverse("dicom:series_detail", args=[str(self.id)])
 
     def get_data(self) -> np.ndarray:
-        instances = self.instance_set.order_by("number")
+        instances = self.instances.order_by("number")
         return np.stack(
-            [instance.read_data().pixel_array for instance in instances], axis=-1
-        )
+            [instance.read_data().pixel_array for instance in instances],
+            axis=-1)
 
     def to_dict(self):
         return {
@@ -332,7 +340,7 @@ class Series(models.Model):
         }
 
     def get_path(self):
-        return os.path.dirname(self.instance_set.first().file.path)
+        return os.path.dirname(self.instances.first().file.path)
 
     def get_default_nifti_dir(self):
         return os.path.join(os.path.dirname(self.get_path()), "NIfTI")
@@ -375,8 +383,8 @@ class Series(models.Model):
         if self.nifti is None:
             self.to_nifti()
         with open(
-            "/home/flavus/Projects/django_dicom/django_dicom/template.gls", "r"
-        ) as template_file:
+                "/home/flavus/Projects/django_dicom/django_dicom/template.gls",
+                "r") as template_file:
             template = template_file.read()
 
         edited = template.replace("FILE_PATH", self.nifti.path)
@@ -418,31 +426,30 @@ class Series(models.Model):
             values = self.get_instances_values(field_name)
             try:
                 return [
-                    self.ATTRIBUTE_FORMATTING[field_name](value) for value in values
+                    self.ATTRIBUTE_FORMATTING[field_name](value)
+                    for value in values
                 ]
             except (TypeError, KeyError):
                 return values
         return None
 
     def get_scanning_sequence_display(self) -> list:
-        return [
-            [
-                sequence_name
-                for sequence_code, sequence_name in self.SCANNING_SEQUENCE_CHOICES
-                if sequence_code == sequence_type
-            ][0]
-            for sequence_type in self.scanning_sequence
-        ]
+        return [[
+            sequence_name
+            for sequence_code, sequence_name in self.SCANNING_SEQUENCE_CHOICES
+            if sequence_code == sequence_type
+        ][0] for sequence_type in self.scanning_sequence]
 
     def get_gradient_directions(self):
-        return list(
-            zip(
-                *[
+        try:
+            return [
+                list(vector) for vector in zip(*[
                     instance.gradient_direction
                     for instance in self.instances.order_by("number").all()
-                ]
-            )
-        )
+                ])
+            ]
+        except TypeError:
+            return None
 
     class Meta:
         verbose_name_plural = "Series"
