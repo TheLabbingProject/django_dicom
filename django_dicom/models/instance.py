@@ -5,8 +5,6 @@ import shutil
 import zipfile
 
 from datetime import datetime
-from django.contrib.postgres.fields import ArrayField
-from django.core.validators import MinValueValidator
 from django.db.utils import IntegrityError
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -56,6 +54,10 @@ def fix_slice_timing(value: bytes) -> list:
     return [round(slice_time, 5) for slice_time in list(array.array("d", value))]
 
 
+def fix_gradient_direction(value: bytes) -> list:
+    return [float(value) for value in list(array.array("d", value))]
+
+
 class Instance(models.Model):
     _headers = None
     SEX_DICT = {"M": "MALE", "F": "FEMALE", "O": "OTHER"}
@@ -93,6 +95,18 @@ class Instance(models.Model):
         on_delete=models.PROTECT,
         related_name="instances",
     )
+
+    PROPERTY_TAGS = {
+        "slice_timing": ("0019", "1029"),
+        "gradient_direction": ("0019", "100e"),
+        "b_value": ("0019", "100c"),
+    }
+
+    PROPERTY_PARSERS = {
+        "slice_timing": fix_slice_timing,
+        "gradient_direction": fix_gradient_direction,
+        "b_value": int,
+    }
 
     objects = InstanceManager()
 
@@ -238,17 +252,23 @@ class Instance(models.Model):
         self.has_raw_backup = True
         self.save()
 
-    def get_slice_timing(self):
-        data_element = self.headers.get(("0019", "1029"))
+    def get_header_tag(self, property_name: str):
+        try:
+            return self.PROPERTY_TAGS[property_name]
+        except KeyError:
+            raise KeyError(
+                f"Invalid attribute name! {property_name} not in valid attribute list: {self.PROPERTY_TAGS.values()}"
+            )
+
+    def get_parsed_property(self, property_name: str):
+        tag = self.get_header_tag(property_name)
+        data_element = self.headers.get(tag)
         if data_element:
-            return fix_slice_timing(data_element.value)
+            return self.PROPERTY_PARSERS[property_name](data_element.value)
         return None
 
     def get_b_value(self) -> int:
-        data_element = self.headers.get(("0019", "100c"))
-        if data_element:
-            return int(data_element.value)
-        return None
+        return self.get_parsed_property("b_value")
 
     @property
     def headers(self):
@@ -258,4 +278,8 @@ class Instance(models.Model):
 
     @property
     def slice_timing(self):
-        return self.get_slice_timing()
+        return self.get_parsed_property("slice_timing")
+
+    @property
+    def gradient_direction(self):
+        return self.get_parsed_property("gradient_direction")
