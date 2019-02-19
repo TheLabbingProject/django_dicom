@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-from django_dicom.models.choices import Sex
+from django_dicom.models.code_strings import Sex
 
 
 class Patient(models.Model):
@@ -12,6 +12,7 @@ class Patient(models.Model):
     name_suffix = models.CharField(max_length=64, blank=True)
     date_of_birth = models.DateField()
     sex = models.CharField(max_length=6, choices=Sex.choices(), blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     subject = models.ForeignKey(

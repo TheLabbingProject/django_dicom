@@ -9,6 +9,11 @@ from django.urls import reverse
 from django_dicom.apps import DjangoDicomConfig
 from django_dicom.models.fields import ChoiceArrayField
 from django_dicom.models import help_text
+from django_dicom.models.code_strings import (
+    ScanningSequence,
+    SequenceVariant,
+    PatientPosition,
+)
 from django_dicom.models.nifti import NIfTI
 from django_dicom.models.study import Study
 from django_dicom.models.validators import digits_and_dots_only
@@ -93,51 +98,18 @@ class Series(models.Model):
     repetition_time = models.FloatField(
         blank=True, null=True, validators=[MinValueValidator(0)]
     )
-
-    SPIN_ECHO = "SE"
-    INVERSION_RECOVERY = "IR"
-    GRADIENT_RECALLED = "GR"
-    ECHO_PLANAR = "EP"
-    RESEARCH_MODE = "RM"
-    SCANNING_SEQUENCE_CHOICES = (
-        (SPIN_ECHO, "Spin Echo"),
-        (INVERSION_RECOVERY, "Inversion Recovery"),
-        (ECHO_PLANAR, "Echo Planar"),
-        (RESEARCH_MODE, "Research Mode"),
-    )
     scanning_sequence = ChoiceArrayField(
-        models.CharField(max_length=2, choices=SCANNING_SEQUENCE_CHOICES),
+        models.CharField(max_length=2, choices=ScanningSequence.choices()),
         size=5,
         blank=True,
         null=True,
     )
-
-    # Sequence Variant
-    SEGMENTED_K_SPACE = "SK"
-    MAGNETIZATION_TRANSFER_CONTRAST = "MTC"
-    STEADY_STATE = "SS"
-    TIME_REVERSED_STEADY_STATE = "TRSS"
-    SPOILED = "SP"
-    MAG_PREPARED = "MP"
-    OVERSAMPLING_PHASE = "OSP"
-    NO_SEQUENCE_VARIANT = "NONE"
-    SEQUENCE_VARIANT_CHOICES = (
-        (SEGMENTED_K_SPACE, "Segmented k-space"),
-        (MAGNETIZATION_TRANSFER_CONTRAST, "Magnetization Transfer Contrast"),
-        (STEADY_STATE, "Steady State"),
-        (TIME_REVERSED_STEADY_STATE, "Time Reversed Steady State"),
-        (SPOILED, "Spoiled"),
-        (MAG_PREPARED, "MAG Prepared"),
-        (OVERSAMPLING_PHASE, "Oversampling Phase"),
-        (NO_SEQUENCE_VARIANT, "None"),
-    )
     sequence_variant = ChoiceArrayField(
-        models.CharField(max_length=4, choices=SEQUENCE_VARIANT_CHOICES),
+        models.CharField(max_length=4, choices=SequenceVariant.choices()),
         blank=True,
         null=True,
         help_text=help_text.SEQUENCE_VARIANT,
     )
-
     pixel_spacing = ArrayField(
         models.FloatField(validators=[MinValueValidator(0)]),
         size=2,
@@ -145,49 +117,16 @@ class Series(models.Model):
         null=True,
         help_text=help_text.PIXEL_SPACING,
     )
-
     manufacturer = models.CharField(max_length=64, blank=True, null=True)
     manufacturers_model_name = models.CharField(max_length=64, blank=True, null=True)
     magnetic_field_strength = models.FloatField(validators=[MinValueValidator(0)])
     device_serial_number = models.CharField(max_length=64, blank=True, null=True)
     body_part_examined = models.CharField(max_length=16, blank=True, null=True)
 
-    HEAD_FIRST_PRONE = "HFP"
-    HEAD_FIRST_SUPINE = "HFS"
-    HEAD_FIRST_DECUBITUS_RIGHT = "HFDR"
-    HEAD_FIRST_DECUBITUS_LEFT = "HFDL"
-    FEET_FIRST_DECUBITUS_RIGHT = "FFDR"
-    FEET_FIRST_DECUBITUS_LEFT = "FFDL"
-    FEET_FIRST_PRONE = "FFP"
-    FEET_FIRST_SUPINE = "FFS"
-    LEFT_FIRST_PRONE = "LFP"
-    LEFT_FIRST_SUPINE = "LFS"
-    RIGHT_FIRST_PRONE = "RFP"
-    RIGHT_FIRST_SUPINE = "RFS"
-    ANTERIOR_FIRST_DECUBITUS_RIGHT = "AFDR"
-    ANTERIOR_FIRST_DECUBITUS_LEFT = "AFDL"
-    POSTERIOR_FIRST_DECUBITUS_RIGHT = "PFDR"
-    POSTERIOR_FIRST_DECUBITUS_LEFT = "PFDL"
-    PATIENT_POSITION_CHOICES = (
-        (HEAD_FIRST_PRONE, "Head First-Prone"),
-        (HEAD_FIRST_SUPINE, "Head First-Supine"),
-        (HEAD_FIRST_DECUBITUS_RIGHT, "Head First-Decubitus Right"),
-        (HEAD_FIRST_DECUBITUS_LEFT, "Head First-Decubitus Left"),
-        (FEET_FIRST_DECUBITUS_RIGHT, "Feet First-Decubitus Right"),
-        (FEET_FIRST_DECUBITUS_LEFT, "Feet First-Decubitus Left"),
-        (FEET_FIRST_PRONE, "Feet First-Prone"),
-        (FEET_FIRST_SUPINE, "Feet First-Supine"),
-        (LEFT_FIRST_PRONE, "Left First-Prone"),
-        (LEFT_FIRST_SUPINE, "Left First-Supine"),
-        (RIGHT_FIRST_PRONE, "Right First-Prone"),
-        (RIGHT_FIRST_SUPINE, "Right First-Supine"),
-        (ANTERIOR_FIRST_DECUBITUS_RIGHT, "Anterior First-Decubitus Right"),
-        (ANTERIOR_FIRST_DECUBITUS_LEFT, "Anterior First-Decubitus Left"),
-        (POSTERIOR_FIRST_DECUBITUS_RIGHT, "Posterior First-Decubitus Right"),
-        (POSTERIOR_FIRST_DECUBITUS_LEFT, "Posterior First-Decubitus Left"),
-    )
     patient_position = models.CharField(
-        max_length=4, choices=PATIENT_POSITION_CHOICES, default=HEAD_FIRST_SUPINE
+        max_length=4,
+        choices=PatientPosition.choices(),
+        default=PatientPosition.HFS.name,
     )
 
     MR_ACQUISITION_2D = "2D"
@@ -482,14 +421,7 @@ class Series(models.Model):
         return None
 
     def get_scanning_sequence_display(self) -> list:
-        return [
-            [
-                sequence_name
-                for sequence_code, sequence_name in self.SCANNING_SEQUENCE_CHOICES
-                if sequence_code == sequence_type
-            ][0]
-            for sequence_type in self.scanning_sequence
-        ]
+        return [ScanningSequence[name].value for name in self.scanning_sequence]
 
     def get_sequence_variant_display(self) -> list:
         return [

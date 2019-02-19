@@ -15,6 +15,7 @@ from django_dicom.models.patient import Patient
 from django_dicom.models.series import Series
 from django_dicom.models.study import Study
 from django_dicom.models.validators import digits_and_dots_only
+from django_dicom.models.value_representation import parse_element
 
 
 class InstanceManager(models.Manager):
@@ -83,18 +84,6 @@ class Instance(models.Model):
     patient = models.ForeignKey(
         Patient, blank=True, null=True, on_delete=models.PROTECT
     )
-
-    PROPERTY_TAGS = {
-        "slice_timing": ("0019", "1029"),
-        "gradient_direction": ("0019", "100e"),
-        "b_value": ("0019", "100c"),
-    }
-
-    PROPERTY_PARSERS = {
-        "slice_timing": fix_slice_timing,
-        "gradient_direction": fix_gradient_direction,
-        "b_value": int,
-    }
 
     objects = InstanceManager()
 
@@ -172,15 +161,16 @@ class Instance(models.Model):
         return study
 
     def get_patient_attributes(self) -> dict:
+        patient_name = self.get_header_value("PatientName")
         return {
-            "patient_id": self.headers.PatientID,
-            "given_name": self.headers.PatientName.given_name,
-            "family_name": self.headers.PatientName.family_name,
-            "middle_name": self.headers.PatientName.middle_name,
-            "name_prefix": self.headers.PatientName.name_prefix,
-            "name_suffix": self.headers.PatientName.name_suffix,
-            "date_of_birth": self.parse_date_element(self.headers.PatientBirthDate),
-            "sex": self.SEX_DICT[self.headers.PatientSex],
+            "patient_id": self.get_header_value("PatientID"),
+            "given_name": patient_name.given_name,
+            "family_name": patient_name.family_name,
+            "middle_name": patient_name.middle_name,
+            "name_prefix": patient_name.name_prefix,
+            "name_suffix": patient_name.name_suffix,
+            "date_of_birth": self.get_header_value("PatientBirthDate"),
+            "sex": self.get_header_value("PatientSex"),
         }
 
     def create_patient(self) -> Patient:
@@ -240,34 +230,37 @@ class Instance(models.Model):
         self.has_raw_backup = True
         self.save()
 
-    def get_header_tag(self, property_name: str):
-        try:
-            return self.PROPERTY_TAGS[property_name]
-        except KeyError:
-            raise KeyError(
-                f"Invalid attribute name! {property_name} not in valid attribute list: {self.PROPERTY_TAGS.values()}"
-            )
+    def get_header_element(self, tag_or_name) -> pydicom.dataelem.DataElement:
+        if type(tag_or_name) is str:
+            return self.headers.data_element(tag_or_name)
+        elif type(tag_or_name) is tuple:
+            return self.headers.get(tag_or_name)
 
-    def get_parsed_property(self, property_name: str):
-        tag = self.get_header_tag(property_name)
-        data_element = self.headers.get(tag)
-        if data_element:
-            return self.PROPERTY_PARSERS[property_name](data_element.value)
+    def get_raw_header_value(self, tag_or_name):
+        element = self.get_header_element(tag_or_name)
+        if element:
+            return element.value
+        return None
+
+    def get_header_value(self, tag_or_name):
+        element = self.get_header_element(tag_or_name)
+        if element:
+            return parse_element(element)
         return None
 
     def get_b_value(self) -> int:
-        return self.get_parsed_property("b_value")
+        return self.get_header_value(("0019", "100c"))
 
     @property
-    def headers(self):
+    def headers(self) -> pydicom.dataset.FileDataset:
         if self._headers is None:
             self._headers = self.read_headers()
         return self._headers
 
     @property
     def slice_timing(self):
-        return self.get_parsed_property("slice_timing")
+        return self.get_header_value(("0019", "1029"))
 
     @property
     def gradient_direction(self):
-        return self.get_parsed_property("gradient_direction")
+        return self.get_header_value(("0019", "100e"))
