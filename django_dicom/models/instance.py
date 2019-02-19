@@ -78,22 +78,10 @@ class Instance(models.Model):
     b_value = models.IntegerField(blank=True, null=True)
 
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    series = models.ForeignKey(
-        Series,
-        blank=True,
-        null=True,
-        on_delete=models.PROTECT,
-        related_name="instances",
-    )
-    study = models.ForeignKey(
-        Study, blank=True, null=True, on_delete=models.PROTECT, related_name="instances"
-    )
+    series = models.ForeignKey(Series, blank=True, null=True, on_delete=models.PROTECT)
+    study = models.ForeignKey(Study, blank=True, null=True, on_delete=models.PROTECT)
     patient = models.ForeignKey(
-        Patient,
-        blank=True,
-        null=True,
-        on_delete=models.PROTECT,
-        related_name="instances",
+        Patient, blank=True, null=True, on_delete=models.PROTECT
     )
 
     PROPERTY_TAGS = {

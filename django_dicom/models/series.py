@@ -2,18 +2,59 @@ import numpy as np
 import os
 import subprocess
 
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django_dicom.apps import DjangoDicomConfig
 from django_dicom.models.fields import ChoiceArrayField
+from django_dicom.models import help_text
 from django_dicom.models.nifti import NIfTI
-from django_dicom.models.patient import Patient
 from django_dicom.models.study import Study
 from django_dicom.models.validators import digits_and_dots_only
 
 
-def fix_scanning_sequence_value(value) -> list:
+class SeriesManager(models.Manager):
+    def get_anatomicals(self, by_date: bool = False):
+        anatomicals = self.filter(
+            scanning_sequence=[Series.GRADIENT_RECALLED, Series.INVERSION_RECOVERY]
+        ).order_by("date", "time")
+        if by_date:
+            dates = anatomicals.values_list("date", flat=True).distinct()
+            return {date: anatomicals.filter(date=date) for date in dates}
+        return anatomicals
+
+    def get_default_anatomical(self):
+        return (
+            self.get_anatomicals(by_date=False)
+            .order_by("-date", "pixel_spacing__0", "pixel_spacing__1")
+            .first()
+        )
+
+    def get_anatomicals_by_pixel_spacing(self, pixel_spacing: list):
+        return (
+            self.get_anatomicals()
+            .filter(pixel_spacing=pixel_spacing)
+            .order_by("-date", "description")
+        )
+
+    def get_inversion_recovery(self, by_date: bool = False):
+        inversion_recovery = self.filter(
+            scanning_sequence=[Series.ECHO_PLANAR, Series.INVERSION_RECOVERY],
+            repetition_time__gt=6000,
+        )
+        if by_date:
+            dates = inversion_recovery.values_list("date", flat=True).distinct()
+            return {date: inversion_recovery.filter(date=date) for date in dates}
+        return inversion_recovery
+
+    def get_latest_inversion_recovery_sequence(self):
+        return self.get_inversion_recovery(by_date=False).order_by(
+            "-date", "inversion_time"
+        )
+
+
+def to_list(value) -> list:
     if type(value) is str:
         return [value]
     else:
@@ -24,21 +65,34 @@ def replace_underscores_with_spaces(value: str):
     return value.replace("_", " ")
 
 
+def float_list(value: list):
+    return [float(dim_value) for dim_value in value]
+
+
 class Series(models.Model):
+    objects = SeriesManager()
+
     series_uid = models.CharField(
         max_length=64,
         unique=True,
         validators=[digits_and_dots_only],
         verbose_name="Series UID",
     )
+    date = models.DateField(help_text=help_text.SERIES_DATE)
+    time = models.TimeField(help_text=help_text.SERIES_TIME)
+    description = models.CharField(max_length=64)
     number = models.IntegerField(
-        verbose_name="Series Number", validators=[MinValueValidator(0)])
+        verbose_name="Series Number", validators=[MinValueValidator(0)]
+    )
     echo_time = models.FloatField(
-        blank=True, null=True, validators=[MinValueValidator(0)])
+        blank=True, null=True, validators=[MinValueValidator(0)]
+    )
     inversion_time = models.FloatField(
-        blank=True, null=True, validators=[MinValueValidator(0)])
+        blank=True, null=True, validators=[MinValueValidator(0)]
+    )
     repetition_time = models.FloatField(
-        blank=True, null=True, validators=[MinValueValidator(0)])
+        blank=True, null=True, validators=[MinValueValidator(0)]
+    )
 
     SPIN_ECHO = "SE"
     INVERSION_RECOVERY = "IR"
@@ -58,6 +112,7 @@ class Series(models.Model):
         null=True,
     )
 
+    # Sequence Variant
     SEGMENTED_K_SPACE = "SK"
     MAGNETIZATION_TRANSFER_CONTRAST = "MTC"
     STEADY_STATE = "SS"
@@ -80,15 +135,21 @@ class Series(models.Model):
         models.CharField(max_length=4, choices=SEQUENCE_VARIANT_CHOICES),
         blank=True,
         null=True,
+        help_text=help_text.SEQUENCE_VARIANT,
+    )
+
+    pixel_spacing = ArrayField(
+        models.FloatField(validators=[MinValueValidator(0)]),
+        size=2,
+        blank=True,
+        null=True,
+        help_text=help_text.PIXEL_SPACING,
     )
 
     manufacturer = models.CharField(max_length=64, blank=True, null=True)
-    manufacturers_model_name = models.CharField(
-        max_length=64, blank=True, null=True)
-    magnetic_field_strength = models.FloatField(
-        validators=[MinValueValidator(0)])
-    device_serial_number = models.CharField(
-        max_length=64, blank=True, null=True)
+    manufacturers_model_name = models.CharField(max_length=64, blank=True, null=True)
+    magnetic_field_strength = models.FloatField(validators=[MinValueValidator(0)])
+    device_serial_number = models.CharField(max_length=64, blank=True, null=True)
     body_part_examined = models.CharField(max_length=16, blank=True, null=True)
 
     HEAD_FIRST_PRONE = "HFP"
@@ -126,18 +187,15 @@ class Series(models.Model):
         (POSTERIOR_FIRST_DECUBITUS_LEFT, "Posterior First-Decubitus Left"),
     )
     patient_position = models.CharField(
-        max_length=4,
-        choices=PATIENT_POSITION_CHOICES,
-        default=HEAD_FIRST_SUPINE)
+        max_length=4, choices=PATIENT_POSITION_CHOICES, default=HEAD_FIRST_SUPINE
+    )
 
     MR_ACQUISITION_2D = "2D"
     MR_ACQUISITION_3D = "3D"
-    MR_ACQUISITION_TYPE_CHOICES = ((MR_ACQUISITION_2D, "2D"),
-                                   (MR_ACQUISITION_3D, "3D"))
+    MR_ACQUISITION_TYPE_CHOICES = ((MR_ACQUISITION_2D, "2D"), (MR_ACQUISITION_3D, "3D"))
     mr_acquisition_type = models.CharField(
-        max_length=2,
-        choices=MR_ACQUISITION_TYPE_CHOICES,
-        default=MR_ACQUISITION_2D)
+        max_length=2, choices=MR_ACQUISITION_TYPE_CHOICES, default=MR_ACQUISITION_2D
+    )
 
     AUTOREFRACTION = "AR"
     CONTENT_ASSESSMENT__RESULTS = "ASMT"
@@ -241,8 +299,7 @@ class Series(models.Model):
         (MANUFACTURING_3D_MODEL, "Model for 3D Manufacturing"),
         (NUCLEAR_MEDICINE, "Nuclear Medicine"),
         (OPHTHALMIC_AXIAL_MEASUREMENTS, "Ophthalmic Axial Measurements"),
-        (OPTICAL_COHERENCE_TOMOGRAPHY,
-         "Optical Coherence Tomography (non-Ophthalmic)"),
+        (OPTICAL_COHERENCE_TOMOGRAPHY, "Optical Coherence Tomography (non-Ophthalmic)"),
         (OPHTHALMIC_PHOTOGRAPHY, "Ophthalmic Photography"),
         (OPHTHALMIC_MAPPING, "Ophthalmic Mapping"),
         (OPHTHALMIC_TOMOGRAPHY, "Ophthalmic Tomography"),
@@ -261,8 +318,7 @@ class Series(models.Model):
         (REGISTRATION, "Registration"),
         (RESPIRATORY_WAVEFORM, "Respiratory Waveform"),
         (RADIO_FLUOROSCOPY, "Radio Fluoroscopy"),
-        (RADIOGRAPHIC_IMAGING,
-         "Radiographic imaging (conventional film/screen)"),
+        (RADIOGRAPHIC_IMAGING, "Radiographic imaging (conventional film/screen)"),
         (RADIOTHERAPY_DOSE, "Radiotherapy Dose"),
         (RADIOTHERAPY_IMAGE, "Radiotherapy Image"),
         (RADIOTHERAPY_PLAN, "Radiotherapy Plan"),
@@ -282,27 +338,18 @@ class Series(models.Model):
         (EXTERNAL_CAMERA_PHOTOGRAPHY, "External-camera Photography"),
     )
     modality = models.CharField(
-        max_length=10, choices=MODALITY_CHOICES, default=MAGNETIC_RESONANCE)
+        max_length=10, choices=MODALITY_CHOICES, default=MAGNETIC_RESONANCE
+    )
 
-    date = models.DateField()
-    time = models.TimeField()
-    description = models.CharField(max_length=64)
     nifti = models.OneToOneField(
-        "django_dicom.nifti", on_delete=models.CASCADE, blank=True, null=True)
+        "django_dicom.nifti", on_delete=models.CASCADE, blank=True, null=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
-    study = models.ForeignKey(
-        Study,
-        blank=True,
-        null=True,
-        on_delete=models.PROTECT,
-        related_name="series")
+    study = models.ForeignKey(Study, blank=True, null=True, on_delete=models.PROTECT)
     patient = models.ForeignKey(
-        Patient,
-        blank=True,
-        null=True,
-        on_delete=models.PROTECT,
-        related_name="series")
+        "django_dicom.Patient", blank=True, null=True, on_delete=models.PROTECT
+    )
 
     ATTRIBUTE_FORMATTING = {
         "InstanceNumber": int,
@@ -312,12 +359,14 @@ class Series(models.Model):
         "PixelBandwidth": float,
         "SAR": float,
         "FlipAngle": float,
-        "ScanningSequence": fix_scanning_sequence_value,
+        "ScanningSequence": to_list,
         "Manufacturer": str.capitalize,
         "ManufacturersModelName": str.capitalize,
         "MagneticFieldStrength": float,
         "InstitutionName": replace_underscores_with_spaces,
         "BodyPartExamined": str.capitalize,
+        "PixelSpacing": float_list,
+        "SequenceVariant": list,
     }
 
     def __str__(self):
@@ -327,10 +376,10 @@ class Series(models.Model):
         return reverse("dicom:series_detail", args=[str(self.id)])
 
     def get_data(self) -> np.ndarray:
-        instances = self.instances.order_by("number")
+        instances = self.instance_set.order_by("number")
         return np.stack(
-            [instance.read_data().pixel_array for instance in instances],
-            axis=-1)
+            [instance.read_data().pixel_array for instance in instances], axis=-1
+        )
 
     def to_dict(self):
         return {
@@ -340,7 +389,7 @@ class Series(models.Model):
         }
 
     def get_path(self):
-        return os.path.dirname(self.instances.first().file.path)
+        return os.path.dirname(self.instance_set.first().file.path)
 
     def get_default_nifti_dir(self):
         return os.path.join(os.path.dirname(self.get_path()), "NIfTI")
@@ -383,8 +432,8 @@ class Series(models.Model):
         if self.nifti is None:
             self.to_nifti()
         with open(
-                "/home/flavus/Projects/django_dicom/django_dicom/template.gls",
-                "r") as template_file:
+            "/home/flavus/Projects/django_dicom/django_dicom/template.gls", "r"
+        ) as template_file:
             template = template_file.read()
 
         edited = template.replace("FILE_PATH", self.nifti.path)
@@ -399,7 +448,7 @@ class Series(models.Model):
     def get_instances_values(self, field_name) -> list:
         return [
             instance.headers.get(field_name)
-            for instance in self.instances.order_by("number").all()
+            for instance in self.instance_set.order_by("number").all()
         ]
 
     def get_distinct_values(self, field_name: str) -> list:
@@ -426,27 +475,42 @@ class Series(models.Model):
             values = self.get_instances_values(field_name)
             try:
                 return [
-                    self.ATTRIBUTE_FORMATTING[field_name](value)
-                    for value in values
+                    self.ATTRIBUTE_FORMATTING[field_name](value) for value in values
                 ]
             except (TypeError, KeyError):
                 return values
         return None
 
     def get_scanning_sequence_display(self) -> list:
-        return [[
-            sequence_name
-            for sequence_code, sequence_name in self.SCANNING_SEQUENCE_CHOICES
-            if sequence_code == sequence_type
-        ][0] for sequence_type in self.scanning_sequence]
+        return [
+            [
+                sequence_name
+                for sequence_code, sequence_name in self.SCANNING_SEQUENCE_CHOICES
+                if sequence_code == sequence_type
+            ][0]
+            for sequence_type in self.scanning_sequence
+        ]
+
+    def get_sequence_variant_display(self) -> list:
+        return [
+            [
+                variant_name
+                for variant_code, variant_name in self.SEQUENCE_VARIANT_CHOICES
+                if variant_code == variant_type
+            ][0]
+            for variant_type in self.sequence_variant
+        ]
 
     def get_gradient_directions(self):
         try:
             return [
-                list(vector) for vector in zip(*[
-                    instance.gradient_direction
-                    for instance in self.instances.order_by("number").all()
-                ])
+                list(vector)
+                for vector in zip(
+                    *[
+                        instance.gradient_direction
+                        for instance in self.instance_set.order_by("number").all()
+                    ]
+                )
             ]
         except TypeError:
             return None
