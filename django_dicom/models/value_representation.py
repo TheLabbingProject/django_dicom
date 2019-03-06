@@ -2,6 +2,12 @@ import array
 import pydicom
 
 from datetime import datetime
+from django_dicom.models.code_strings import (
+    Sex,
+    PatientPosition,
+    ScanningSequence,
+    SequenceVariant,
+)
 from enum import Enum
 
 """
@@ -45,12 +51,6 @@ class ValueRepresentation(Enum):
     UNSIGNED_SHORT = "US"
     UNLIMITED_TEXT = "UT"
     UNSIGNED_64_BIT_VERY_LONG = "UV"
-
-
-class Sex(Enum):
-    MALE = "M"
-    FEMALE = "F"
-    OTHER = "O"
 
 
 N_IN_YEAR = {"Y": 1, "M": 12, "W": 52.1429, "D": 365.2422}
@@ -117,10 +117,22 @@ def parse_unknown(element: pydicom.dataelem.DataElement):
     return None
 
 
+CODE_STRINGS_DICT = {
+    "(0018, 5100)": PatientPosition,
+    "(0018, 0020)": ScanningSequence,
+    "(0018, 0021)": SequenceVariant,
+    "(0010, 0040)": Sex,
+}
+
+
 def parse_code_string(element: pydicom.dataelem.DataElement) -> str:
-    # Patient Sex
-    if element.tag == ("0010", "0040"):
-        return Sex(element.value).name.title()
+    element_enum = CODE_STRINGS_DICT.get(str(element.tag))
+    if element_enum:
+        try:
+            return element_enum[element.value].value
+        except TypeError:
+            return [element_enum[value].value for value in element.value]
+    return None
 
 
 PARSER_DICT = {

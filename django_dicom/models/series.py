@@ -10,6 +10,7 @@ from django_dicom.apps import DjangoDicomConfig
 from django_dicom.models.fields import ChoiceArrayField
 from django_dicom.models import help_text
 from django_dicom.models.code_strings import (
+    Modality,
     ScanningSequence,
     SequenceVariant,
     PatientPosition,
@@ -135,149 +136,8 @@ class Series(models.Model):
     mr_acquisition_type = models.CharField(
         max_length=2, choices=MR_ACQUISITION_TYPE_CHOICES, default=MR_ACQUISITION_2D
     )
-
-    AUTOREFRACTION = "AR"
-    CONTENT_ASSESSMENT__RESULTS = "ASMT"
-    AUDIO = "AU"
-    ULTRASOUND_BONE_DENSITOMETRY = "BDUS"
-    XRAY_BONE_DENSITOMETRY = "BMD"
-    BIOMAGNETIC_IMAGING = "BI"
-    COMPUTED_RADIOGRAPHY = "CR"
-    COMPUTED_TOMOGRAPHY = "CT"
-    COMPUTER_TOMOGRAPHY_PROTOCOL = "CTPROTOCOL"
-    DIAPHANOGRAPHY = "DG"
-    DOCUMENT = "DOC"
-    DIGITAL_RADIOGRAPHY = "DX"
-    ELECTROCARDIOGRAPHY = "ECG"
-    CARDIAC_ELECTROPHYSIOLOGY = "EPS"
-    ENDOSCOPY = "EDS"
-    FIDUCIALS = "FID"
-    GENERAL_MICROSCOPY = "GM"
-    HARD_COPY = "HC"
-    HEMODYNAMIC_WAVEFORM = "HD"
-    INTRAORAL_RADIOGRAPHY = "IO"
-    INTRAOCULAR_LENS_DATA = "IOL"
-    INTRAVASCULAR_OPTICAL_COHERENCE_TOMOGRAPHY = "IVOCT"
-    INTRAVASCULAR_ULTRASOUND = "IVUS"
-    KERATOMETRY = "KER"
-    KEY_OBJECT_SELECTION = "KO"
-    LENSOMETRY = "LEN"
-    LASER_SURFACE_SCAN = "LS"
-    MAMMOGRAPHY = "MG"
-    MAGNETIC_RESONANCE = "MR"
-    MANUFACTURING_3D_MODEL = "M3D"
-    NUCLEAR_MEDICINE = "NM"
-    OPHTHALMIC_AXIAL_MEASUREMENTS = "OAM"
-    OPTICAL_COHERENCE_TOMOGRAPHY = "OCT"
-    OPHTHALMIC_PHOTOGRAPHY = "OP"
-    OPHTHALMIC_MAPPING = "OPM"
-    OPHTHALMIC_TOMOGRAPHY = "OPT"
-    OPHTHALMIC_TOMOGRAPHY_B_SCAN_VOLUME_ANALYSIS = "OPTBSV"
-    OPHTHALMIC_TOMOGRAPHY_EN_FACE = "OPTENF"
-    OPHTHALMIC_VISUAL_FIELD = "OPV"
-    OPTICAL_SURFACE_SCAN = "OSS"
-    OTHER = "OT"
-    PLAN = "PLAN"
-    PRESENTATION_STATE = "PR"
-    POSITRON_EMISSION_TOMOGRAPHY = "PT"
-    PANORAMIC_XRAY = "PX"
-    REGISTRATION = "REG"
-    RESPIRATORY_WAVEFORM = "RESP"
-    RADIO_FLUOROSCOPY = "RF"
-    RADIOGRAPHIC_IMAGING = "RG"
-    RADIOTHERAPY_DOSE = "RTDOSE"
-    RADIOTHERAPY_IMAGE = "RTIMAGE"
-    RADIOTHERAPY_PLAN = "RTPLAN"
-    RADIOTHERAPY_TREATMENT_RECORD = "RTRECORD"
-    RADIOTHERAPY_STRUCTURE_SET = "RESTRUCT"
-    REAL_WORLD_VALUE_MAP = "RWV"
-    SEGMENTATION = "SEG"
-    SLIDE_MICROSCOPY = "SM"
-    STEREOMETRIC_RELATIONSHIP = "SMR"
-    SR_DOCUMENT = "SR"
-    SUBJECTIVE_REFRACTION = "SRF"
-    AUTOMATED_SLIDE_STAINER = "STAIN"
-    THERMOGRAPHY = "TG"
-    ULTRASOUND = "US"
-    VISUAL_ACUITY = "VA"
-    XRAY_ANGIOGRAPHY = "XA"
-    EXTERNAL_CAMERA_PHOTOGRAPHY = "XC"
-    MODALITY_CHOICES = (
-        (AUTOREFRACTION, "Autorefraction"),
-        (CONTENT_ASSESSMENT__RESULTS, "Content Assessment Results"),
-        (AUDIO, "Audio"),
-        (ULTRASOUND_BONE_DENSITOMETRY, "Bone Densitometry (ultrasound)"),
-        (BIOMAGNETIC_IMAGING, "Biomagnetic imaging"),
-        (XRAY_BONE_DENSITOMETRY, "Bone Densitometry (X-Ray)"),
-        (COMPUTED_RADIOGRAPHY, "Computed Radiography"),
-        (COMPUTED_TOMOGRAPHY, "Computed Tomography"),
-        (COMPUTER_TOMOGRAPHY_PROTOCOL, "CT Protocol (Performed)"),
-        (DIAPHANOGRAPHY, "Diaphanography"),
-        (DOCUMENT, "Document"),
-        (DIGITAL_RADIOGRAPHY, "Digital Radiography"),
-        (ELECTROCARDIOGRAPHY, "Electrocardiography"),
-        (CARDIAC_ELECTROPHYSIOLOGY, "Cardiac Electrophysiology"),
-        (ENDOSCOPY, "Endoscopy"),
-        (FIDUCIALS, "Fiducials"),
-        (GENERAL_MICROSCOPY, "General Microscopy"),
-        (HARD_COPY, "Hard Copy"),
-        (HEMODYNAMIC_WAVEFORM, "Hemodynamic Waveform"),
-        (INTRAORAL_RADIOGRAPHY, "Intra-Oral Radiography"),
-        (INTRAOCULAR_LENS_DATA, "Intraocular Lens Data"),
-        (
-            INTRAVASCULAR_OPTICAL_COHERENCE_TOMOGRAPHY,
-            "Intravascular Optical Coherence Tomography",
-        ),
-        (INTRAVASCULAR_ULTRASOUND, "Intravascular Ultrasound"),
-        (KERATOMETRY, "Keratometry"),
-        (KEY_OBJECT_SELECTION, "Key Object Selection"),
-        (LENSOMETRY, "Lensometry"),
-        (LASER_SURFACE_SCAN, "Laser surface scan"),
-        (MAMMOGRAPHY, "Mammography"),
-        (MAGNETIC_RESONANCE, "Magnetic Resonance"),
-        (MANUFACTURING_3D_MODEL, "Model for 3D Manufacturing"),
-        (NUCLEAR_MEDICINE, "Nuclear Medicine"),
-        (OPHTHALMIC_AXIAL_MEASUREMENTS, "Ophthalmic Axial Measurements"),
-        (OPTICAL_COHERENCE_TOMOGRAPHY, "Optical Coherence Tomography (non-Ophthalmic)"),
-        (OPHTHALMIC_PHOTOGRAPHY, "Ophthalmic Photography"),
-        (OPHTHALMIC_MAPPING, "Ophthalmic Mapping"),
-        (OPHTHALMIC_TOMOGRAPHY, "Ophthalmic Tomography"),
-        (
-            OPHTHALMIC_TOMOGRAPHY_B_SCAN_VOLUME_ANALYSIS,
-            "Ophthalmic Tomography B-scan Volume Analysis",
-        ),
-        (OPHTHALMIC_TOMOGRAPHY_EN_FACE, "Ophthalmic Tomography En Face"),
-        (OPHTHALMIC_VISUAL_FIELD, "Ophthalmic Visual Field"),
-        (OPTICAL_SURFACE_SCAN, "Optical Surface Scan"),
-        (OTHER, "Other"),
-        (PLAN, "Plan"),
-        (PRESENTATION_STATE, "Presentation State"),
-        (POSITRON_EMISSION_TOMOGRAPHY, "Positron emission tomography (PET)"),
-        (PANORAMIC_XRAY, "Panoramic X-Ray"),
-        (REGISTRATION, "Registration"),
-        (RESPIRATORY_WAVEFORM, "Respiratory Waveform"),
-        (RADIO_FLUOROSCOPY, "Radio Fluoroscopy"),
-        (RADIOGRAPHIC_IMAGING, "Radiographic imaging (conventional film/screen)"),
-        (RADIOTHERAPY_DOSE, "Radiotherapy Dose"),
-        (RADIOTHERAPY_IMAGE, "Radiotherapy Image"),
-        (RADIOTHERAPY_PLAN, "Radiotherapy Plan"),
-        (RADIOTHERAPY_TREATMENT_RECORD, "RT Treatment Record"),
-        (RADIOTHERAPY_STRUCTURE_SET, "Radiotherapy Structure Set"),
-        (REAL_WORLD_VALUE_MAP, "Real World Value Map"),
-        (SEGMENTATION, "Segmentation"),
-        (SLIDE_MICROSCOPY, "Slide Microscopy"),
-        (STEREOMETRIC_RELATIONSHIP, "Stereometric Relationship"),
-        (SR_DOCUMENT, "SR Document"),
-        (SUBJECTIVE_REFRACTION, "Subjective Refraction"),
-        (AUTOMATED_SLIDE_STAINER, "Automated Slide Stainer"),
-        (THERMOGRAPHY, "Thermography"),
-        (ULTRASOUND, "Ultrasound"),
-        (VISUAL_ACUITY, "Visual Acuity"),
-        (XRAY_ANGIOGRAPHY, "X-Ray Angiography"),
-        (EXTERNAL_CAMERA_PHOTOGRAPHY, "External-camera Photography"),
-    )
     modality = models.CharField(
-        max_length=10, choices=MODALITY_CHOICES, default=MAGNETIC_RESONANCE
+        max_length=10, choices=Modality.choices(), default=Modality.MR.name
     )
 
     nifti = models.OneToOneField(
@@ -424,14 +284,7 @@ class Series(models.Model):
         return [ScanningSequence[name].value for name in self.scanning_sequence]
 
     def get_sequence_variant_display(self) -> list:
-        return [
-            [
-                variant_name
-                for variant_code, variant_name in self.SEQUENCE_VARIANT_CHOICES
-                if variant_code == variant_type
-            ][0]
-            for variant_type in self.sequence_variant
-        ]
+        return [SequenceVariant[name].value for name in self.sequence_variant]
 
     def get_gradient_directions(self):
         try:
