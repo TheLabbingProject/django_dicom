@@ -225,33 +225,14 @@ class Series(models.Model):
         else:
             return self.nifti
 
-    def show(self):
-        mricrogl_path = getattr(DjangoDicomConfig, "mricrogl_path")
-
-        if self.nifti is None:
-            self.to_nifti()
-        with open(
-            "/home/flavus/Projects/django_dicom/django_dicom/template.gls", "r"
-        ) as template_file:
-            template = template_file.read()
-
-        edited = template.replace("FILE_PATH", self.nifti.path)
-        with open("tmp.gls", "w") as script:
-            script.write(edited)
-        try:
-            subprocess.check_call([mricrogl_path, "tmp.gls"])
-        except subprocess.CalledProcessError:
-            pass
-        os.remove("tmp.gls")
-
-    def get_instances_values(self, field_name) -> list:
+    def get_header_values(self, tag_or_keyword, parsed=False) -> list:
         return [
-            instance.headers.get(field_name)
+            instance.get_header_value(tag_or_keyword, parsed)
             for instance in self.instance_set.order_by("number").all()
         ]
 
-    def get_distinct_values(self, field_name: str) -> list:
-        values = self.get_instances_values(field_name)
+    def get_distinct_values(self, tag_or_keyword, parsed=False) -> list:
+        values = self.get_header_values(tag_or_keyword, parsed=parsed)
         if any(values):
             try:
                 return list(set(values))
@@ -263,18 +244,18 @@ class Series(models.Model):
                 return unique
         return None
 
-    def get_series_attribute(self, field_name: str):
-        distinct = self.get_distinct_values(field_name)
+    def get_series_attribute(self, tag_or_keyword: str):
+        distinct = self.get_distinct_values(tag_or_keyword, parsed=True)
         if distinct is not None and len(distinct) == 1:
             try:
-                return self.ATTRIBUTE_FORMATTING[field_name](distinct.pop())
+                return self.ATTRIBUTE_FORMATTING[tag_or_keyword](distinct.pop())
             except (TypeError, KeyError):
                 return distinct.pop()
         elif distinct is not None and len(distinct) > 1:
-            values = self.get_instances_values(field_name)
+            values = self.get_instances_values(tag_or_keyword)
             try:
                 return [
-                    self.ATTRIBUTE_FORMATTING[field_name](value) for value in values
+                    self.ATTRIBUTE_FORMATTING[tag_or_keyword](value) for value in values
                 ]
             except (TypeError, KeyError):
                 return values

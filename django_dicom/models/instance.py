@@ -99,27 +99,37 @@ class Instance(models.Model):
     def read_headers(self) -> pydicom.dataset.FileDataset:
         return pydicom.dcmread(self.file.path, stop_before_pixels=True)
 
-    def parse_date_element(self, value: str) -> datetime.date:
-        """
-        Parses DA elements to date objects.
+    def get_header_element_by_keyword(
+        self, keyword: str
+    ) -> pydicom.dataelem.DataElement:
+        return self.headers.data_element(keyword)
 
-        :param value: DA element value.
-        :type value: str
-        :return: Date.
-        :rtype: datetime.date
-        """
-        return datetime.strptime(value, "%Y%m%d").date()
+    def get_header_element_by_tag(self, tag: tuple) -> pydicom.dataelem.DataElement:
+        return self.headers.get(tag)
 
-    def parse_time_element(self, value: str) -> datetime.time:
-        """
-        Parses TM elements to time objects.
+    def get_header_element(self, tag_or_keyword) -> pydicom.dataelem.DataElement:
+        if type(tag_or_keyword) is str:
+            return self.get_header_element_by_keyword(tag_or_keyword)
+        elif type(tag_or_keyword) is tuple:
+            return self.get_header_element_by_tag(tag_or_keyword)
+        return None
 
-        :param value: TM element value.
-        :type value: str
-        :return: Time.
-        :rtype: datetime.time
-        """
-        return datetime.strptime(value, "%H%M%S.%f").time()
+    def get_raw_header_value(self, tag_or_keyword):
+        element = self.get_header_element(tag_or_keyword)
+        if element:
+            return element.value
+        return None
+
+    def get_parsed_header_value(self, tag_or_keyword):
+        element = self.get_header_element(tag_or_keyword)
+        if element:
+            return parse_element(element)
+        return None
+
+    def get_header_value(self, tag_or_keyword, parsed=True):
+        if parsed:
+            return self.get_parsed_header_value(tag_or_keyword)
+        return self.get_raw_header_value(tag_or_keyword)
 
     def get_series_attributes(self) -> dict:
         return {
@@ -229,24 +239,6 @@ class Instance(models.Model):
         shutil.copyfile(self.file.path, dest)
         self.has_raw_backup = True
         self.save()
-
-    def get_header_element(self, tag_or_name) -> pydicom.dataelem.DataElement:
-        if type(tag_or_name) is str:
-            return self.headers.data_element(tag_or_name)
-        elif type(tag_or_name) is tuple:
-            return self.headers.get(tag_or_name)
-
-    def get_raw_header_value(self, tag_or_name):
-        element = self.get_header_element(tag_or_name)
-        if element:
-            return element.value
-        return None
-
-    def get_header_value(self, tag_or_name):
-        element = self.get_header_element(tag_or_name)
-        if element:
-            return parse_element(element)
-        return None
 
     def get_b_value(self) -> int:
         return self.get_header_value(("0019", "100c"))

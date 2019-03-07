@@ -63,6 +63,14 @@ def parse_age_string(element: pydicom.dataelem.DataElement) -> float:
 
 
 def parse_date(element: pydicom.dataelem.DataElement) -> datetime.date:
+    """
+    Parses DA elements to date objects.
+
+    :param value: DA element value.
+    :type value: str
+    :return: Date.
+    :rtype: datetime.date
+    """
     return datetime.strptime(element.value, "%Y%m%d").date()
 
 
@@ -71,6 +79,14 @@ def parse_decimal_string(element: pydicom.dataelem.DataElement):
 
 
 def parse_time(element: pydicom.dataelem.DataElement) -> datetime.time:
+    """
+    Parses TM elements to time objects.
+
+    :param value: TM element value.
+    :type value: str
+    :return: Time.
+    :rtype: datetime.time
+    """
     return datetime.strptime(element.value, "%H%M%S.%f").time()
 
 
