@@ -1,13 +1,11 @@
 import numpy as np
 import os
-import subprocess
 
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
-from django_dicom.apps import DjangoDicomConfig
-from django_dicom.models.fields import ChoiceArrayField
+from django_dicom.interfaces import dcm2niix
 from django_dicom.models import help_text
 from django_dicom.models.code_strings import (
     Modality,
@@ -15,6 +13,7 @@ from django_dicom.models.code_strings import (
     SequenceVariant,
     PatientPosition,
 )
+from django_dicom.models.fields import ChoiceArrayField
 from django_dicom.models.nifti import NIfTI
 from django_dicom.models.study import Study
 from django_dicom.models.validators import digits_and_dots_only
@@ -60,23 +59,16 @@ class SeriesManager(models.Manager):
         )
 
 
-def to_list(value) -> list:
-    if type(value) is str:
-        return [value]
-    else:
-        return list(value)
-
-
-def replace_underscores_with_spaces(value: str):
-    return value.replace("_", " ")
-
-
-def float_list(value: list):
-    return [float(dim_value) for dim_value in value]
-
-
 class Series(models.Model):
     objects = SeriesManager()
+    HEADER_NAME = {
+        "series_uid": "SeriesInstanceUID",
+        "date": "SeriesDate",
+        "time": "SeriesTime",
+        "description": "SeriesDescription",
+        "number": "SeriesNumber",
+    }
+    # Find a simple to set all upon creation (from instance)
 
     series_uid = models.CharField(
         max_length=64,
@@ -123,13 +115,11 @@ class Series(models.Model):
     magnetic_field_strength = models.FloatField(validators=[MinValueValidator(0)])
     device_serial_number = models.CharField(max_length=64, blank=True, null=True)
     body_part_examined = models.CharField(max_length=16, blank=True, null=True)
-
     patient_position = models.CharField(
         max_length=4,
         choices=PatientPosition.choices(),
         default=PatientPosition.HFS.name,
     )
-
     MR_ACQUISITION_2D = "2D"
     MR_ACQUISITION_3D = "3D"
     MR_ACQUISITION_TYPE_CHOICES = ((MR_ACQUISITION_2D, "2D"), (MR_ACQUISITION_3D, "3D"))
@@ -139,8 +129,11 @@ class Series(models.Model):
     modality = models.CharField(
         max_length=10, choices=Modality.choices(), default=Modality.MR.name
     )
-
-    nifti = models.OneToOneField(
+    institution_name = models.CharField(max_length=64, blank=True, null=True)
+    protocol_name = models.CharField(max_length=64, blank=True, null=True)
+    sequence_name = models.CharField(max_length=16, blank=True, null=True)
+    flip_angle = models.FloatField()
+    _nifti = models.OneToOneField(
         "django_dicom.nifti", on_delete=models.CASCADE, blank=True, null=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
@@ -149,24 +142,6 @@ class Series(models.Model):
     patient = models.ForeignKey(
         "django_dicom.Patient", blank=True, null=True, on_delete=models.PROTECT
     )
-
-    ATTRIBUTE_FORMATTING = {
-        "InstanceNumber": int,
-        "InversionTime": float,
-        "EchoTime": float,
-        "RepetitionTime": float,
-        "PixelBandwidth": float,
-        "SAR": float,
-        "FlipAngle": float,
-        "ScanningSequence": to_list,
-        "Manufacturer": str.capitalize,
-        "ManufacturersModelName": str.capitalize,
-        "MagneticFieldStrength": float,
-        "InstitutionName": replace_underscores_with_spaces,
-        "BodyPartExamined": str.capitalize,
-        "PixelSpacing": float_list,
-        "SequenceVariant": list,
-    }
 
     def __str__(self):
         return self.series_uid
@@ -191,39 +166,27 @@ class Series(models.Model):
         return os.path.dirname(self.instance_set.first().file.path)
 
     def get_default_nifti_dir(self):
-        return os.path.join(os.path.dirname(self.get_path()), "NIfTI")
+        patient_directory = os.path.dirname(self.get_path())
+        return os.path.join(patient_directory, "NIfTI")
 
-    def to_nifti(self, dest: str = None):
-        if not self.nifti:
-            dcm2nii = getattr(DjangoDicomConfig, "dcm2niix_path")
-            if dcm2nii:
-                if not dest:
-                    dest = self.get_default_nifti_dir()
-                    os.makedirs(dest, exist_ok=True)
-                command = [
-                    dcm2nii,
-                    "-z",
-                    "y",
-                    "-b",
-                    "n",
-                    "-o",
-                    dest,
-                    "-f",
-                    f"{self.id}",
-                    self.get_path(),
-                ]
-                subprocess.check_output(command)
-                path = os.path.join(dest, f"{self.id}.nii.gz")
-                nifti_instance = NIfTI(path=path)
-                nifti_instance.save()
-                self.nifti = nifti_instance
-                self.save()
-            else:
-                raise NotImplementedError(
-                    "Could not call dcm2niix! Please check settings configuration."
-                )
-        else:
-            return self.nifti
+    def resolve_nifti_location(self, directory: str, name: str):
+        if not isinstance(directory, str):
+            directory = self.get_default_nifti_dir()
+            os.makedirs(directory, exist_ok=True)
+        if not os.path.isdir(directory):
+            raise FileNotFoundError(f"Invalid directory path: {directory}")
+        if not isinstance(name, str):
+            name = str(self.id)
+        return directory, name
+
+    def to_nifti(self, directory: str = None, name: str = None):
+        directory, name = self.resolve_nifti_location(directory, name)
+        nifti_path = dcm2niix.convert(self.get_path(), directory, name)
+        nifti_instance = NIfTI(path=nifti_path)
+        nifti_instance.save()
+        self._nifti = nifti_instance
+        self.save()
+        return self._nifti
 
     def get_header_values(self, tag_or_keyword, parsed=False) -> list:
         return [
@@ -247,18 +210,9 @@ class Series(models.Model):
     def get_series_attribute(self, tag_or_keyword: str):
         distinct = self.get_distinct_values(tag_or_keyword, parsed=True)
         if distinct is not None and len(distinct) == 1:
-            try:
-                return self.ATTRIBUTE_FORMATTING[tag_or_keyword](distinct.pop())
-            except (TypeError, KeyError):
-                return distinct.pop()
+            return distinct.pop()
         elif distinct is not None and len(distinct) > 1:
-            values = self.get_instances_values(tag_or_keyword)
-            try:
-                return [
-                    self.ATTRIBUTE_FORMATTING[tag_or_keyword](value) for value in values
-                ]
-            except (TypeError, KeyError):
-                return values
+            return distinct
         return None
 
     def get_scanning_sequence_display(self) -> list:
@@ -283,3 +237,10 @@ class Series(models.Model):
 
     class Meta:
         verbose_name_plural = "Series"
+
+    @property
+    def nifti(self):
+        if self._nifti:
+            return self._nifti
+        return self.to_nifti()
+

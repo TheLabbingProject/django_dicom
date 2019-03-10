@@ -74,8 +74,12 @@ def parse_date(element: pydicom.dataelem.DataElement) -> datetime.date:
     return datetime.strptime(element.value, "%Y%m%d").date()
 
 
-def parse_decimal_string(element: pydicom.dataelem.DataElement):
+def parse_decimal_string(element: pydicom.dataelem.DataElement) -> float:
     return float(element.value)
+
+
+def parse_integer_string(element: pydicom.dataelem.DataElement) -> int:
+    return int(element.value)
 
 
 def parse_time(element: pydicom.dataelem.DataElement) -> datetime.time:
@@ -142,12 +146,12 @@ CODE_STRINGS_DICT = {
 
 
 def parse_code_string(element: pydicom.dataelem.DataElement) -> str:
-    element_enum = CODE_STRINGS_DICT.get(str(element.tag))
-    if element_enum:
+    values_enum = CODE_STRINGS_DICT.get(str(element.tag))
+    if values_enum:
         try:
-            return element_enum[element.value].value
+            return values_enum[element.value].value
         except TypeError:
-            return [element_enum[value].value for value in element.value]
+            return [values_enum[value].value for value in element.value]
     return None
 
 
@@ -156,7 +160,8 @@ PARSER_DICT = {
     ValueRepresentation.DATE: parse_date,
     ValueRepresentation.TIME: parse_time,
     ValueRepresentation.DATE_TIME: parse_datetime,
-    ValueRepresentation.INTEGER_STRING: int,
+    ValueRepresentation.INTEGER_STRING: parse_integer_string,
+    ValueRepresentation.DECIMAL_STRING: parse_decimal_string,
     ValueRepresentation.SEQUENCE_OF_ITEMS: list,
     ValueRepresentation.UNKNOWN: parse_unknown,
     ValueRepresentation.CODE_STRING: parse_code_string,

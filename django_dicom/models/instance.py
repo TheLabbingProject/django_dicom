@@ -132,15 +132,22 @@ class Instance(models.Model):
         return self.get_raw_header_value(tag_or_keyword)
 
     def get_series_attributes(self) -> dict:
-        return {
-            "series_uid": self.headers.SeriesInstanceUID,
-            "number": int(self.headers.SeriesNumber),
-            "date": self.parse_date_element(self.headers.SeriesDate),
-            "time": self.parse_time_element(self.headers.SeriesTime),
-            "description": self.headers.SeriesDescription,
-            "study": self.get_study(),
-            "patient": self.get_patient(),
+        attributes = {
+            attribute_name: self.get_header_value(header_name)
+            for attribute_name, header_name in Series.HEADER_NAME
         }
+        attributes["study"] = self.get_study()
+        attributes["patient"] = self.get_patient()
+        return attributes
+        # return {
+        #     "series_uid": self.get_header_value("SeriesInstanceUID"),
+        #     "number": self.get_header_value("SeriesNumber"),
+        #     "date": self.parse_date_element(self.headers.SeriesDate),
+        #     "time": self.parse_time_element(self.headers.SeriesTime),
+        #     "description": self.headers.SeriesDescription,
+        #     "study": self.get_study(),
+        #     "patient": self.get_patient(),
+        # }
 
     def create_series(self) -> Series:
         return Series.objects.create(**self.get_series_attributes())
