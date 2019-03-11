@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
-from django_dicom.interfaces import dcm2niix
+from django_dicom.interfaces.dcm2niix import Dcm2niix
 from django_dicom.models import help_text
 from django_dicom.models.code_strings import (
     Modality,
@@ -61,12 +61,14 @@ class SeriesManager(models.Manager):
 
 class Series(models.Model):
     objects = SeriesManager()
+    NIfTI_DIR_NAME = "NIfTI"
     HEADER_NAME = {
         "series_uid": "SeriesInstanceUID",
         "date": "SeriesDate",
         "time": "SeriesTime",
         "description": "SeriesDescription",
         "number": "SeriesNumber",
+        "mr_acquisition_type": "MRAcquisitionType",
     }
     # Find a simple to set all upon creation (from instance)
 
@@ -111,8 +113,10 @@ class Series(models.Model):
         help_text=help_text.PIXEL_SPACING,
     )
     manufacturer = models.CharField(max_length=64, blank=True, null=True)
-    manufacturers_model_name = models.CharField(max_length=64, blank=True, null=True)
-    magnetic_field_strength = models.FloatField(validators=[MinValueValidator(0)])
+    manufacturer_model_name = models.CharField(max_length=64, blank=True, null=True)
+    magnetic_field_strength = models.FloatField(
+        validators=[MinValueValidator(0)], null=True, blank=True
+    )
     device_serial_number = models.CharField(max_length=64, blank=True, null=True)
     body_part_examined = models.CharField(max_length=16, blank=True, null=True)
     patient_position = models.CharField(
@@ -132,7 +136,7 @@ class Series(models.Model):
     institution_name = models.CharField(max_length=64, blank=True, null=True)
     protocol_name = models.CharField(max_length=64, blank=True, null=True)
     sequence_name = models.CharField(max_length=16, blank=True, null=True)
-    flip_angle = models.FloatField()
+    flip_angle = models.FloatField(null=True, blank=True)
     _nifti = models.OneToOneField(
         "django_dicom.nifti", on_delete=models.CASCADE, blank=True, null=True
     )
@@ -155,37 +159,65 @@ class Series(models.Model):
             [instance.read_data().pixel_array for instance in instances], axis=-1
         )
 
-    def to_dict(self):
+    def to_tree_node(self) -> dict:
         return {
             "id": f"series_{self.id}",
             "icon": "fas fa-flushed",
             "text": self.description,
         }
 
+    def update_attributes(self):
+        skip = [
+            models.OneToOneField,
+            models.ForeignKey,
+            models.AutoField,
+            models.ManyToOneRel,
+        ]
+        to_update = [
+            field
+            for field in self._meta.get_fields()
+            if not any(isinstance(field, field_type) for field_type in skip)
+        ]
+        for field in to_update:
+            header = self.HEADER_NAME.get(field.name) or "".join(
+                [part.title() for part in field.name.split("_")]
+            )
+            value = self.get_series_attribute(header)
+            if value:
+                setattr(self, field.name, value)
+
     def get_path(self):
         return os.path.dirname(self.instance_set.first().file.path)
 
     def get_default_nifti_dir(self):
         patient_directory = os.path.dirname(self.get_path())
-        return os.path.join(patient_directory, "NIfTI")
+        return os.path.join(patient_directory, self.NIfTI_DIR_NAME)
 
-    def resolve_nifti_location(self, directory: str, name: str):
-        if not isinstance(directory, str):
-            directory = self.get_default_nifti_dir()
-            os.makedirs(directory, exist_ok=True)
-        if not os.path.isdir(directory):
-            raise FileNotFoundError(f"Invalid directory path: {directory}")
-        if not isinstance(name, str):
-            name = str(self.id)
-        return directory, name
+    def get_default_nifti_name(self):
+        return str(self.id)
 
-    def to_nifti(self, directory: str = None, name: str = None):
-        directory, name = self.resolve_nifti_location(directory, name)
-        nifti_path = dcm2niix.convert(self.get_path(), directory, name)
-        nifti_instance = NIfTI(path=nifti_path)
+    def get_default_nifti_destination(self):
+        directory = self.get_default_nifti_dir()
+        name = self.get_default_nifti_name()
+        return os.path.join(directory, name)
+
+    def create_nifti_instance(self, path: str) -> NIfTI:
+        nifti_instance = NIfTI(path=path)
         nifti_instance.save()
-        self._nifti = nifti_instance
+        return nifti_instance
+
+    def associate_nifti_instance(self, instance: NIfTI) -> NIfTI:
+        self._nifti = instance
         self.save()
+        return self._nifti
+
+    def to_nifti(self, destination: str = None):
+        dcm2niix = Dcm2niix()
+        destination = destination or self.get_default_nifti_destination()
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        nifti_path = dcm2niix.convert(self.get_path(), destination)
+        nifti_instance = self.create_nifti_instance(nifti_path)
+        self.associate_nifti_instance(nifti_instance)
         return self._nifti
 
     def get_header_values(self, tag_or_keyword, parsed=False) -> list:
@@ -243,4 +275,3 @@ class Series(models.Model):
         if self._nifti:
             return self._nifti
         return self.to_nifti()
-

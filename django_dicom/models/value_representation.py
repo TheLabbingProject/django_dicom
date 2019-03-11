@@ -75,7 +75,10 @@ def parse_date(element: pydicom.dataelem.DataElement) -> datetime.date:
 
 
 def parse_decimal_string(element: pydicom.dataelem.DataElement) -> float:
-    return float(element.value)
+    try:
+        return float(element.value)
+    except TypeError:
+        return [float(value) for value in element.value]
 
 
 def parse_integer_string(element: pydicom.dataelem.DataElement) -> int:

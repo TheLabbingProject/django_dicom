@@ -4,9 +4,9 @@ import pydicom
 import shutil
 import zipfile
 
-from datetime import datetime
 from django.db.utils import IntegrityError
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import models
@@ -131,33 +131,9 @@ class Instance(models.Model):
             return self.get_parsed_header_value(tag_or_keyword)
         return self.get_raw_header_value(tag_or_keyword)
 
-    def get_series_attributes(self) -> dict:
-        attributes = {
-            attribute_name: self.get_header_value(header_name)
-            for attribute_name, header_name in Series.HEADER_NAME
-        }
-        attributes["study"] = self.get_study()
-        attributes["patient"] = self.get_patient()
-        return attributes
-        # return {
-        #     "series_uid": self.get_header_value("SeriesInstanceUID"),
-        #     "number": self.get_header_value("SeriesNumber"),
-        #     "date": self.parse_date_element(self.headers.SeriesDate),
-        #     "time": self.parse_time_element(self.headers.SeriesTime),
-        #     "description": self.headers.SeriesDescription,
-        #     "study": self.get_study(),
-        #     "patient": self.get_patient(),
-        # }
-
-    def create_series(self) -> Series:
-        return Series.objects.create(**self.get_series_attributes())
-
     def get_series(self) -> Series:
-        series_uid = self.headers.SeriesInstanceUID
-        series = Series.objects.filter(series_uid=series_uid).first()
-        if not series:
-            series = self.create_series()
-        return series
+        series_uid = self.get_header_value("SeriesInstanceUID")
+        return Series.objects.get_or_create(series_uid=series_uid)[0]
 
     def get_study_attributes(self) -> dict:
         return {

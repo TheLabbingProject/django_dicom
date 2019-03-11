@@ -42,7 +42,7 @@ class Patient(models.Model):
         }
 
     def to_tree(self) -> list:
-        return [series.to_dict() for series in self.series_set.all()]
+        return [series.to_tree_node() for series in self.series_set.all()]
 
     def get_anatomicals(self, by_date=False):
         return self.series_set.get_anatomicals(by_date)
