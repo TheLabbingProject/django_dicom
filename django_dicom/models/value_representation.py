@@ -152,9 +152,12 @@ def parse_code_string(element: pydicom.dataelem.DataElement) -> str:
     values_enum = CODE_STRINGS_DICT.get(str(element.tag))
     if values_enum:
         try:
-            return values_enum[element.value].value
+            value = values_enum[element.value].name
+            if element.keyword == "PatientSex":
+                return value
+            return [value]
         except TypeError:
-            return [values_enum[value].value for value in element.value]
+            return [values_enum[value].name for value in element.value]
     return None
 
 

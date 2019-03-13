@@ -106,7 +106,10 @@ class Instance(DicomEntity):
     def get_header_element_by_keyword(
         self, keyword: str
     ) -> pydicom.dataelem.DataElement:
-        return self.headers.data_element(keyword)
+        try:
+            return self.headers.data_element(keyword)
+        except KeyError:
+            return None
 
     def get_header_element_by_tag(self, tag: tuple) -> pydicom.dataelem.DataElement:
         return self.headers.get(tag)
@@ -135,70 +138,6 @@ class Instance(DicomEntity):
             return self.get_parsed_header_value(tag_or_keyword)
         return self.get_raw_header_value(tag_or_keyword)
 
-    # def get_series(self) -> Series:
-    #     series_uid = self.get_header_value("SeriesInstanceUID")
-    #     series, created = Series.objects.get_or_create(series_uid=series_uid)
-    #     if created:
-    #         series.update_fields_from_header()
-    #     return Series.objects.get_or_create(series_uid=series_uid)[0]
-
-    # def get_study_attributes(self) -> dict:
-    #     return {
-    #         "study_uid": self.headers.StudyInstanceUID,
-    #         "date": self.parse_date_element(self.headers.StudyDate),
-    #         "time": self.parse_time_element(self.headers.StudyTime),
-    #         "description": self.headers.StudyDescription,
-    #     }
-
-    # def create_study(self) -> Study:
-    #     return Study.objects.create(**self.get_study_attributes())
-
-    # def get_study(self) -> Study:
-    #     study_uid = self.headers.StudyInstanceUID
-    #     study = Study.objects.filter(study_uid=study_uid).first()
-    #     if not study:
-    #         study = self.create_study()
-    #     return study
-
-    # def get_patient_attributes(self) -> dict:
-    #     patient_name = self.get_header_value("PatientName")
-    #     return {
-    #         "patient_id": self.get_header_value("PatientID"),
-    #         "given_name": patient_name.given_name,
-    #         "family_name": patient_name.family_name,
-    #         "middle_name": patient_name.middle_name,
-    #         "name_prefix": patient_name.name_prefix,
-    #         "name_suffix": patient_name.name_suffix,
-    #         "date_of_birth": self.get_header_value("PatientBirthDate"),
-    #         "sex": self.get_header_value("PatientSex"),
-    #     }
-
-    # def create_patient(self) -> Patient:
-    #     return Patient.objects.create(**self.get_patient_attributes())
-
-    # def get_patient(self) -> Patient:
-    #     patient_id = self.headers.PatientID
-    #     patient = Patient.objects.filter(patient_id=patient_id).first()
-    #     if not patient:
-    #         patient = self.create_patient()
-    #     return patient
-
-    # def get_attributes_from_file(self) -> dict:
-    #     return {
-    #         "instance_uid": self.headers.SOPInstanceUID,
-    #         "number": int(self.headers.InstanceNumber),
-    #         "date": self.parse_date_element(self.headers.InstanceCreationDate),
-    #         "time": self.parse_time_element(self.headers.InstanceCreationTime),
-    #         "series": self.get_series(),
-    #         "study": self.get_study(),
-    #         "patient": self.get_patient(),
-    #     }
-
-    # def update_attributes_from_file(self) -> None:
-    #     attributes = self.get_attributes_from_file()
-    #     for key, value in attributes.items():
-    #         setattr(self, key, value)
-
     def update_fields_from_header(self, force=False):
         for field in self.get_model_header_fields():
             if not force and getattr(self, field.name, False):
@@ -210,39 +149,33 @@ class Instance(DicomEntity):
                     setattr(self, field.name, value)
 
     def get_or_create_series(self) -> Series:
+        series, created = Series.objects.get_or_create(
+            series_uid=self.headers.SeriesInstanceUID
+        )
         if not self.series:
-            series, created = Series.objects.get_or_create(
-                series_uid=self.headers.SeriesInstanceUID
-            )
             self.series = series
             self.save()
-            if created:
-                series.update_fields_from_header(force=False)
-                series.save()
+        self.series.save()
         return self.series
 
     def get_or_create_patient(self) -> Patient:
+        patient, created = Patient.objects.get_or_create(
+            patient_id=self.headers.PatientID
+        )
         if not self.patient:
-            patient, created = Patient.objects.get_or_create(
-                patient_id=self.headers.PatientID
-            )
             self.patient = patient
             self.save()
-            if created:
-                patient.update_fields_from_header(force=False)
-                patient.save()
+        self.patient.save()
         return self.patient
 
     def get_or_create_study(self) -> Study:
+        study, created = Study.objects.get_or_create(
+            study_uid=self.headers.StudyInstanceUID
+        )
         if not self.study:
-            study, created = Study.objects.get_or_create(
-                study_uid=self.headers.StudyInstanceUID
-            )
             self.study = study
             self.save()
-            if created:
-                study.update_fields_from_header(force=False)
-                study.save()
+        self.study.save()
         return self.study
 
     def get_default_file_name(self) -> str:
@@ -293,3 +226,10 @@ class Instance(DicomEntity):
     @property
     def gradient_direction(self):
         return self.get_header_value(("0019", "100e"))
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["instance_uid"]),
+            models.Index(fields=["date", "time"]),
+        ]
+

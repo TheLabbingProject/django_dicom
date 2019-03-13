@@ -6,13 +6,13 @@ from django_dicom.models.dicom_entity import DicomEntity
 
 class Patient(DicomEntity):
     patient_id = models.CharField(max_length=64, unique=True)
-    given_name = models.CharField(max_length=64, blank=True)
-    family_name = models.CharField(max_length=64, blank=True)
-    middle_name = models.CharField(max_length=64, blank=True)
-    name_prefix = models.CharField(max_length=64, blank=True)
-    name_suffix = models.CharField(max_length=64, blank=True)
-    date_of_birth = models.DateField()
-    sex = models.CharField(max_length=6, choices=Sex.choices(), blank=True)
+    given_name = models.CharField(max_length=64, blank=True, null=True)
+    family_name = models.CharField(max_length=64, blank=True, null=True)
+    middle_name = models.CharField(max_length=64, blank=True, null=True)
+    name_prefix = models.CharField(max_length=64, blank=True, null=True)
+    name_suffix = models.CharField(max_length=64, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    sex = models.CharField(max_length=6, choices=Sex.choices(), blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     subject = models.ForeignKey(
@@ -81,7 +81,7 @@ class Patient(DicomEntity):
             if header_name:
                 latest_value = self.get_latest_header_value(header_name)
                 if latest_value:
-                    setattr(self, header_name, latest_value)
+                    setattr(self, field.name, latest_value)
         self.update_patient_name(force=force)
 
     def to_tree(self) -> list:
@@ -101,3 +101,9 @@ class Patient(DicomEntity):
 
     def get_anatomicals_by_pixel_spacing(self, pixel_spacing: list):
         return self.series_set.get_anatomicals_by_pixel_spacing(pixel_spacing)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["patient_id"]),
+            models.Index(fields=["date_of_birth"]),
+        ]

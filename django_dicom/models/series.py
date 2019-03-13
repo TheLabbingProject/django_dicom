@@ -122,7 +122,6 @@ class Series(DicomEntity):
     )
     institution_name = models.CharField(max_length=64, blank=True, null=True)
     protocol_name = models.CharField(max_length=64, blank=True, null=True)
-    sequence_name = models.CharField(max_length=16, blank=True, null=True)
     flip_angle = models.FloatField(null=True, blank=True)
     MR_ACQUISITION_2D = "2D"
     MR_ACQUISITION_3D = "3D"
@@ -266,6 +265,10 @@ class Series(DicomEntity):
 
     class Meta:
         verbose_name_plural = "Series"
+        indexes = [
+            models.Index(fields=["series_uid"]),
+            models.Index(fields=["date", "time"]),
+        ]
 
     @property
     def nifti(self):

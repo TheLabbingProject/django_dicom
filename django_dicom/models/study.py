@@ -47,8 +47,9 @@ class Study(DicomEntity):
             if header_name:
                 latest_value = self.get_latest_header_value(header_name)
                 if latest_value:
-                    setattr(self, header_name, latest_value)
+                    setattr(self, field.name, latest_value)
 
     class Meta:
         verbose_name_plural = "Studies"
+        indexes = [models.Index(fields=["study_uid"])]
 
