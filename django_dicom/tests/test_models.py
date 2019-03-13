@@ -16,42 +16,42 @@ from django.test import TestCase
 
 class InstanceModelTestCase(TestCase):
     TEST_INSTANCES = [
-        'test',
-        'same_series',
-        'different_series',
-        'different_study_same_patient',
+        "test",
+        "same_series",
+        "different_series",
+        "different_study_same_patient",
         # 'different_patient_same_study',
-        'different_patient_different_study',
+        "different_patient_different_study",
     ]
 
     TEST_INSTANCE_UIDS = [
-        '1.3.12.2.1107.5.2.43.66024.2016120813110917216691062',
-        '1.3.12.2.1107.5.2.43.66024.2016120813113249580291102',
-        '1.3.12.2.1107.5.2.43.66024.2016120813140464245591454',
-        '1.3.12.2.1107.5.2.43.66024.2018050112252318571884482',
-        '1.3.12.2.1107.5.2.43.66024.2016121412223453546567775',
+        "1.3.12.2.1107.5.2.43.66024.2016120813110917216691062",
+        "1.3.12.2.1107.5.2.43.66024.2016120813113249580291102",
+        "1.3.12.2.1107.5.2.43.66024.2016120813140464245591454",
+        "1.3.12.2.1107.5.2.43.66024.2018050112252318571884482",
+        "1.3.12.2.1107.5.2.43.66024.2016121412223453546567775",
     ]
 
     ZIPPED_UIDS = [
-        '1.3.12.2.1107.5.2.43.66024.2016120813301385447497555',
-        '1.3.12.2.1107.5.2.43.66024.2016120813360043323300309',
-        '1.3.12.2.1107.5.2.43.66024.2016120813262299647895751',
-        '1.3.12.2.1107.5.2.43.66024.2016121412432166520775187',
-        '1.3.12.2.1107.5.2.43.66024.201612141317482895906735',
-        '1.3.12.2.1107.5.2.43.66024.2016121412485542898477604',
+        "1.3.12.2.1107.5.2.43.66024.2016120813301385447497555",
+        "1.3.12.2.1107.5.2.43.66024.2016120813360043323300309",
+        "1.3.12.2.1107.5.2.43.66024.2016120813262299647895751",
+        "1.3.12.2.1107.5.2.43.66024.2016121412432166520775187",
+        "1.3.12.2.1107.5.2.43.66024.201612141317482895906735",
+        "1.3.12.2.1107.5.2.43.66024.2016121412485542898477604",
     ]
 
     def setUp(self):
         self.create_all_test_instances()
 
     def load_uploaded_dcm(self):
-        with open(get_test_file_path('from_file'), 'rb') as test_file:
+        with open(get_test_file_path("from_file"), "rb") as test_file:
             return SimpleUploadedFile(test_file.name, test_file.read())
 
     def load_uploaded_zip(self):
-        relative_path = os.path.join(TEST_FILES_PATH, 'test.zip')
+        relative_path = os.path.join(TEST_FILES_PATH, "test.zip")
         source = os.path.abspath(relative_path)
-        with open(source, 'rb') as test_zip:
+        with open(source, "rb") as test_zip:
             return SimpleUploadedFile(test_zip.name, test_zip.read())
 
     def create_all_test_instances(self):
@@ -62,17 +62,17 @@ class InstanceModelTestCase(TestCase):
 
     def get_instance(self, name: str) -> Instance:
         index = self.TEST_INSTANCES.index(name)
-        return Instance.objects.get(
-            instance_uid=self.TEST_INSTANCE_UIDS[index])
+        return Instance.objects.get(instance_uid=self.TEST_INSTANCE_UIDS[index])
 
     def test_str(self):
         self.assertEqual(
-            str(self.test_instance), self.test_instance.headers.SOPInstanceUID)
+            str(self.test_instance), self.test_instance.headers.SOPInstanceUID
+        )
 
     def test_get_instance_data(self):
         data = self.test_instance.read_data()
         self.assertIsInstance(data, pydicom.dataset.FileDataset)
-        self.assertTrue(hasattr(data, 'pixel_array'))
+        self.assertTrue(hasattr(data, "pixel_array"))
 
     def test_get_instance_headers(self):
         data = self.test_instance.read_headers()
@@ -81,18 +81,20 @@ class InstanceModelTestCase(TestCase):
             data.pixel_array
 
     def test_instance_uid(self):
-        self.assertEqual(self.test_instance.instance_uid,
-                         self.test_instance.headers.SOPInstanceUID)
+        self.assertEqual(
+            self.test_instance.instance_uid, self.test_instance.headers.SOPInstanceUID
+        )
 
     def test_instance_number(self):
-        self.assertEqual(self.test_instance.number,
-                         self.test_instance.headers.InstanceNumber)
+        self.assertEqual(
+            self.test_instance.number, self.test_instance.headers.InstanceNumber
+        )
 
     def test_instance_date(self):
         self.assertEqual(self.test_instance.date, date(2016, 12, 8))
 
     def test_instance_time(self):
-        self.assertEqual(self.test_instance.time, time(13, 11, 9, 254000))
+        self.assertEqual(self.test_instance.time, time(13, 11, 9, 254_000))
 
     def test_series_creation(self):
         self.assertIsNotNone(self.test_instance.series)
@@ -103,26 +105,27 @@ class InstanceModelTestCase(TestCase):
         self.assertEqual(new_series_uid, expected_uid)
 
     def test_series_number(self):
-        self.assertEqual(self.test_instance.series.number,
-                         self.test_instance.headers.SeriesNumber)
+        self.assertEqual(
+            self.test_instance.series.number, self.test_instance.headers.SeriesNumber
+        )
 
     def test_series_date(self):
         self.assertEqual(self.test_instance.series.date, date(2016, 12, 8))
 
     def test_series_time(self):
-        self.assertEqual(self.test_instance.series.time, time(
-            13, 11, 9, 251000))
+        self.assertEqual(self.test_instance.series.time, time(13, 11, 9, 251_000))
 
     def test_series_description(self):
-        self.assertEqual(self.test_instance.series.description,
-                         self.test_instance.headers.SeriesDescription)
+        self.assertEqual(
+            self.test_instance.series.description,
+            self.test_instance.headers.SeriesDescription,
+        )
 
     def test_study_creation(self):
         self.assertIsNotNone(self.test_instance.study)
 
     def test_series_study_is_instance_study(self):
-        self.assertEqual(self.test_instance.study,
-                         self.test_instance.series.study)
+        self.assertEqual(self.test_instance.study, self.test_instance.series.study)
 
     def test_study_date(self):
         self.assertEqual(self.test_instance.study.date, date(2016, 12, 8))
@@ -131,96 +134,103 @@ class InstanceModelTestCase(TestCase):
         self.assertEqual(self.test_instance.study.time, time(13, 5, 56, 90000))
 
     def test_study_description(self):
-        self.assertEqual(self.test_instance.study.description,
-                         self.test_instance.headers.StudyDescription)
+        self.assertEqual(
+            self.test_instance.study.description,
+            self.test_instance.headers.StudyDescription,
+        )
 
     def test_patient_creation(self):
         self.assertIsNotNone(self.test_instance.patient)
 
     def test_series_patient_is_instance_patient(self):
-        self.assertEqual(self.test_instance.patient,
-                         self.test_instance.series.patient)
+        self.assertEqual(self.test_instance.patient, self.test_instance.series.patient)
 
     def test_patient_id(self):
-        self.assertEqual(self.test_instance.patient.patient_id,
-                         self.test_instance.headers.PatientID)
+        self.assertEqual(
+            self.test_instance.patient.patient_id, self.test_instance.headers.PatientID
+        )
 
     def test_patient_given_name(self):
-        self.assertEqual(self.test_instance.patient.given_name,
-                         self.test_instance.headers.PatientName.given_name)
+        self.assertEqual(
+            self.test_instance.patient.given_name,
+            self.test_instance.headers.PatientName.given_name,
+        )
 
     def test_patient_family_name(self):
-        self.assertEqual(self.test_instance.patient.family_name,
-                         self.test_instance.headers.PatientName.family_name)
+        self.assertEqual(
+            self.test_instance.patient.family_name,
+            self.test_instance.headers.PatientName.family_name,
+        )
 
     def test_patient_middle_name(self):
-        self.assertEqual(self.test_instance.patient.middle_name,
-                         self.test_instance.headers.PatientName.middle_name)
+        self.assertEqual(
+            self.test_instance.patient.middle_name,
+            self.test_instance.headers.PatientName.middle_name,
+        )
 
     def test_patient_name_prefix(self):
-        self.assertEqual(self.test_instance.patient.name_prefix,
-                         self.test_instance.headers.PatientName.name_prefix)
+        self.assertEqual(
+            self.test_instance.patient.name_prefix,
+            self.test_instance.headers.PatientName.name_prefix,
+        )
 
     def test_patient_name_suffix(self):
-        self.assertEqual(self.test_instance.patient.name_suffix,
-                         self.test_instance.headers.PatientName.name_suffix)
+        self.assertEqual(
+            self.test_instance.patient.name_suffix,
+            self.test_instance.headers.PatientName.name_suffix,
+        )
 
     def test_patient_birthdate(self):
         self.assertIsInstance(self.test_instance.patient.date_of_birth, date)
 
-    def test_patient_sex(self):
-        self.assertEqual(
-            self.test_instance.patient.sex,
-            Instance.SEX_DICT[self.test_instance.headers.PatientSex])
-
     def test_file_moved_to_default_location(self):
         default_location = self.test_instance.get_default_file_name()
-        self.assertTrue(
-            self.test_instance.file.path.endswith(default_location))
+        self.assertTrue(self.test_instance.file.path.endswith(default_location))
 
     def test_same_series_instance_has_same_series(self):
-        self.assertEqual(self.test_instance.series,
-                         self.same_series_instance.series)
+        self.assertEqual(self.test_instance.series, self.same_series_instance.series)
 
     def test_same_series_instance_has_same_patient(self):
-        self.assertEqual(self.test_instance.patient,
-                         self.same_series_instance.patient)
+        self.assertEqual(self.test_instance.patient, self.same_series_instance.patient)
 
     def test_same_series_instance_has_same_study(self):
-        self.assertEqual(self.test_instance.study,
-                         self.same_series_instance.study)
+        self.assertEqual(self.test_instance.study, self.same_series_instance.study)
 
     def test_different_series_instance_has_different_series(self):
-        self.assertNotEqual(self.test_instance.series,
-                            self.different_series_instance.series)
+        self.assertNotEqual(
+            self.test_instance.series, self.different_series_instance.series
+        )
 
     def test_different_series_instance_has_same_patient(self):
-        self.assertEqual(self.test_instance.patient,
-                         self.different_series_instance.patient)
+        self.assertEqual(
+            self.test_instance.patient, self.different_series_instance.patient
+        )
 
     def test_different_series_instance_has_same_study(self):
-        self.assertEqual(self.test_instance.study,
-                         self.different_series_instance.study)
+        self.assertEqual(self.test_instance.study, self.different_series_instance.study)
 
     def test_different_study_same_patient_instance_has_different_study(self):
-        self.assertNotEqual(self.test_instance.study,
-                            self.different_study_same_patient_instance.study)
+        self.assertNotEqual(
+            self.test_instance.study, self.different_study_same_patient_instance.study
+        )
 
     def test_different_study_same_patient_instance_has_same_patient(self):
-        self.assertEqual(self.test_instance.patient,
-                         self.different_study_same_patient_instance.patient)
+        self.assertEqual(
+            self.test_instance.patient,
+            self.different_study_same_patient_instance.patient,
+        )
 
-    def test_different_patient_different_study_instance_has_different_patient(
-            self):
+    def test_different_patient_different_study_instance_has_different_patient(self):
         self.assertNotEqual(
             self.test_instance.patient,
-            self.different_patient_different_study_instance.patient)
+            self.different_patient_different_study_instance.patient,
+        )
 
-    def test_different_patient_different_study_instance_has_different_study(
-            self):
+    def test_different_patient_different_study_instance_has_different_study(self):
         self.assertNotEqual(
             self.test_instance.study,
-            self.different_patient_different_study_instance.study)
+            self.different_patient_different_study_instance.study,
+        )
 
     def test_instance_creation_from_uploaded_dcm(self):
         uploaded_dcm = self.load_uploaded_dcm()
@@ -236,30 +246,30 @@ class InstanceModelTestCase(TestCase):
 
     @property
     def test_instance(self):
-        return self.get_instance('test')
+        return self.get_instance("test")
 
     @property
     def same_series_instance(self):
-        return self.get_instance('same_series')
+        return self.get_instance("same_series")
 
     @property
     def different_series_instance(self):
-        return self.get_instance('different_series')
+        return self.get_instance("different_series")
 
     @property
     def different_study_same_patient_instance(self):
-        return self.get_instance('different_study_same_patient')
+        return self.get_instance("different_study_same_patient")
 
     # TODO: Add different patient same study test
 
     @property
     def different_patient_different_study_instance(self):
-        return self.get_instance('different_patient_different_study')
+        return self.get_instance("different_patient_different_study")
 
 
 class StudyModelTestCase(TestCase):
     def setUp(self):
-        path = get_test_file_path('test')
+        path = get_test_file_path("test")
         test_instance = InstanceFactory(file__from_path=path)
         test_instance.save()
         self.test_study = test_instance.study
@@ -279,7 +289,7 @@ class SeriesModelTestCase(TestCase):
         self.assertEqual(str(self.test_series), self.test_series.series_uid)
 
     def test_verbose_name(self):
-        self.assertEqual(self.test_series._meta.verbose_name_plural, 'Series')
+        self.assertEqual(self.test_series._meta.verbose_name_plural, "Series")
 
     def test_getting_data(self):
         data = self.test_series.get_data()
@@ -289,7 +299,7 @@ class SeriesModelTestCase(TestCase):
 
 class PatientModelTestCase(TestCase):
     def setUp(self):
-        path = get_test_file_path('test')
+        path = get_test_file_path("test")
         test_instance = InstanceFactory(file__from_path=path)
         test_instance.save()
         self.test_patient = test_instance.patient
@@ -300,15 +310,15 @@ class PatientModelTestCase(TestCase):
     def test_name_id(self):
         first_name = self.test_patient.given_name
         last_name = self.test_patient.family_name
-        expected = f'{last_name[:2]}{first_name[:2]}'
+        expected = f"{last_name[:2]}{first_name[:2]}"
         self.assertEqual(self.test_patient.get_name_id(), expected)
 
     def test_getting_patient_attributes(self):
         expected = {
-            'first_name': self.test_patient.given_name,
-            'last_name': self.test_patient.family_name,
-            'date_of_birth': self.test_patient.date_of_birth,
-            'sex': self.test_patient.sex,
-            'id_number': self.test_patient.patient_id,
+            "first_name": self.test_patient.given_name,
+            "last_name": self.test_patient.family_name,
+            "date_of_birth": self.test_patient.date_of_birth,
+            "sex": self.test_patient.sex,
+            "id_number": self.test_patient.patient_id,
         }
         self.assertEqual(self.test_patient.get_patient_attributes(), expected)

@@ -13,10 +13,12 @@ from django_dicom.models.code_strings import (
     SequenceVariant,
     PatientPosition,
 )
+from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.fields import ChoiceArrayField
 from django_dicom.models.nifti import NIfTI
 from django_dicom.models.study import Study
 from django_dicom.models.validators import digits_and_dots_only
+from django_dicom.utils import snake_case_to_camel_case
 
 
 class SeriesManager(models.Manager):
@@ -59,30 +61,21 @@ class SeriesManager(models.Manager):
         )
 
 
-class Series(models.Model):
-    objects = SeriesManager()
-    NIfTI_DIR_NAME = "NIfTI"
-    HEADER_NAME = {
-        "series_uid": "SeriesInstanceUID",
-        "date": "SeriesDate",
-        "time": "SeriesTime",
-        "description": "SeriesDescription",
-        "number": "SeriesNumber",
-        "mr_acquisition_type": "MRAcquisitionType",
-    }
-    # Find a simple to set all upon creation (from instance)
-
+class Series(DicomEntity):
     series_uid = models.CharField(
         max_length=64,
         unique=True,
         validators=[digits_and_dots_only],
         verbose_name="Series UID",
     )
-    date = models.DateField(help_text=help_text.SERIES_DATE)
-    time = models.TimeField(help_text=help_text.SERIES_TIME)
-    description = models.CharField(max_length=64)
+    date = models.DateField(help_text=help_text.SERIES_DATE, blank=True, null=True)
+    time = models.TimeField(help_text=help_text.SERIES_TIME, blank=True, null=True)
+    description = models.CharField(max_length=64, blank=True, null=True)
     number = models.IntegerField(
-        verbose_name="Series Number", validators=[MinValueValidator(0)]
+        verbose_name="Series Number",
+        validators=[MinValueValidator(0)],
+        blank=True,
+        null=True,
     )
     echo_time = models.FloatField(
         blank=True, null=True, validators=[MinValueValidator(0)]
@@ -124,12 +117,6 @@ class Series(models.Model):
         choices=PatientPosition.choices(),
         default=PatientPosition.HFS.name,
     )
-    MR_ACQUISITION_2D = "2D"
-    MR_ACQUISITION_3D = "3D"
-    MR_ACQUISITION_TYPE_CHOICES = ((MR_ACQUISITION_2D, "2D"), (MR_ACQUISITION_3D, "3D"))
-    mr_acquisition_type = models.CharField(
-        max_length=2, choices=MR_ACQUISITION_TYPE_CHOICES, default=MR_ACQUISITION_2D
-    )
     modality = models.CharField(
         max_length=10, choices=Modality.choices(), default=Modality.MR.name
     )
@@ -137,6 +124,12 @@ class Series(models.Model):
     protocol_name = models.CharField(max_length=64, blank=True, null=True)
     sequence_name = models.CharField(max_length=16, blank=True, null=True)
     flip_angle = models.FloatField(null=True, blank=True)
+    MR_ACQUISITION_2D = "2D"
+    MR_ACQUISITION_3D = "3D"
+    MR_ACQUISITION_TYPE_CHOICES = ((MR_ACQUISITION_2D, "2D"), (MR_ACQUISITION_3D, "3D"))
+    mr_acquisition_type = models.CharField(
+        max_length=2, choices=MR_ACQUISITION_TYPE_CHOICES, default=MR_ACQUISITION_2D
+    )
     _nifti = models.OneToOneField(
         "django_dicom.nifti", on_delete=models.CASCADE, blank=True, null=True
     )
@@ -146,6 +139,18 @@ class Series(models.Model):
     patient = models.ForeignKey(
         "django_dicom.Patient", blank=True, null=True, on_delete=models.PROTECT
     )
+
+    objects = SeriesManager()
+
+    NIfTI_DIR_NAME = "NIfTI"
+    FIELD_TO_HEADER = {
+        "series_uid": "SeriesInstanceUID",
+        "date": "SeriesDate",
+        "time": "SeriesTime",
+        "description": "SeriesDescription",
+        "number": "SeriesNumber",
+        "mr_acquisition_type": "MRAcquisitionType",
+    }
 
     def __str__(self):
         return self.series_uid
@@ -166,23 +171,15 @@ class Series(models.Model):
             "text": self.description,
         }
 
-    def update_attributes(self):
-        skip = [
-            models.OneToOneField,
-            models.ForeignKey,
-            models.AutoField,
-            models.ManyToOneRel,
-        ]
-        to_update = [
-            field
-            for field in self._meta.get_fields()
-            if not any(isinstance(field, field_type) for field_type in skip)
-        ]
-        for field in to_update:
-            header = self.HEADER_NAME.get(field.name) or "".join(
-                [part.title() for part in field.name.split("_")]
-            )
-            value = self.get_series_attribute(header)
+    def update_fields_from_header(self, force=False):
+        for field in self.get_model_header_fields():
+            not_null = getattr(self, field.name, False)
+            if not force and not_null:
+                continue
+            header_name = self.FIELD_TO_HEADER.get(
+                field.name
+            ) or snake_case_to_camel_case(field.name)
+            value = self.get_series_attribute(header_name)
             if value:
                 setattr(self, field.name, value)
 
