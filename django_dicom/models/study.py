@@ -6,7 +6,6 @@ from django_dicom.models.validators import digits_and_dots_only
 
 class StudyManager(DicomEntityManager):
     UID_FIELD = "study_uid"
-    UID_HEADER = "StudyInstanceUID"
 
 
 class Study(DicomEntity):

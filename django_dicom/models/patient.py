@@ -6,7 +6,6 @@ from django_dicom.models.dicom_entity import DicomEntity, DicomEntityManager
 
 class PatientManager(DicomEntityManager):
     UID_FIELD = "patient_id"
-    UID_HEADER = "PatientID"
 
 
 class Patient(DicomEntity):

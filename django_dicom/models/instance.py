@@ -18,15 +18,8 @@ from django_dicom.models.validators import digits_and_dots_only
 from django_dicom.models.value_representation import parse_element
 
 
-def read_uid_from_from_file(path: str) -> str:
-    return pydicom.read_file(path, stop_before_pixels=True).get(
-        InstanceManager.UID_HEADER
-    )
-
-
 class InstanceManager(DicomEntityManager):
     UID_FIELD = "instance_uid"
-    UID_HEADER = "SOPInstanceUID"
 
     def from_dcm(self, file_object):
         content = ContentFile(file_object.read())
@@ -38,7 +31,7 @@ class InstanceManager(DicomEntityManager):
             # If the UID exists already, delete the temporary file and return
             # the existing instance
             temp_file_path = os.path.join(settings.MEDIA_ROOT, temp_file_name)
-            uid = read_uid_from_from_file(temp_file_path)
+            uid = instance.get_entity_uid_from_headers(Instance)
             os.remove(temp_file_path)
             return Instance.objects.get_by_uid(uid)
         return instance
@@ -169,7 +162,9 @@ class Instance(DicomEntity):
         return os.path.join("MRI", patient_id, series_uid, "DICOM", name)
 
     def get_entity_uid_from_headers(self, model: DicomEntity) -> str:
-        return self.get_header_value(model.objects.UID_HEADER)
+        field_name = model.objects.UID_FIELD
+        header_key = model.FIELD_TO_HEADER.get(field_name)
+        return self.get_header_value(header_key)
 
     def get_related_entity_field_name(self, model: DicomEntity) -> str:
         return model.__name__.lower()

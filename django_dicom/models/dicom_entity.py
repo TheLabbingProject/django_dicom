@@ -3,7 +3,6 @@ from django.db import models
 
 class DicomEntityManager(models.Manager):
     UID_FIELD = None
-    UID_HEADER = None
     NOT_HEADER_FIELD = {
         "types": (
             models.OneToOneField,

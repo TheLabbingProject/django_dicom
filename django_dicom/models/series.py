@@ -23,7 +23,6 @@ from django_dicom.utils import snake_case_to_camel_case
 
 class SeriesManager(DicomEntityManager):
     UID_FIELD = "series_uid"
-    UID_HEADER = "SeriesInstanceUID"
 
     def get_anatomicals(self, by_date: bool = False):
         anatomicals = self.filter(
