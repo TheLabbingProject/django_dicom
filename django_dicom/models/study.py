@@ -1,7 +1,12 @@
 from django.db import models
 from django.urls import reverse
-from django_dicom.models.dicom_entity import DicomEntity
+from django_dicom.models.dicom_entity import DicomEntity, DicomEntityManager
 from django_dicom.models.validators import digits_and_dots_only
+
+
+class StudyManager(DicomEntityManager):
+    UID_FIELD = "study_uid"
+    UID_HEADER = "StudyInstanceUID"
 
 
 class Study(DicomEntity):
@@ -15,6 +20,8 @@ class Study(DicomEntity):
     date = models.DateField()
     time = models.TimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = StudyManager()
 
     FIELD_TO_HEADER = {
         "study_uid": "StudyInstanceUID",

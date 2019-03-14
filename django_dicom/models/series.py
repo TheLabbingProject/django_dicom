@@ -3,7 +3,7 @@ import os
 
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
-from django.db import models
+from django.db import models, IntegrityError
 from django.urls import reverse
 from django_dicom.interfaces.dcm2niix import Dcm2niix
 from django_dicom.models import help_text
@@ -13,7 +13,7 @@ from django_dicom.models.code_strings import (
     SequenceVariant,
     PatientPosition,
 )
-from django_dicom.models.dicom_entity import DicomEntity
+from django_dicom.models.dicom_entity import DicomEntity, DicomEntityManager
 from django_dicom.models.fields import ChoiceArrayField
 from django_dicom.models.nifti import NIfTI
 from django_dicom.models.study import Study
@@ -21,7 +21,10 @@ from django_dicom.models.validators import digits_and_dots_only
 from django_dicom.utils import snake_case_to_camel_case
 
 
-class SeriesManager(models.Manager):
+class SeriesManager(DicomEntityManager):
+    UID_FIELD = "series_uid"
+    UID_HEADER = "SeriesInstanceUID"
+
     def get_anatomicals(self, by_date: bool = False):
         anatomicals = self.filter(
             scanning_sequence=[Series.GRADIENT_RECALLED, Series.INVERSION_RECOVERY]
@@ -262,6 +265,37 @@ class Series(DicomEntity):
             ]
         except TypeError:
             return None
+
+    def get_related_entity_field_name(self, model: DicomEntity) -> str:
+        return model.__name__.lower()
+
+    def has_relation(self, model: DicomEntity) -> bool:
+        field_name = self.get_related_entity_field_name(model)
+        value = getattr(self, field_name, None)
+        if isinstance(value, model):
+            return True
+        return False
+
+    def relate_entity(self, entity_instance: DicomEntity):
+        model = type(entity_instance)
+        field_name = self.get_related_entity_field_name(model)
+        setattr(self, field_name, entity_instance)
+
+    def check_uniqueness_in_instance_set(self, field_name: str) -> bool:
+        distinct_count = self.instance_set.values(field_name).distinct().count()
+        if distinct_count != 1:
+            return False
+        return True
+
+    # def relate_entity(self, model: DicomEntity) -> DicomEntity:
+    #     field_name = self.get_related_entity_field_name(model)
+    #     is_unique = self.check_uniqueness_in_instance_set(field_name)
+    #     if is_unique:
+    #         sample_instance = self.instance_set.last()
+    #         entity_instance = sample_instance.get_or_create_related_entity(model)
+    #         setattr(self, field_name, entity_instance)
+    #     else:
+    #         raise IntegrityError(f"Failed to determine {field_name}!")
 
     class Meta:
         verbose_name_plural = "Series"
