@@ -76,7 +76,6 @@ class Instance(DicomEntity):
     number = models.IntegerField(blank=True, null=True, verbose_name="Instance Number")
     date = models.DateField(blank=True, null=True)
     time = models.TimeField(blank=True, null=True)
-    b_value = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     series = models.ForeignKey(Series, blank=True, null=True, on_delete=models.PROTECT)
@@ -200,7 +199,8 @@ class Instance(DicomEntity):
 
     def update_related_from_headers(self, force: bool = False):
         for model in (Series, Patient, Study):
-            relation = getattr(self, model.__name__.lower(), None)
+            field_name = self.get_related_entity_field_name(model)
+            relation = getattr(self, field_name, None)
             if isinstance(relation, model):
                 relation.update_fields_from_header(force=force)
                 relation.save()
