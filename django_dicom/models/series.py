@@ -3,7 +3,7 @@ import os
 
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
-from django.db import models, IntegrityError
+from django.db import models
 from django.urls import reverse
 from django_dicom.interfaces.dcm2niix import Dcm2niix
 from django_dicom.models import help_text
@@ -26,7 +26,7 @@ class SeriesManager(DicomEntityManager):
 
     def get_anatomicals(self, by_date: bool = False):
         anatomicals = self.filter(
-            scanning_sequence=[Series.GRADIENT_RECALLED, Series.INVERSION_RECOVERY]
+            scanning_sequence=[ScanningSequence.GR.name, ScanningSequence.IR.name]
         ).order_by("date", "time")
         if by_date:
             dates = anatomicals.values_list("date", flat=True).distinct()
