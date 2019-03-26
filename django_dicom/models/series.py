@@ -13,54 +13,12 @@ from django_dicom.models.code_strings import (
     SequenceVariant,
     PatientPosition,
 )
-from django_dicom.models.dicom_entity import DicomEntity, DicomEntityManager
+from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.fields import ChoiceArrayField
+from django_dicom.models.managers import SeriesManager
 from django_dicom.models.nifti import NIfTI
-from django_dicom.models.study import Study
 from django_dicom.models.validators import digits_and_dots_only
 from django_dicom.utils import snake_case_to_camel_case
-
-
-class SeriesManager(DicomEntityManager):
-    UID_FIELD = "series_uid"
-
-    def get_anatomicals(self, by_date: bool = False):
-        anatomicals = self.filter(
-            scanning_sequence=[ScanningSequence.GR.name, ScanningSequence.IR.name]
-        ).order_by("date", "time")
-        if by_date:
-            dates = anatomicals.values_list("date", flat=True).distinct()
-            return {date: anatomicals.filter(date=date) for date in dates}
-        return anatomicals
-
-    def get_default_anatomical(self):
-        return (
-            self.get_anatomicals(by_date=False)
-            .order_by("-date", "pixel_spacing__0", "pixel_spacing__1")
-            .first()
-        )
-
-    def get_anatomicals_by_pixel_spacing(self, pixel_spacing: list):
-        return (
-            self.get_anatomicals()
-            .filter(pixel_spacing=pixel_spacing)
-            .order_by("-date", "description")
-        )
-
-    def get_inversion_recovery(self, by_date: bool = False):
-        inversion_recovery = self.filter(
-            scanning_sequence=[Series.ECHO_PLANAR, Series.INVERSION_RECOVERY],
-            repetition_time__gt=6000,
-        )
-        if by_date:
-            dates = inversion_recovery.values_list("date", flat=True).distinct()
-            return {date: inversion_recovery.filter(date=date) for date in dates}
-        return inversion_recovery
-
-    def get_latest_inversion_recovery_sequence(self):
-        return self.get_inversion_recovery(by_date=False).order_by(
-            "-date", "inversion_time"
-        )
 
 
 class Series(DicomEntity):
@@ -69,30 +27,58 @@ class Series(DicomEntity):
         unique=True,
         validators=[digits_and_dots_only],
         verbose_name="Series UID",
+        help_text=help_text.SERIES_UID,
     )
-    date = models.DateField(help_text=help_text.SERIES_DATE, blank=True, null=True)
-    time = models.TimeField(help_text=help_text.SERIES_TIME, blank=True, null=True)
-    description = models.CharField(max_length=64, blank=True, null=True)
-    number = models.IntegerField(
-        verbose_name="Series Number",
-        validators=[MinValueValidator(0)],
+    date = models.DateField(
         blank=True,
         null=True,
+        verbose_name="Series Date",
+        help_text=help_text.SERIES_DATE,
+    )
+    time = models.TimeField(
+        blank=True,
+        null=True,
+        verbose_name="Series Time",
+        help_text=help_text.SERIES_TIME,
+    )
+    description = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        verbose_name="Series Description",
+        help_text=help_text.SERIES_DESCRIPTION,
+    )
+    number = models.IntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        verbose_name="Series Number",
+        help_text=help_text.SERIES_NUMBER,
     )
     echo_time = models.FloatField(
-        blank=True, null=True, validators=[MinValueValidator(0)]
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        help_text=help_text.ECHO_TIME,
     )
     inversion_time = models.FloatField(
-        blank=True, null=True, validators=[MinValueValidator(0)]
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        help_text=help_text.INVERSION_TIME,
     )
     repetition_time = models.FloatField(
-        blank=True, null=True, validators=[MinValueValidator(0)]
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        help_text=help_text.REPETITION_TIME,
     )
     scanning_sequence = ChoiceArrayField(
         models.CharField(max_length=2, choices=ScanningSequence.choices()),
         size=5,
         blank=True,
         null=True,
+        help_text=help_text.SCANNING_SEQUENCE,
     )
     sequence_variant = ChoiceArrayField(
         models.CharField(max_length=4, choices=SequenceVariant.choices()),
@@ -107,36 +93,75 @@ class Series(DicomEntity):
         null=True,
         help_text=help_text.PIXEL_SPACING,
     )
-    manufacturer = models.CharField(max_length=64, blank=True, null=True)
-    manufacturer_model_name = models.CharField(max_length=64, blank=True, null=True)
-    magnetic_field_strength = models.FloatField(
-        validators=[MinValueValidator(0)], null=True, blank=True
+    manufacturer = models.CharField(
+        max_length=64, blank=True, null=True, help_text=help_text.MANUFACTURER
     )
-    device_serial_number = models.CharField(max_length=64, blank=True, null=True)
-    body_part_examined = models.CharField(max_length=16, blank=True, null=True)
+    manufacturer_model_name = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        help_text=help_text.MANUFACTURER_MODEL_NAME,
+    )
+    magnetic_field_strength = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+        help_text=help_text.MAGNETIC_FIELD_STRENGTH,
+    )
+    device_serial_number = models.CharField(
+        max_length=64, blank=True, null=True, help_text=help_text.DEVICE_SERIAL_NUMBER
+    )
+    body_part_examined = models.CharField(
+        max_length=16, blank=True, null=True, help_text=help_text.BODY_PART_EXAMINED
+    )
     patient_position = models.CharField(
         max_length=4,
         choices=PatientPosition.choices(),
         default=PatientPosition.HFS.name,
+        blank=True,
+        null=True,
+        help_text=help_text.PATIENT_POSITION,
     )
     modality = models.CharField(
-        max_length=10, choices=Modality.choices(), default=Modality.MR.name
+        max_length=10,
+        choices=Modality.choices(),
+        default=Modality.MR.name,
+        blank=True,
+        null=True,
+        help_text=help_text.MODALITY,
     )
-    institution_name = models.CharField(max_length=64, blank=True, null=True)
-    protocol_name = models.CharField(max_length=64, blank=True, null=True)
-    flip_angle = models.FloatField(null=True, blank=True)
+    institution_name = models.CharField(
+        max_length=64, blank=True, null=True, help_text=help_text.INSTITUTE_NAME
+    )
+    protocol_name = models.CharField(
+        max_length=64, blank=True, null=True, help_text=help_text.PROTOCOL_NAME
+    )
+    flip_angle = models.FloatField(
+        null=True, blank=True, help_text=help_text.FLIP_ANGLE
+    )
     MR_ACQUISITION_2D = "2D"
     MR_ACQUISITION_3D = "3D"
     MR_ACQUISITION_TYPE_CHOICES = ((MR_ACQUISITION_2D, "2D"), (MR_ACQUISITION_3D, "3D"))
     mr_acquisition_type = models.CharField(
-        max_length=2, choices=MR_ACQUISITION_TYPE_CHOICES, default=MR_ACQUISITION_2D
+        max_length=2,
+        choices=MR_ACQUISITION_TYPE_CHOICES,
+        default=MR_ACQUISITION_2D,
+        blank=True,
+        null=True,
+        help_text=help_text.MR_ACQUISITION_TYPE,
     )
-    _nifti = models.OneToOneField(
-        "django_dicom.nifti", on_delete=models.CASCADE, blank=True, null=True
+    comments = models.CharField(max_length=1000, blank=True, null=True)
+    is_updated = models.BooleanField(
+        default=False, help_text="Series fields were updated from instance headers"
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
-    study = models.ForeignKey(Study, blank=True, null=True, on_delete=models.PROTECT)
+    _nifti = models.OneToOneField(
+        "django_dicom.nifti", on_delete=models.CASCADE, blank=True, null=True
+    )
+    study = models.ForeignKey(
+        "django_dicom.Study", blank=True, null=True, on_delete=models.PROTECT
+    )
     patient = models.ForeignKey(
         "django_dicom.Patient", blank=True, null=True, on_delete=models.PROTECT
     )
@@ -161,9 +186,7 @@ class Series(DicomEntity):
 
     def get_data(self) -> np.ndarray:
         instances = self.instance_set.order_by("number")
-        return np.stack(
-            [instance.read_data().pixel_array for instance in instances], axis=-1
-        )
+        return np.stack([instance.get_data() for instance in instances], axis=-1)
 
     def to_tree_node(self) -> dict:
         return {
@@ -183,6 +206,7 @@ class Series(DicomEntity):
             value = self.get_series_attribute(header_name)
             if value:
                 setattr(self, field.name, value)
+        self.is_updated = True
 
     def get_path(self):
         return os.path.dirname(self.instance_set.first().file.path)
@@ -286,17 +310,8 @@ class Series(DicomEntity):
             return False
         return True
 
-    # def relate_entity(self, model: DicomEntity) -> DicomEntity:
-    #     field_name = self.get_related_entity_field_name(model)
-    #     is_unique = self.check_uniqueness_in_instance_set(field_name)
-    #     if is_unique:
-    #         sample_instance = self.instance_set.last()
-    #         entity_instance = sample_instance.get_or_create_related_entity(model)
-    #         setattr(self, field_name, entity_instance)
-    #     else:
-    #         raise IntegrityError(f"Failed to determine {field_name}!")
-
     class Meta:
+        ordering = ("number",)
         verbose_name_plural = "Series"
         indexes = [
             models.Index(fields=["series_uid"]),
@@ -308,3 +323,7 @@ class Series(DicomEntity):
         if self._nifti:
             return self._nifti
         return self.to_nifti()
+
+    @property
+    def has_instances(self):
+        return bool(self.instance_set.count())

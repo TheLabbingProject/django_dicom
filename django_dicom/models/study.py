@@ -1,11 +1,9 @@
 from django.db import models
 from django.urls import reverse
-from django_dicom.models.dicom_entity import DicomEntity, DicomEntityManager
+from django_dicom.models import Instance
+from django_dicom.models.dicom_entity import DicomEntity
+from django_dicom.models.managers import StudyManager
 from django_dicom.models.validators import digits_and_dots_only
-
-
-class StudyManager(DicomEntityManager):
-    UID_FIELD = "study_uid"
 
 
 class Study(DicomEntity):
@@ -16,8 +14,9 @@ class Study(DicomEntity):
         verbose_name="Study UID",
     )
     description = models.CharField(max_length=64)
-    date = models.DateField()
-    time = models.TimeField()
+    date = models.DateField(blank=True, null=True)
+    time = models.TimeField(blank=True, null=True)
+    is_updated = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = StudyManager()
@@ -54,8 +53,17 @@ class Study(DicomEntity):
                 latest_value = self.get_latest_header_value(header_name)
                 if latest_value:
                     setattr(self, field.name, latest_value)
+        self.is_updated = True
 
     class Meta:
         verbose_name_plural = "Studies"
         indexes = [models.Index(fields=["study_uid"])]
+
+    @property
+    def has_series(self):
+        return bool(self.series_set.count())
+
+    @property
+    def instance_set(self):
+        return Instance.objects.filter(series__in=self.series_set.all())
 

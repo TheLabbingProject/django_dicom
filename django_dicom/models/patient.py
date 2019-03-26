@@ -1,11 +1,9 @@
 from django.db import models
 from django.urls import reverse
+from django_dicom.models import Instance
 from django_dicom.models.code_strings import Sex
-from django_dicom.models.dicom_entity import DicomEntity, DicomEntityManager
-
-
-class PatientManager(DicomEntityManager):
-    UID_FIELD = "patient_id"
+from django_dicom.models.dicom_entity import DicomEntity
+from django_dicom.models.managers import PatientManager
 
 
 class Patient(DicomEntity):
@@ -17,6 +15,7 @@ class Patient(DicomEntity):
     name_suffix = models.CharField(max_length=64, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     sex = models.CharField(max_length=6, choices=Sex.choices(), blank=True, null=True)
+    is_updated = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     subject = models.ForeignKey(
@@ -42,23 +41,17 @@ class Patient(DicomEntity):
         "name_suffix",
     ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.patient_id
 
     def get_absolute_url(self):
         return reverse("dicom:patient_detail", args=[str(self.id)])
 
-    def get_name_id(self):
-        return f"{self.family_name[:2]}{self.given_name[:2]}"
+    def get_full_name(self) -> str:
+        return f"{self.given_name} {self.family_name}"
 
-    def get_subject_attributes(self) -> dict:
-        return {
-            "first_name": self.given_name,
-            "last_name": self.family_name,
-            "date_of_birth": self.date_of_birth,
-            "sex": self.sex,
-            "id_number": self.patient_id,
-        }
+    def get_name_id(self) -> str:
+        return f"{self.family_name[:2]}{self.given_name[:2]}"
 
     def get_latest_instance(self):
         return self.instance_set.order_by("-created_at").first()
@@ -89,6 +82,7 @@ class Patient(DicomEntity):
                 if latest_value:
                     setattr(self, field.name, latest_value)
         self.update_patient_name(force=force)
+        self.is_updated = True
 
     def to_tree(self) -> list:
         return [series.to_tree_node() for series in self.series_set.all()]
@@ -113,3 +107,12 @@ class Patient(DicomEntity):
             models.Index(fields=["patient_id"]),
             models.Index(fields=["date_of_birth"]),
         ]
+
+    @property
+    def has_series(self):
+        return bool(self.series_set.count())
+
+    @property
+    def instance_set(self):
+        return Instance.objects.filter(series__in=self.series_set.all())
+

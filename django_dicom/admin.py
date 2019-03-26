@@ -1,73 +1,52 @@
 from django.contrib import admin
-from django_dicom.models import (
-    Instance,
-    Series,
-    Study,
-    Patient,
-)
+from django_dicom.models import Instance, Series, Study, Patient
 
 
 class InstanceAdmin(admin.ModelAdmin):
-    list_display = (
-        'id',
-        'instance_uid',
-        'patient',
-        'series',
-        'number',
-        'date',
-        'time',
-    )
-    ordering = ['-date', '-series', 'number']
-    readonly_fields = ['instance_uid']
+    list_display = ("id", "instance_uid", "series", "number", "date", "time")
+    ordering = ["-date", "-series", "number"]
+    readonly_fields = ["instance_uid"]
 
 
 class InstanceInLine(admin.TabularInline):
     model = Instance
-    exclude = (
-        'instance_uid',
-        'date',
-        'time',
-    )
-    ordering = ['date', 'time']
+    exclude = ("instance_uid", "date", "time")
+    ordering = ["number"]
 
 
 class SeriesAdmin(admin.ModelAdmin):
-    list_display = (
-        'id',
-        'series_uid',
-        'date',
-        'time',
-        'number',
-        'description',
+    list_display = ("id", "series_uid", "date", "time", "number", "description")
+    ordering = ["-date", "-time"]
+    inlines = (InstanceInLine,)
+    readonly_fields = ["series_uid"]
+
+
+class SeriesInLine(admin.TabularInline):
+    model = Series
+    fields = (
+        "date",
+        "number",
+        "description",
+        "scanning_sequence",
+        "sequence_variant",
+        "repetition_time",
+        "echo_time",
+        "inversion_time",
     )
-    ordering = ['-date', '-time']
-    inlines = (InstanceInLine, )
-    readonly_fields = ['series_uid']
+    ordering = ["date", "number"]
 
 
 class StudyAdmin(admin.ModelAdmin):
-    list_display = (
-        'id',
-        'study_uid',
-        'description',
-    )
-    inlines = (InstanceInLine, )
-    readonly_fields = ['study_uid']
+    list_display = ("id", "study_uid", "description")
+    inlines = (SeriesInLine,)
+    readonly_fields = ["study_uid"]
 
 
 class PatientInLine(admin.StackedInline):
     model = Patient
-    verbose_name_plural = 'MRI'
-    fields = (
-        'studies',
-        'series_count',
-        'dicom_count',
-    )
-    readonly_fields = (
-        'studies',
-        'series_count',
-        'dicom_count',
-    )
+    verbose_name_plural = "MRI"
+    fields = ("studies", "series_count", "dicom_count")
+    readonly_fields = ("studies", "series_count", "dicom_count")
 
     def get_series(self, instance):
         return Series.objects.filter(patient=instance)
@@ -77,10 +56,11 @@ class PatientInLine(admin.StackedInline):
 
     def get_studies(self, instance):
         return Study.objects.filter(
-            id__in=self.get_series(instance).values('study').distinct())
+            id__in=self.get_series(instance).values("study").distinct()
+        )
 
     def get_study_list(self, instance):
-        return self.get_studies(instance).values_list('description')
+        return self.get_studies(instance).values_list("description")
 
     def studies(self, instance):
         return [study for study in self.get_study_list(instance)]
@@ -88,41 +68,35 @@ class PatientInLine(admin.StackedInline):
     def dicom_count(self, instance):
         return Instance.objects.filter(patient=instance).count()
 
-    dicom_count.short_description = 'DICOM files'
+    dicom_count.short_description = "DICOM files"
 
 
 class PatientAdmin(admin.ModelAdmin):
     list_display = (
-        'id',
-        'patient_id',
-        'given_name',
-        'family_name',
-        'sex',
-        'date_of_birth',
+        "id",
+        "patient_id",
+        "given_name",
+        "family_name",
+        "sex",
+        "date_of_birth",
     )
-    inlines = (InstanceInLine, )
+    inlines = (SeriesInLine,)
     fieldsets = (
-        (None, {
-            'fields': ('patient_id', ),
-        }),
-        ('Name', {
-            'fields': (
-                'name_prefix',
-                'given_name',
-                'middle_name',
-                'family_name',
-                'name_suffix',
-            ),
-        }),
-        ('Personal Information', {
-            'fields': (
-                'sex',
-                'date_of_birth',
-            )
-        }),
-        ('Associated Model', {
-            'fields': ('subject', )
-        }),
+        (None, {"fields": ("patient_id",)}),
+        (
+            "Name",
+            {
+                "fields": (
+                    "name_prefix",
+                    "given_name",
+                    "middle_name",
+                    "family_name",
+                    "name_suffix",
+                )
+            },
+        ),
+        ("Personal Information", {"fields": ("sex", "date_of_birth")}),
+        ("Associated Model", {"fields": ("subject",)}),
     )
 
 
