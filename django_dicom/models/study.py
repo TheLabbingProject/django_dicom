@@ -16,6 +16,7 @@ class Study(DicomEntity):
     description = models.CharField(max_length=64)
     date = models.DateField(blank=True, null=True)
     time = models.TimeField(blank=True, null=True)
+    comments = models.TextField(max_length=1000, blank=True, null=True)
     is_updated = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

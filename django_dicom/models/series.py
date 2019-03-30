@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
-from django_dicom.interfaces.dcm2niix import Dcm2niix
+
 from django_dicom.models import help_text
 from django_dicom.models.code_strings import (
     Modality,
@@ -16,7 +16,7 @@ from django_dicom.models.code_strings import (
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.fields import ChoiceArrayField
 from django_dicom.models.managers import SeriesManager
-from django_dicom.models.nifti import NIfTI
+
 from django_dicom.models.validators import digits_and_dots_only
 from django_dicom.utils import snake_case_to_camel_case
 
@@ -150,15 +150,11 @@ class Series(DicomEntity):
         null=True,
         help_text=help_text.MR_ACQUISITION_TYPE,
     )
-    comments = models.CharField(max_length=1000, blank=True, null=True)
     is_updated = models.BooleanField(
         default=False, help_text="Series fields were updated from instance headers"
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
-    _nifti = models.OneToOneField(
-        "django_dicom.nifti", on_delete=models.CASCADE, blank=True, null=True
-    )
     study = models.ForeignKey(
         "django_dicom.Study", blank=True, null=True, on_delete=models.PROTECT
     )
@@ -168,7 +164,6 @@ class Series(DicomEntity):
 
     objects = SeriesManager()
 
-    NIfTI_DIR_NAME = "NIfTI"
     FIELD_TO_HEADER = {
         "series_uid": "SeriesInstanceUID",
         "date": "SeriesDate",
@@ -177,6 +172,14 @@ class Series(DicomEntity):
         "number": "SeriesNumber",
         "mr_acquisition_type": "MRAcquisitionType",
     }
+
+    class Meta:
+        ordering = ("number",)
+        verbose_name_plural = "Series"
+        indexes = [
+            models.Index(fields=["series_uid"]),
+            models.Index(fields=["date", "time"]),
+        ]
 
     def __str__(self):
         return self.series_uid
@@ -210,37 +213,6 @@ class Series(DicomEntity):
 
     def get_path(self):
         return os.path.dirname(self.instance_set.first().file.path)
-
-    def get_default_nifti_dir(self):
-        patient_directory = os.path.dirname(self.get_path())
-        return os.path.join(patient_directory, self.NIfTI_DIR_NAME)
-
-    def get_default_nifti_name(self):
-        return str(self.id)
-
-    def get_default_nifti_destination(self):
-        directory = self.get_default_nifti_dir()
-        name = self.get_default_nifti_name()
-        return os.path.join(directory, name)
-
-    def create_nifti_instance(self, path: str) -> NIfTI:
-        nifti_instance = NIfTI(path=path)
-        nifti_instance.save()
-        return nifti_instance
-
-    def associate_nifti_instance(self, instance: NIfTI) -> NIfTI:
-        self._nifti = instance
-        self.save()
-        return self._nifti
-
-    def to_nifti(self, destination: str = None):
-        dcm2niix = Dcm2niix()
-        destination = destination or self.get_default_nifti_destination()
-        os.makedirs(os.path.dirname(destination), exist_ok=True)
-        nifti_path = dcm2niix.convert(self.get_path(), destination)
-        nifti_instance = self.create_nifti_instance(nifti_path)
-        self.associate_nifti_instance(nifti_instance)
-        return self._nifti
 
     def get_header_values(self, tag_or_keyword, parsed=False) -> list:
         return [
@@ -288,41 +260,6 @@ class Series(DicomEntity):
             ]
         except TypeError:
             return None
-
-    def get_related_entity_field_name(self, model: DicomEntity) -> str:
-        return model.__name__.lower()
-
-    def has_relation(self, model: DicomEntity) -> bool:
-        field_name = self.get_related_entity_field_name(model)
-        value = getattr(self, field_name, None)
-        if isinstance(value, model):
-            return True
-        return False
-
-    def relate_entity(self, entity_instance: DicomEntity):
-        model = type(entity_instance)
-        field_name = self.get_related_entity_field_name(model)
-        setattr(self, field_name, entity_instance)
-
-    def check_uniqueness_in_instance_set(self, field_name: str) -> bool:
-        distinct_count = self.instance_set.values(field_name).distinct().count()
-        if distinct_count != 1:
-            return False
-        return True
-
-    class Meta:
-        ordering = ("number",)
-        verbose_name_plural = "Series"
-        indexes = [
-            models.Index(fields=["series_uid"]),
-            models.Index(fields=["date", "time"]),
-        ]
-
-    @property
-    def nifti(self):
-        if self._nifti:
-            return self._nifti
-        return self.to_nifti()
 
     @property
     def has_instances(self):

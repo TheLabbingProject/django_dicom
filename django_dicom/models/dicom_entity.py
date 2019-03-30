@@ -9,6 +9,7 @@ class DicomEntity(models.Model):
             models.AutoField,
             models.ManyToOneRel,
             models.FileField,
+            models.TextField,
         ),
         "names": ("created_at", "b_value"),
     }

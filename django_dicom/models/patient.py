@@ -1,3 +1,5 @@
+import numpy as np
+
 from django.db import models
 from django.urls import reverse
 from django_dicom.models import Instance
@@ -15,6 +17,7 @@ class Patient(DicomEntity):
     name_suffix = models.CharField(max_length=64, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     sex = models.CharField(max_length=6, choices=Sex.choices(), blank=True, null=True)
+    comments = models.TextField(max_length=1000, blank=True, null=True)
     is_updated = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -87,11 +90,22 @@ class Patient(DicomEntity):
     def to_tree(self) -> list:
         return [series.to_tree_node() for series in self.series_set.all()]
 
-    def get_anatomicals(self, by_date=False):
-        return self.series_set.get_anatomicals(by_date)
+    def get_anatomicals(self, by_date: bool = False):
+        return self.series_set.get_anatomicals(by_date=by_date)
 
     def get_default_anatomical(self):
         return self.series_set.get_default_anatomical()
+
+    def get_second_session_anatomical(self):
+        anatomicals_by_date = self.series_set.get_anatomicals(by_date=True)
+        if len(anatomicals_by_date) > 1:
+            default = self.get_default_anatomical()
+            del anatomicals_by_date[default.date]
+            return (
+                list(anatomicals_by_date.values())[0]
+                .order_by("pixel_spacing__0", "pixel_spacing__1")
+                .first()
+            )
 
     def get_inversion_recovery(self):
         return self.series_set.get_inversion_recovery()
@@ -101,6 +115,15 @@ class Patient(DicomEntity):
 
     def get_anatomicals_by_pixel_spacing(self, pixel_spacing: list):
         return self.series_set.get_anatomicals_by_pixel_spacing(pixel_spacing)
+
+    def calculate_mutual_information(
+        self, other, histogram_bins: int = 10
+    ) -> np.float64:
+        self_anatomical = self.get_default_anatomical()
+        other_anatomical = other.get_default_anatomical()
+        return self_anatomical.calculate_mutual_information(
+            other_anatomical, histogram_bins
+        )
 
     class Meta:
         indexes = [
