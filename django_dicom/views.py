@@ -2,22 +2,22 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
-from django_dicom.forms import CreateInstancesForm
-from django_dicom.models import Instance, Series, Study, Patient
+from django_dicom.forms import CreateImagesForm
+from django_dicom.models import Image, Series, Study, Patient
 
 
-class InstanceListView(LoginRequiredMixin, ListView):
-    model = Instance
+class ImageListView(LoginRequiredMixin, ListView):
+    model = Image
     template_name = "dicom/instances/instance_list.html"
 
 
-class InstanceDetailView(LoginRequiredMixin, DetailView):
-    model = Instance
+class ImageDetailView(LoginRequiredMixin, DetailView):
+    model = Image
     template_name = "dicom/instances/instance_detail.html"
 
 
-class InstancesCreateView(LoginRequiredMixin, FormView):
-    form_class = CreateInstancesForm
+class ImagesCreateView(LoginRequiredMixin, FormView):
+    form_class = CreateImagesForm
     template_name = "dicom/instances/instances_create.html"
     success_url = reverse_lazy("dicom:instance_list")
     temp_file_name = "tmp.dcm"
@@ -30,9 +30,9 @@ class InstancesCreateView(LoginRequiredMixin, FormView):
             files = request.FILES.getlist("dcm_files")
             for file in files:
                 if file.name.endswith(".dcm"):
-                    Instance.objects.from_dcm(file)
+                    Image.objects.from_dcm(file)
                 elif file.name.endswith(".zip"):
-                    Instance.objects.from_zip(file)
+                    Image.objects.from_zip(file)
             return self.form_valid(form)
         else:
             return self.form_invalid(form)

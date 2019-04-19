@@ -42,3 +42,5 @@ htmlcov
 **.zip
 venv
 **.pkl
+
+pip-wheel-metadata/

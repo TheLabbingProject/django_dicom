@@ -7,5 +7,5 @@ class DjangoDicomConfig(AppConfig):
     name = "django_dicom"
     mricrogl_path = os.getenv("MRICROGL")
 
-    def ready(self):
-        import django_dicom.signals
+    # def ready(self):
+    #     import django_dicom.signals

@@ -5,9 +5,9 @@ from django_dicom import views
 app_name = "django_dicom"
 
 urlpatterns = [
-    path("new/", views.InstancesCreateView.as_view(), name="instances_create"),
-    path("instances/", views.InstanceListView.as_view(), name="instance_list"),
-    path("<int:pk>/", views.InstanceDetailView.as_view(), name="instance_detail"),
+    path("new/", views.ImagesCreateView.as_view(), name="images_create"),
+    path("images/", views.ImageListView.as_view(), name="instance_list"),
+    path("<int:pk>/", views.ImageDetailView.as_view(), name="instance_detail"),
     path("series/", views.SeriesListView.as_view(), name="series_list"),
     path("series/<int:pk>/", views.SeriesDetailView.as_view(), name="series_detail"),
     path("studies/", views.StudyListView.as_view(), name="study_list"),

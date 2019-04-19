@@ -3,9 +3,9 @@ import os
 import pydicom
 
 from datetime import date, time
-from django_dicom.models import Instance
+from django_dicom.models import Image
 from django_dicom.tests.factories import (
-    InstanceFactory,
+    ImageFactory,
     get_test_file_path,
     TEST_FILES_PATH,
     SERIES_FILES,
@@ -14,7 +14,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
 
-class InstanceModelTestCase(TestCase):
+class ImageModelTestCase(TestCase):
     TEST_INSTANCES = [
         "test",
         "same_series",
@@ -57,37 +57,37 @@ class InstanceModelTestCase(TestCase):
     def create_all_test_instances(self):
         for name in self.TEST_INSTANCES:
             path = get_test_file_path(name)
-            instance = InstanceFactory(file__from_path=path)
+            instance = ImageFactory(file__from_path=path)
             instance.save()
 
-    def get_instance(self, name: str) -> Instance:
+    def get_instance(self, name: str) -> Image:
         index = self.TEST_INSTANCES.index(name)
-        return Instance.objects.get(instance_uid=self.TEST_INSTANCE_UIDS[index])
+        return Image.objects.get(instance_uid=self.TEST_INSTANCE_UIDS[index])
 
     def test_str(self):
         self.assertEqual(
-            str(self.test_instance), self.test_instance.headers.SOPInstanceUID
+            str(self.test_instance), self.test_instance.headers.SOPImageUID
         )
 
     def test_get_instance_data(self):
         data = self.test_instance.read_data()
-        self.assertIsInstance(data, pydicom.dataset.FileDataset)
+        self.assertIsImage(data, pydicom.dataset.FileDataset)
         self.assertTrue(hasattr(data, "pixel_array"))
 
     def test_get_instance_headers(self):
         data = self.test_instance.read_headers()
-        self.assertIsInstance(data, pydicom.dataset.FileDataset)
+        self.assertIsImage(data, pydicom.dataset.FileDataset)
         with self.assertRaises(TypeError):
             data.pixel_array
 
     def test_instance_uid(self):
         self.assertEqual(
-            self.test_instance.instance_uid, self.test_instance.headers.SOPInstanceUID
+            self.test_instance.instance_uid, self.test_instance.headers.SOPImageUID
         )
 
     def test_instance_number(self):
         self.assertEqual(
-            self.test_instance.number, self.test_instance.headers.InstanceNumber
+            self.test_instance.number, self.test_instance.headers.ImageNumber
         )
 
     def test_instance_date(self):
@@ -101,7 +101,7 @@ class InstanceModelTestCase(TestCase):
 
     def test_series_uid(self):
         new_series_uid = self.test_instance.series.series_uid
-        expected_uid = self.test_instance.headers.SeriesInstanceUID
+        expected_uid = self.test_instance.headers.SeriesImageUID
         self.assertEqual(new_series_uid, expected_uid)
 
     def test_series_number(self):
@@ -181,7 +181,7 @@ class InstanceModelTestCase(TestCase):
         )
 
     def test_patient_birthdate(self):
-        self.assertIsInstance(self.test_instance.patient.date_of_birth, date)
+        self.assertIsImage(self.test_instance.patient.date_of_birth, date)
 
     def test_file_moved_to_default_location(self):
         default_location = self.test_instance.get_default_file_name()
@@ -234,15 +234,15 @@ class InstanceModelTestCase(TestCase):
 
     def test_instance_creation_from_uploaded_dcm(self):
         uploaded_dcm = self.load_uploaded_dcm()
-        instance = Instance.objects.from_dcm(uploaded_dcm)
-        self.assertIsInstance(instance, Instance)
+        instance = Image.objects.from_dcm(uploaded_dcm)
+        self.assertIsImage(instance, Image)
         self.assertIsNotNone(instance.instance_uid)
 
     def test_instances_creation_from_uploaded_zip(self):
         uploaded_zip = self.load_uploaded_zip()
-        Instance.objects.from_zip(uploaded_zip)
+        Image.objects.from_zip(uploaded_zip)
         for uid in self.ZIPPED_UIDS:
-            self.assertIsNotNone(Instance.objects.get(instance_uid=uid))
+            self.assertIsNotNone(Image.objects.get(instance_uid=uid))
 
     @property
     def test_instance(self):
@@ -270,7 +270,7 @@ class InstanceModelTestCase(TestCase):
 class StudyModelTestCase(TestCase):
     def setUp(self):
         path = get_test_file_path("test")
-        test_instance = InstanceFactory(file__from_path=path)
+        test_instance = ImageFactory(file__from_path=path)
         test_instance.save()
         self.test_study = test_instance.study
 
@@ -281,7 +281,7 @@ class StudyModelTestCase(TestCase):
 class SeriesModelTestCase(TestCase):
     def setUp(self):
         for path in SERIES_FILES:
-            instance = InstanceFactory(file__from_path=path)
+            instance = ImageFactory(file__from_path=path)
             instance.save()
         self.test_series = instance.series
 
@@ -293,25 +293,19 @@ class SeriesModelTestCase(TestCase):
 
     def test_getting_data(self):
         data = self.test_series.get_data()
-        self.assertIsInstance(data, np.ndarray)
+        self.assertIsImage(data, np.ndarray)
         self.assertEqual(data.shape, (512, 512, 19))
 
 
 class PatientModelTestCase(TestCase):
     def setUp(self):
         path = get_test_file_path("test")
-        test_instance = InstanceFactory(file__from_path=path)
+        test_instance = ImageFactory(file__from_path=path)
         test_instance.save()
         self.test_patient = test_instance.patient
 
     def test_str(self):
         self.assertEqual(str(self.test_patient), self.test_patient.patient_id)
-
-    def test_name_id(self):
-        first_name = self.test_patient.given_name
-        last_name = self.test_patient.family_name
-        expected = f"{last_name[:2]}{first_name[:2]}"
-        self.assertEqual(self.test_patient.get_name_id(), expected)
 
     def test_getting_patient_attributes(self):
         expected = {

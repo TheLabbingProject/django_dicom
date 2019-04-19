@@ -2,24 +2,35 @@ import numpy as np
 
 from django.db import models
 from django.urls import reverse
-from django_dicom.models import Instance
-from django_dicom.models.code_strings import Sex
+from django_dicom.models import Image
+from django_dicom.reader.code_strings import Sex
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.managers import PatientManager
+from django_dicom.reader import HeaderInformation
 
 
 class Patient(DicomEntity):
-    patient_id = models.CharField(max_length=64, unique=True)
+    """
+    A model to represent DICOM_'s `patient entity`_. Holds the corresponding
+    attributes as discovered in created :class:`django_dicom.Image` instances.
+
+    .. _DICOM: https://www.dicomstandard.org/
+    .. _patient entity: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
+    
+    """
+
+    uid = models.CharField(max_length=64, unique=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    sex = models.CharField(max_length=6, choices=Sex.choices(), blank=True, null=True)
+
+    # Name parts as they are called in DICOM headers
     given_name = models.CharField(max_length=64, blank=True, null=True)
     family_name = models.CharField(max_length=64, blank=True, null=True)
     middle_name = models.CharField(max_length=64, blank=True, null=True)
     name_prefix = models.CharField(max_length=64, blank=True, null=True)
     name_suffix = models.CharField(max_length=64, blank=True, null=True)
-    date_of_birth = models.DateField(blank=True, null=True)
-    sex = models.CharField(max_length=6, choices=Sex.choices(), blank=True, null=True)
+
     comments = models.TextField(max_length=1000, blank=True, null=True)
-    is_updated = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     subject = models.ForeignKey(
         "research.Subject",
@@ -32,7 +43,7 @@ class Patient(DicomEntity):
     objects = PatientManager()
 
     FIELD_TO_HEADER = {
-        "patient_id": "PatientID",
+        "uid": "PatientID",
         "date_of_birth": "PatientBirthDate",
         "sex": "PatientSex",
     }
@@ -45,47 +56,39 @@ class Patient(DicomEntity):
     ]
 
     def __str__(self) -> str:
-        return self.patient_id
+        return self.uid
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse("dicom:patient_detail", args=[str(self.id)])
 
     def get_full_name(self) -> str:
         return f"{self.given_name} {self.family_name}"
 
-    def get_name_id(self) -> str:
-        return f"{self.family_name[:2]}{self.given_name[:2]}"
-
-    def get_latest_instance(self):
-        return self.instance_set.order_by("-created_at").first()
-
-    def get_latest_header_value(self, tag_or_keyword):
-        latest_instance = self.get_latest_instance()
-        if latest_instance:
-            return latest_instance.get_header_value(tag_or_keyword)
-        return None
-
-    def update_patient_name(self, force=False) -> bool:
-        latest = self.get_latest_header_value("PatientName")
+    def update_patient_name(self, header: HeaderInformation) -> None:
+        value = header.get_raw_value("PatientName")
         for part in self.NAME_PARTS:
-            not_null = getattr(self, part, False)
-            if not force and not_null:
-                continue
-            value = getattr(latest, part, None)
-            if value:
+            part_value = getattr(value, part, None)
+            if part_value:
                 setattr(self, part, value)
 
-    def update_fields_from_header(self, force=False):
-        for field in self.get_model_header_fields():
-            if not force and getattr(self, field.name, False):
-                continue
-            header_name = self.FIELD_TO_HEADER.get(field.name)
-            if header_name:
-                latest_value = self.get_latest_header_value(header_name)
-                if latest_value:
-                    setattr(self, field.name, latest_value)
-        self.update_patient_name(force=force)
-        self.is_updated = True
+    def update_fields_from_header(
+        self, header: HeaderInformation, exclude: list = []
+    ) -> None:
+        """
+        Override :class:`django_dicom.DicomEntity`'s :meth:`django_dicom.DicomEntity.update_fields_from_header`
+        in order to handle setting the name parts seperately.
+        
+        Parameters
+        ----------
+        header : HeaderInformation
+            DICOM header data.
+        exclude : list, optional
+            Field names to exclude (the default is [], which will not exclude any header fields).
+        """
+
+        exclude = exclude + self.NAME_PARTS
+        super().update_fields_from_header(header, exclude=exclude)
+        self.update_patient_name(header)
 
     def to_tree(self) -> list:
         return [series.to_tree_node() for series in self.series_set.all()]
@@ -126,16 +129,13 @@ class Patient(DicomEntity):
         )
 
     class Meta:
-        indexes = [
-            models.Index(fields=["patient_id"]),
-            models.Index(fields=["date_of_birth"]),
-        ]
+        indexes = [models.Index(fields=["uid"]), models.Index(fields=["date_of_birth"])]
 
     @property
     def has_series(self):
         return bool(self.series_set.count())
 
     @property
-    def instance_set(self):
-        return Instance.objects.filter(series__in=self.series_set.all())
+    def image_set(self):
+        return Image.objects.filter(series__in=self.series_set.all())
 

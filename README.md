@@ -4,7 +4,7 @@
 
 A django app to manage [DICOM][1] files.
 
-This app creates the basic models for DICOM data abstraction: Study, Patient, Series, and Instance.  
+This app creates the basic models for DICOM data abstraction: Study, Patient, Series, and Image.  
 The models are complemented with some utility methods to facilitate data access.
 
 

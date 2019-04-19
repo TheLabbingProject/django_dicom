@@ -1,24 +1,24 @@
 from django.contrib import admin
-from django_dicom.models import Instance, Series, Study, Patient
+from django_dicom.models import Image, Series, Study, Patient
 
 
-class InstanceAdmin(admin.ModelAdmin):
-    list_display = ("id", "instance_uid", "series", "number", "date", "time")
+class ImageAdmin(admin.ModelAdmin):
+    list_display = ("id", "uid", "series", "number", "date", "time")
     ordering = ["-date", "-series", "number"]
-    readonly_fields = ["instance_uid"]
+    readonly_fields = ["uid"]
 
 
-class InstanceInLine(admin.TabularInline):
-    model = Instance
-    exclude = ("instance_uid", "date", "time")
+class ImageInLine(admin.TabularInline):
+    model = Image
+    exclude = ("uid", "date", "time")
     ordering = ["number"]
 
 
 class SeriesAdmin(admin.ModelAdmin):
-    list_display = ("id", "series_uid", "date", "time", "number", "description")
+    list_display = ("id", "uid", "date", "time", "number", "description")
     ordering = ["-date", "-time"]
-    inlines = (InstanceInLine,)
-    readonly_fields = ["series_uid"]
+    inlines = (ImageInLine,)
+    readonly_fields = ["uid"]
 
 
 class SeriesInLine(admin.TabularInline):
@@ -37,9 +37,9 @@ class SeriesInLine(admin.TabularInline):
 
 
 class StudyAdmin(admin.ModelAdmin):
-    list_display = ("id", "study_uid", "description")
+    list_display = ("id", "uid", "description")
     inlines = (SeriesInLine,)
-    readonly_fields = ["study_uid"]
+    readonly_fields = ["uid"]
 
 
 class PatientInLine(admin.StackedInline):
@@ -66,23 +66,16 @@ class PatientInLine(admin.StackedInline):
         return [study for study in self.get_study_list(instance)]
 
     def dicom_count(self, instance):
-        return Instance.objects.filter(patient=instance).count()
+        return Image.objects.filter(patient=instance).count()
 
     dicom_count.short_description = "DICOM files"
 
 
 class PatientAdmin(admin.ModelAdmin):
-    list_display = (
-        "id",
-        "patient_id",
-        "given_name",
-        "family_name",
-        "sex",
-        "date_of_birth",
-    )
+    list_display = ("id", "uid", "given_name", "family_name", "sex", "date_of_birth")
     inlines = (SeriesInLine,)
     fieldsets = (
-        (None, {"fields": ("patient_id",)}),
+        (None, {"fields": ("uid",)}),
         (
             "Name",
             {
@@ -100,7 +93,7 @@ class PatientAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(Instance, InstanceAdmin)
+admin.site.register(Image, ImageAdmin)
 admin.site.register(Series, SeriesAdmin)
 admin.site.register(Study, StudyAdmin)
 admin.site.register(Patient, PatientAdmin)

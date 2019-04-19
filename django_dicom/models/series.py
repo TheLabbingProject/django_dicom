@@ -7,7 +7,7 @@ from django.db import models
 from django.urls import reverse
 
 from django_dicom.models import help_text
-from django_dicom.models.code_strings import (
+from django_dicom.reader.code_strings import (
     Modality,
     ScanningSequence,
     SequenceVariant,
@@ -16,13 +16,22 @@ from django_dicom.models.code_strings import (
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.fields import ChoiceArrayField
 from django_dicom.models.managers import SeriesManager
-
+from django_dicom.reader import HeaderInformation
 from django_dicom.models.validators import digits_and_dots_only
 from django_dicom.utils import snake_case_to_camel_case
 
 
 class Series(DicomEntity):
-    series_uid = models.CharField(
+    """
+    A model to represent DICOM_'s `series entity`_. Holds the corresponding
+    attributes as discovered in created :class:`django_dicom.Image` instances.
+
+    .. _DICOM: https://www.dicomstandard.org/
+    .. _series entity: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
+    
+    """
+
+    uid = models.CharField(
         max_length=64,
         unique=True,
         validators=[digits_and_dots_only],
@@ -150,10 +159,6 @@ class Series(DicomEntity):
         null=True,
         help_text=help_text.MR_ACQUISITION_TYPE,
     )
-    is_updated = models.BooleanField(
-        default=False, help_text="Series fields were updated from instance headers"
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
 
     study = models.ForeignKey(
         "django_dicom.Study", blank=True, null=True, on_delete=models.PROTECT
@@ -165,7 +170,7 @@ class Series(DicomEntity):
     objects = SeriesManager()
 
     FIELD_TO_HEADER = {
-        "series_uid": "SeriesInstanceUID",
+        "uid": "SeriesInstanceUID",
         "date": "SeriesDate",
         "time": "SeriesTime",
         "description": "SeriesDescription",
@@ -176,20 +181,17 @@ class Series(DicomEntity):
     class Meta:
         ordering = ("number",)
         verbose_name_plural = "Series"
-        indexes = [
-            models.Index(fields=["series_uid"]),
-            models.Index(fields=["date", "time"]),
-        ]
+        indexes = [models.Index(fields=["uid"]), models.Index(fields=["date", "time"])]
 
-    def __str__(self):
-        return self.series_uid
+    def __str__(self) -> str:
+        return self.uid
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse("dicom:series_detail", args=[str(self.id)])
 
     def get_data(self) -> np.ndarray:
-        instances = self.instance_set.order_by("number")
-        return np.stack([instance.get_data() for instance in instances], axis=-1)
+        images = self.image_set.order_by("number")
+        return np.stack([image.get_data() for image in images], axis=-1)
 
     def to_tree_node(self) -> dict:
         return {
@@ -198,48 +200,8 @@ class Series(DicomEntity):
             "text": self.description,
         }
 
-    def update_fields_from_header(self, force=False):
-        for field in self.get_model_header_fields():
-            not_null = getattr(self, field.name, False)
-            if not force and not_null:
-                continue
-            header_name = self.FIELD_TO_HEADER.get(
-                field.name
-            ) or snake_case_to_camel_case(field.name)
-            value = self.get_series_attribute(header_name)
-            if value:
-                setattr(self, field.name, value)
-        self.is_updated = True
-
     def get_path(self):
-        return os.path.dirname(self.instance_set.first().file.path)
-
-    def get_header_values(self, tag_or_keyword, parsed=False) -> list:
-        return [
-            instance.get_header_value(tag_or_keyword, parsed)
-            for instance in self.instance_set.order_by("number").all()
-        ]
-
-    def get_distinct_values(self, tag_or_keyword, parsed=False) -> list:
-        values = self.get_header_values(tag_or_keyword, parsed=parsed)
-        if any(values):
-            try:
-                return list(set(values))
-            except TypeError:
-                unique = []
-                for value in values:
-                    if value not in unique:
-                        unique += [value]
-                return unique
-        return None
-
-    def get_series_attribute(self, tag_or_keyword: str):
-        distinct = self.get_distinct_values(tag_or_keyword, parsed=True)
-        if distinct is not None and len(distinct) == 1:
-            return distinct.pop()
-        elif distinct is not None and len(distinct) > 1:
-            return distinct
-        return None
+        return os.path.dirname(self.image_set.first().file.path)
 
     def get_scanning_sequence_display(self) -> list:
         return [ScanningSequence[name].value for name in self.scanning_sequence]
@@ -253,14 +215,10 @@ class Series(DicomEntity):
                 list(vector)
                 for vector in zip(
                     *[
-                        instance.gradient_direction
-                        for instance in self.instance_set.order_by("number").all()
+                        image.gradient_direction
+                        for image in self.image_set.order_by("number").all()
                     ]
                 )
             ]
         except TypeError:
             return None
-
-    @property
-    def has_instances(self):
-        return bool(self.instance_set.count())

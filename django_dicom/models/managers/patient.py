@@ -3,8 +3,6 @@ from django_dicom.models.managers.dicom_entity import DicomEntityManager
 
 
 class PatientManager(DicomEntityManager):
-    UID_FIELD = "patient_id"
-
     def get_multi_visit_patients(self) -> QuerySet:
         return [
             patient

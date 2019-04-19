@@ -29,7 +29,7 @@
                         <a href="{% url 'dicom:patient_detail' series.patient.id %}">
                             {{ series.patient.id }}
                         </a>
-                        ({{ series.patient.get_name_id }})
+                        ({{ series.patient.get_full_name }})
                     </td>
                     <td>{{ series.description }}</td>
                 </tr>
