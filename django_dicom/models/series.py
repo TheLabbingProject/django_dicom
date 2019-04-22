@@ -16,9 +16,7 @@ from django_dicom.reader.code_strings import (
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.fields import ChoiceArrayField
 from django_dicom.models.managers import SeriesManager
-from django_dicom.reader import HeaderInformation
 from django_dicom.models.validators import digits_and_dots_only
-from django_dicom.utils import snake_case_to_camel_case
 
 
 class Series(DicomEntity):

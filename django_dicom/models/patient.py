@@ -32,13 +32,13 @@ class Patient(DicomEntity):
 
     comments = models.TextField(max_length=1000, blank=True, null=True)
 
-    subject = models.ForeignKey(
-        "research.Subject",
-        blank=True,
-        null=True,
-        on_delete=models.PROTECT,
-        related_name="mri_patient_set",
-    )
+    # subject = models.ForeignKey(
+    #     "research.Subject",
+    #     blank=True,
+    #     null=True,
+    #     on_delete=models.PROTECT,
+    #     related_name="mri_patient_set",
+    # )
 
     objects = PatientManager()
 

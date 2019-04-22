@@ -50,7 +50,8 @@ class ImportImage:
 
     def create_image(self) -> Image:
         """
-        Stores the DICOM file locally and creates an Image instance from it.
+        Stores the DICOM file locally and creates an Image instance from it without
+        saving it (allowing for the fields to be updated from the header beforehand).
         
         Returns
         -------
@@ -59,7 +60,7 @@ class ImportImage:
         """
 
         temp_file_name = self.store_file()
-        return Image.objects.create(dcm=temp_file_name)
+        return Image(dcm=temp_file_name)
 
     def update_image_fields_from_header(self) -> None:
         """
@@ -185,7 +186,7 @@ class ImportImage:
     def run(self) -> tuple:
         """
         Adds the image to the database and generates its associated entities as
-        an atomic transaction. If the transaction fails, calls :meth:`~django_dicom.controllers.import_image.ImportImage.handle_integrity_error`
+        an atomic transaction. If the transaction fails, calls :meth:`~django_dicom.data_import.import_image.ImportImage.handle_integrity_error`
         This assumes an existing image and tries to return it.
         
         Returns
@@ -198,7 +199,8 @@ class ImportImage:
                 self.generate_entities_and_relationships()
 
         # An IntegrityError should indicate the image exists in the database.
-        except IntegrityError:
+        except IntegrityError as e:
+            print(e.args)
 
             # Assume image exists in database and returns it.
             try:

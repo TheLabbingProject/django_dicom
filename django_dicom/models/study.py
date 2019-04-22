@@ -2,7 +2,6 @@ from django.db import models
 from django.urls import reverse
 from django_dicom.models import Image
 from django_dicom.models.dicom_entity import DicomEntity
-from django_dicom.models.managers import StudyManager
 from django_dicom.models.validators import digits_and_dots_only
 
 
@@ -26,8 +25,6 @@ class Study(DicomEntity):
     date = models.DateField(blank=True, null=True)
     time = models.TimeField(blank=True, null=True)
     comments = models.TextField(max_length=1000, blank=True, null=True)
-
-    objects = StudyManager()
 
     FIELD_TO_HEADER = {
         "uid": "StudyInstanceUID",

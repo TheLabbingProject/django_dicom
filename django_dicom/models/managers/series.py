@@ -1,8 +1,8 @@
+from django.db import models
 from django_dicom.reader.code_strings import ScanningSequence
-from django_dicom.models.managers.dicom_entity import DicomEntityManager
 
 
-class SeriesManager(DicomEntityManager):
+class SeriesManager(models.Manager):
     def get_anatomicals(self, by_date: bool = False):
         anatomicals = self.filter(
             scanning_sequence=[ScanningSequence.GR.name, ScanningSequence.IR.name]

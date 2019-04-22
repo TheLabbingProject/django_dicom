@@ -1,14 +1,10 @@
 import numpy as np
-import os
 import pydicom
-import shutil
 
-from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django_dicom.models.dicom_entity import DicomEntity
-from django_dicom.models.managers import ImageManager
-from django_dicom.models.validators import digits_and_dots_only
+from django_dicom.models.validators import digits_and_dots_only, validate_file_extension
 from django_dicom.reader import HeaderInformation
 
 
@@ -23,25 +19,21 @@ class Image(DicomEntity):
     """
 
     # Stores a reference to the image file.
-    dcm = models.FileField(upload_to="dicom", blank=True)
+    dcm = models.FileField(
+        max_length=250, upload_to="dicom", validators=[validate_file_extension]
+    )
 
     uid = models.CharField(
         max_length=64,
         unique=True,
-        blank=False,
-        null=False,
         validators=[digits_and_dots_only],
-        verbose_name="Instance UID",
+        verbose_name="Image UID",
     )
-    number = models.IntegerField(blank=True, null=True, verbose_name="Instance Number")
-    date = models.DateField(blank=True, null=True)
-    time = models.TimeField(blank=True, null=True)
+    number = models.IntegerField(verbose_name="Image Number")
+    date = models.DateField()
+    time = models.TimeField()
 
-    series = models.ForeignKey(
-        "django_dicom.Series", blank=True, null=True, on_delete=models.PROTECT
-    )
-
-    objects = ImageManager()
+    series = models.ForeignKey("django_dicom.Series", on_delete=models.PROTECT)
 
     _header = None
     FIELD_TO_HEADER = {
@@ -66,11 +58,6 @@ class Image(DicomEntity):
     def read_header(self) -> HeaderInformation:
         raw_header = self.read_file(header_only=True)
         return HeaderInformation(raw_header)
-
-    def create_backup(self, dest: str):
-        shutil.copyfile(self.dcm.path, dest)
-        self.has_raw_backup = True
-        self.save()
 
     def get_b_value(self) -> int:
         return self.header.get_value(("0019", "100c"))

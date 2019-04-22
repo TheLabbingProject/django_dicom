@@ -1,7 +1,7 @@
 import os
 import zipfile
 
-from django_dicom.controllers.import_image import ImportImage
+from django_dicom.data_import.import_image import ImportImage
 from django_dicom.models import Image
 from tqdm import tqdm
 
@@ -9,7 +9,10 @@ from tqdm import tqdm
 class LocalImport:
     """
     This class handles importing data from a local directory. Any *.dcm* files 
-    under the directory tree will be imported using :class:`~django_dicom.controllers.import_image.ImportImage`.
+    under the directory tree will be imported using :class:`~django_dicom.data_import.import_image.ImportImage`.
+
+    TODO: This should be made into a custom django-admin command:
+    https://docs.djangoproject.com/en/2.2/howto/custom-management-commands/
     """
 
     def __init__(self, path: str):
@@ -25,26 +28,11 @@ class LocalImport:
 
         self.path = path
 
-    def path_generator(self, extension: str = "") -> str:
-        """
-        Generates "*.dcm*" paths from the given directory tree.
-        
-        Returns
-        -------
-        str
-            DICOM image path.
-        """
-
-        for directory, _, files in os.walk(self.path):
-            if extension:
-                files = [f for f in files if f.endswith(f".{extension}")]
-            for file_name in files:
-                yield os.path.join(directory, file_name)
-
-    def import_local_dcm(self, path: str) -> Image:
+    @classmethod
+    def import_local_dcm(cls, path: str) -> Image:
         """
         Reads the local DICOM image into an :class:`io.BufferedReader` and uses
-        :class:`~django_dicom.controllers.import_image.ImportImage` to create an
+        :class:`~django_dicom.data_import.import_image.ImportImage` to create an
         :class:`~django_dicom.models.Image` from it.
         
         Parameters
@@ -61,30 +49,8 @@ class LocalImport:
         with open(path, "rb") as dcm_buffer:
             return ImportImage(dcm_buffer).run()
 
-    def import_dcm_files(self):
-        """
-        Creates :class:`~django_dicom.models.Image` instances for each "*.dcm*"
-        file under the given directory tree. Prints an iterations counter and
-        reports the number of instances added in the end.
-        """
-
-        counter = {"created": 0, "existing": 0}
-        dcm_generator = self.path_generator(extension="dcm")
-        print("\nImporting DICOM image files...")
-        for dcm_path in tqdm(dcm_generator):
-            _, created = self.import_local_dcm(dcm_path)
-            if created:
-                counter["created"] += 1
-            else:
-                counter["existing"] += 1
-        msg = f"Successfully imported {counter['created']} new images!"
-        if counter["existing"]:
-            msg += (
-                f" ({counter['existing']} were found to already exist in the database)"
-            )
-        print(msg)
-
-    def import_local_zip_archive(self, path: str) -> None:
+    @classmethod
+    def import_local_zip_archive(cls, path: str) -> None:
         """
         Iterates over the files within a ZIP archive and imports any "*.dcm*" files.
         
@@ -113,7 +79,51 @@ class LocalImport:
             )
         print(msg)
 
+    def path_generator(self, extension: str = "") -> str:
+        """
+        Generates "*.dcm*" paths from the given directory tree.
+        
+        Returns
+        -------
+        str
+            DICOM image path.
+        """
+
+        for directory, _, files in os.walk(self.path):
+            if extension:
+                files = [f for f in files if f.endswith(f".{extension}")]
+            for file_name in files:
+                yield os.path.join(directory, file_name)
+
+    def import_dcm_files(self):
+        """
+        Creates :class:`~django_dicom.models.Image` instances for each "*.dcm*"
+        file under the given directory tree. Prints an iterations counter and
+        reports the number of instances added in the end.
+        """
+
+        counter = {"created": 0, "existing": 0}
+        dcm_generator = self.path_generator(extension="dcm")
+        print("\nImporting DICOM image files...")
+        for dcm_path in tqdm(dcm_generator):
+            _, created = self.import_local_dcm(dcm_path)
+            if created:
+                counter["created"] += 1
+            else:
+                counter["existing"] += 1
+        msg = f"Successfully imported {counter['created']} new images!"
+        if counter["existing"]:
+            msg += (
+                f" ({counter['existing']} were found to already exist in the database)"
+            )
+        print(msg)
+
     def import_zip_archives(self) -> None:
+        """
+        Finds ZIP archives under the current directory tree and imports any DICOM
+        data (*.dcm* files) found within them.
+        """
+
         print("\nChecking ZIP archives...")
         archives = self.path_generator(extension="zip")
         counter = 0
@@ -129,6 +139,15 @@ class LocalImport:
             print("No ZIP archives found.")
 
     def run(self, import_zip: bool = True) -> None:
+        """
+        Imports any DICOM data (*.dcm* files) found under the given path.
+        
+        Parameters
+        ----------
+        import_zip : bool, optional
+            Find and import data from ZIP archives (the default is True, which will import any ZIP archived DICOM images).
+        """
+
         self.import_dcm_files()
         if import_zip:
             self.import_zip_archives()

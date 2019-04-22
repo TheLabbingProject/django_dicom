@@ -1,9 +1,8 @@
-from django.db.models import QuerySet
-from django_dicom.models.managers.dicom_entity import DicomEntityManager
+from django.db import models
 
 
-class PatientManager(DicomEntityManager):
-    def get_multi_visit_patients(self) -> QuerySet:
+class PatientManager(models.Manager):
+    def get_multi_visit_patients(self) -> models.QuerySet:
         return [
             patient
             for patient in self.all()

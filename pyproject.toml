@@ -19,11 +19,14 @@ keywords = ['DICOM', 'django', 'MRI']
 [tool.poetry.dependencies]
 python = "^3.6"
 toml = "^0.9"
-django = "^2.2"
 pydicom = "^1.2"
 numpy = "^1.16"
 django_extensions = "^2.1"
 tqdm = "^4.31"
+django-environ = "^0.4.5"
+django-extensions = "^2.1"
+django = "^2.2"
+psycopg2-binary = "^2.8"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
