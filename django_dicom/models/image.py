@@ -49,7 +49,7 @@ class Image(DicomEntity):
     def get_absolute_url(self) -> str:
         return reverse("dicom:image_detail", args=[str(self.id)])
 
-    def read_file(self, header_only: bool = False) -> pydicom.dataset.FileDataset:
+    def read_file(self, header_only: bool = False) -> pydicom.FileDataset:
         return pydicom.read_file(self.dcm.path, stop_before_pixels=header_only)
 
     def get_data(self) -> np.ndarray:
@@ -75,20 +75,6 @@ class Image(DicomEntity):
     @property
     def gradient_direction(self):
         return self.header.get_value(("0019", "100e"))
-
-    @property
-    def patient(self):
-        try:
-            return self.series.patient
-        except AttributeError:
-            return None
-
-    @property
-    def study(self):
-        try:
-            return self.series.study
-        except AttributeError:
-            return None
 
     class Meta:
         indexes = [models.Index(fields=["uid"]), models.Index(fields=["date", "time"])]

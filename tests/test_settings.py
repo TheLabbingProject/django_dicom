@@ -83,3 +83,4 @@ STATICFILES_DIRS = [
 
 MEDIA_ROOT = env("MEDIA_ROOT")
 MEDIA_URL = "/media/"
+ROOT_URLCONF = "django_dicom.urls"

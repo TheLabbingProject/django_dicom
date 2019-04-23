@@ -106,7 +106,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "0.4.1"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Code coverage measurement for Python"
 name = "coverage"
 optional = false
@@ -646,7 +646,7 @@ python-versions = "*"
 version = "0.1.7"
 
 [metadata]
-content-hash = "4a982e98ef03f03e0f826512e51b835162f1babb0184167dbb49f5005d70ca8f"
+content-hash = "7f31424a82dbb9b7bd57917a7352f3a8d6f36b5e1b987e21bebb6862c3bcb4bd"
 python-versions = "^3.6"
 
 [metadata.hashes]

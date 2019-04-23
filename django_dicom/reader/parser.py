@@ -187,7 +187,9 @@ class DicomParser:
             # iterate over the multiple values.
             except TypeError:
                 return [values_enum[value].name for value in element.value]
-        return None
+
+        # If no Enum exists, simply return the code-string value
+        return element.value
 
     # Custom parsing methods (tag dependent rather than value representation dependant)
     def parse_slice_timing(self, value: bytes) -> list:

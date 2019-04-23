@@ -5,7 +5,6 @@ from django.urls import reverse
 from django_dicom.models import Image
 from django_dicom.reader.code_strings import Sex
 from django_dicom.models.dicom_entity import DicomEntity
-from django_dicom.models.managers import PatientManager
 from django_dicom.reader import HeaderInformation
 
 
@@ -19,7 +18,6 @@ class Patient(DicomEntity):
     
     """
 
-    uid = models.CharField(max_length=64, unique=True)
     date_of_birth = models.DateField(blank=True, null=True)
     sex = models.CharField(max_length=6, choices=Sex.choices(), blank=True, null=True)
 
@@ -39,8 +37,6 @@ class Patient(DicomEntity):
     #     on_delete=models.PROTECT,
     #     related_name="mri_patient_set",
     # )
-
-    objects = PatientManager()
 
     FIELD_TO_HEADER = {
         "uid": "PatientID",
@@ -69,7 +65,7 @@ class Patient(DicomEntity):
         for part in self.NAME_PARTS:
             part_value = getattr(value, part, None)
             if part_value:
-                setattr(self, part, value)
+                setattr(self, part, part_value)
 
     def update_fields_from_header(
         self, header: HeaderInformation, exclude: list = []
@@ -86,7 +82,7 @@ class Patient(DicomEntity):
             Field names to exclude (the default is [], which will not exclude any header fields).
         """
 
-        exclude = exclude + self.NAME_PARTS
+        exclude += self.NAME_PARTS
         super().update_fields_from_header(header, exclude=exclude)
         self.update_patient_name(header)
 

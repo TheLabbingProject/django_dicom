@@ -27,6 +27,7 @@ django-environ = "^0.4.5"
 django-extensions = "^2.1"
 django = "^2.2"
 psycopg2-binary = "^2.8"
+coverage = "^4.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"

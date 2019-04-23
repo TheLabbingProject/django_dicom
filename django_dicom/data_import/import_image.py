@@ -178,10 +178,8 @@ class ImportImage:
             ( existing_image , created )
         """
 
-        uid = self.image.uid
         os.remove(self.image.dcm.path)
-        self.image.delete()
-        return Image.objects.get(uid=uid), False
+        return Image.objects.get(uid=self.image.uid), False
 
     def run(self) -> tuple:
         """

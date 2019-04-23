@@ -11,6 +11,9 @@ class DicomEntity(TimeStampedModel):
     .. _DICOM entity: https://dcm4che.atlassian.net/wiki/spaces/d2/pages/1835038/A+Very+Basic+DICOM+Introduction    
     """
 
+    # Every dicom entity has a UID
+    uid = models.CharField(max_length=64, unique=True)
+
     # This dictionairy is used to identify fields that do not represent DICOM
     # header information. These fields will not be updated when calling a derived
     # model's update_fields_from_header() method.
@@ -50,28 +53,6 @@ class DicomEntity(TimeStampedModel):
 
         camel_case = snake_case_to_camel_case(field_name)
         return cls.FIELD_TO_HEADER.get(field_name, camel_case)
-
-    def get_uid(self) -> str:
-        """
-        Each derived DICOM entity is meant to have a UID field (named "uid") to
-        store the corresponding UID. If no such field exists, raises a
-        NotImplemntedError.
-        
-        Raises
-        ------
-        NotImplementedError
-            If "uid" field does not exist.
-        
-        Returns
-        -------
-        str
-            This entity's UID.
-        """
-
-        try:
-            return self.uid
-        except AttributeError:
-            raise NotImplementedError
 
     def is_header_field(self, field: models.Field) -> bool:
         """
