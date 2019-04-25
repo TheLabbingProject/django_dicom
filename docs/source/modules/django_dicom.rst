@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+    :maxdepth: 2
 
     django_dicom.data_import
     django_dicom.models
