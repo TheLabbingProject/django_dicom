@@ -8,7 +8,7 @@ from django_dicom.models import Image, Series, Patient, Study
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.reader import HeaderInformation
 from django_dicom.utils import snake_case_to_camel_case
-from tests.models.fixtures import (
+from tests.fixtures import (
     # TEST_IMAGE_PATH,
     # TEST_DWI_IMAGE_PATH,
     TEST_IMAGE_FIELDS,

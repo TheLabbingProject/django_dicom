@@ -10,7 +10,7 @@ from django_dicom.reader.code_strings import (
     ScanningSequence,
     SequenceVariant,
 )
-from tests.models.fixtures import (
+from tests.fixtures import (
     TEST_IMAGE_PATH,
     TEST_DWI_IMAGE_PATH,
     TEST_IMAGE_FIELDS,

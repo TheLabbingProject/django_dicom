@@ -1,11 +1,13 @@
+import glob
 import os
+import shutil
 
 from django.conf import settings
 from django.test import TestCase
 from django_dicom.apps import DjangoDicomConfig
 from django_dicom.data_import.import_image import ImportImage
 from django_dicom.models import Image, Series, Study, Patient
-from tests.models.fixtures import (
+from tests.fixtures import (
     TEST_IMAGE_PATH,
     TEST_DWI_IMAGE_PATH,
     TEST_DIFFERENT_STUDY_IMAGE_PATH,
@@ -16,6 +18,10 @@ from tests.models.fixtures import (
     TEST_STUDY_FIELDS,
 )
 
+TESTS_DIR = os.path.normpath("./tests")
+TEMP_FILES = os.path.join(TESTS_DIR, "tmp*.dcm")
+IMPORTED_DIR = os.path.join(TESTS_DIR, "MRI")
+
 
 class ImportImageTestCase(TestCase):
     @classmethod
@@ -23,6 +29,10 @@ class ImportImageTestCase(TestCase):
         TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         Series.objects.create(**TEST_SERIES_FIELDS)
+
+    def tearDown(self):
+        for dcm in glob.glob(TEMP_FILES):
+            os.remove(dcm)
 
     def test_store_file(self):
         # Store file
@@ -114,6 +124,7 @@ class ImportImageTestCase(TestCase):
         relative_destination = instance.move_image_to_destination()
         destination = os.path.join(settings.MEDIA_ROOT, relative_destination)
         self.assertTrue(os.path.isfile(destination))
+        shutil.rmtree(IMPORTED_DIR)
 
     def test_generate_entities_and_relationships(self):
         with open(TEST_IMAGE_PATH, "rb") as dcm:
@@ -138,6 +149,7 @@ class ImportImageTestCase(TestCase):
         self.assertEqual(image.series, series)
         self.assertEqual(image.series.study, study)
         self.assertEqual(image.series.patient, patient)
+        shutil.rmtree(IMPORTED_DIR)
 
     def test_run_with_different_series_but_same_patient_and_study(self):
         # Create image
@@ -153,6 +165,7 @@ class ImportImageTestCase(TestCase):
         self.assertNotEqual(dwi.series, image.series)
         self.assertEqual(dwi.series.study, image.series.study)
         self.assertEqual(dwi.series.patient, image.series.patient)
+        shutil.rmtree(IMPORTED_DIR)
 
     def test_run_with_different_study_and_same_patient(self):
         # Create image
@@ -167,6 +180,7 @@ class ImportImageTestCase(TestCase):
         self.assertNotEqual(later_image.series, image.series)
         self.assertNotEqual(later_image.series.study, image.series.study)
         self.assertEqual(later_image.series.patient, image.series.patient)
+        shutil.rmtree(IMPORTED_DIR)
 
     def test_run_with_different_patient_and_same_study(self):
         # TODO: Find two images from same study and different patient and complete this.
@@ -188,6 +202,7 @@ class ImportImageTestCase(TestCase):
         self.assertNotEqual(image.series, second_image.series)
         self.assertNotEqual(image.series.study, second_image.series.study)
         self.assertNotEqual(image.series.patient, second_image.series.patient)
+        shutil.rmtree(IMPORTED_DIR)
 
     def test_run_with_integrity_error_handler(self):
         # Normal run
@@ -200,6 +215,7 @@ class ImportImageTestCase(TestCase):
             same_image, created_again = ImportImage(dcm).run()
         self.assertEqual(image, same_image)
         self.assertFalse(created_again)
+        shutil.rmtree(IMPORTED_DIR)
 
     def test_run_with_different_integrity_error(self):
         # Not sure how to go about this.

@@ -50,7 +50,7 @@ class LocalImport:
             return ImportImage(dcm_buffer).run()
 
     @classmethod
-    def import_local_zip_archive(cls, path: str) -> None:
+    def import_local_zip_archive(cls, path: str, verbose: bool = True) -> None:
         """
         Iterates over the files within a ZIP archive and imports any "*.dcm*" files.
         
@@ -58,13 +58,16 @@ class LocalImport:
         ----------
         path : str
             Local ZIP archive path.
+        verbose : bool, optional
+            Show a progressbar (default to True).
         """
 
         counter = {"created": 0, "existing": 0}
         zip_name = os.path.basename(path)
-        print(f"Reading {path}...")
+        if verbose:
+            print(f"Reading {path}...")
         with zipfile.ZipFile(path, "r") as archive:
-            for file_name in tqdm(archive.namelist()):
+            for file_name in tqdm(archive.namelist(), disable=not verbose):
                 if file_name.endswith(".dcm"):
                     with archive.open(file_name) as dcm_buffer:
                         _, created = ImportImage(dcm_buffer).run()
@@ -77,7 +80,8 @@ class LocalImport:
             msg += (
                 f" ({counter['existing']} were found to already exist in the database)"
             )
-        print(msg)
+        if verbose:
+            print(msg)
 
     def path_generator(self, extension: str = "") -> str:
         """
@@ -95,17 +99,23 @@ class LocalImport:
             for file_name in files:
                 yield os.path.join(directory, file_name)
 
-    def import_dcm_files(self):
+    def import_dcm_files(self, verbose: bool = True) -> None:
         """
         Creates :class:`~django_dicom.models.Image` instances for each "*.dcm*"
         file under the given directory tree. Prints an iterations counter and
         reports the number of instances added in the end.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            Shows an iterations/second meter (default to True).
         """
 
         counter = {"created": 0, "existing": 0}
         dcm_generator = self.path_generator(extension="dcm")
-        print("\nImporting DICOM image files...")
-        for dcm_path in tqdm(dcm_generator):
+        if verbose:
+            print("\nImporting DICOM image files...")
+        for dcm_path in tqdm(dcm_generator, disable=not verbose):
             _, created = self.import_local_dcm(dcm_path)
             if created:
                 counter["created"] += 1
@@ -116,29 +126,37 @@ class LocalImport:
             msg += (
                 f" ({counter['existing']} were found to already exist in the database)"
             )
-        print(msg)
+        if verbose:
+            print(msg)
 
-    def import_zip_archives(self) -> None:
+    def import_zip_archives(self, verbose: bool = True) -> None:
         """
         Finds ZIP archives under the current directory tree and imports any DICOM
         data (*.dcm* files) found within them.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            Shows a progressbar (default to True).        
         """
 
-        print("\nChecking ZIP archives...")
+        if verbose:
+            print("\nChecking ZIP archives...")
         archives = self.path_generator(extension="zip")
         counter = 0
         for archive in archives:
-            self.import_local_zip_archive(archive)
+            self.import_local_zip_archive(archive, verbose=verbose)
             counter += 1
-        if counter:
-            noun = "archive"
-            if counter > 1:
-                noun += "s"
-            print(f"{counter} ZIP {noun} imported.")
-        else:
-            print("No ZIP archives found.")
+        if verbose:
+            if counter:
+                noun = "archive"
+                if counter > 1:
+                    noun += "s"
+                print(f"{counter} ZIP {noun} imported.")
+            else:
+                print("No ZIP archives found.")
 
-    def run(self, import_zip: bool = True) -> None:
+    def run(self, import_zip: bool = True, verbose: bool = True) -> None:
         """
         Imports any DICOM data (*.dcm* files) found under the given path.
         
@@ -146,9 +164,11 @@ class LocalImport:
         ----------
         import_zip : bool, optional
             Find and import data from ZIP archives (the default is True, which will import any ZIP archived DICOM images).
+        verbose : bool, optional
+            Shows a progressbar (default to True).        
         """
 
-        self.import_dcm_files()
+        self.import_dcm_files(verbose=verbose)
         if import_zip:
-            self.import_zip_archives()
+            self.import_zip_archives(verbose=verbose)
 

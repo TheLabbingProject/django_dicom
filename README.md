@@ -12,7 +12,7 @@ The models are complemented with some utility methods to facilitate data access.
 Quick start
 -----------
 
-1. Add "django_dicom" to your INSTALLED_APPS setting like this::
+1. Add "django_dicom" to your INSTALLED_APPS setting:
 
 <pre>
     INSTALLED_APPS = [  
@@ -21,7 +21,7 @@ Quick start
     ]  
 </pre>
 
-2. Include the dicom URLconf in your project urls.py like this::
+2. Include the dicom URLconf in your project urls.py:
 
 <pre>
     path('dicom/', include('django_dicom.urls')),

@@ -2,7 +2,7 @@ import pydicom
 
 from django.test import TestCase
 from django_dicom.reader import HeaderInformation, DicomParser
-from tests.models.fixtures import TEST_IMAGE_PATH, TEST_STUDY_FIELDS
+from tests.fixtures import TEST_IMAGE_PATH, TEST_STUDY_FIELDS
 
 
 class HeaderInformationTestCase(TestCase):

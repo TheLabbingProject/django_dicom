@@ -3,6 +3,7 @@ omit = ../*migrations*
     run_tests.py
     *tests*
     venv/**
+    setup.py
 
 source = .
 branch = True

@@ -2,15 +2,15 @@ import os
 
 from datetime import datetime
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
-TEST_IMAGE_PATH = os.path.normpath(os.path.join(dir_path, "../files/001.dcm"))
-TEST_DWI_IMAGE_PATH = os.path.normpath(os.path.join(dir_path, "../files/dwi_image.dcm"))
-TEST_DIFFERENT_PATIENT_IMAGE_PATH = os.path.normpath(
-    os.path.join(dir_path, "../files/different_patient.dcm")
+TEST_FILES_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "files")
+TEST_ZIP_PATH = os.path.join(TEST_FILES_PATH, "001.zip")
+TEST_IMAGE_PATH = os.path.join(TEST_FILES_PATH, "001.dcm")
+TEST_DWI_IMAGE_PATH = os.path.join(TEST_FILES_PATH, "dwi_image.dcm")
+TEST_DIFFERENT_PATIENT_IMAGE_PATH = os.path.join(
+    TEST_FILES_PATH, "different_patient.dcm"
 )
-TEST_DIFFERENT_STUDY_IMAGE_PATH = os.path.normpath(
-    os.path.join(dir_path, "../files/different_study.dcm")
-)
+TEST_DIFFERENT_STUDY_IMAGE_PATH = os.path.join(TEST_FILES_PATH, "different_study.dcm")
+
 TEST_IMAGE_FIELDS = {
     "dcm": TEST_IMAGE_PATH,
     "uid": "1.3.12.2.1107.5.2.43.66024.2018050112252318571884482",

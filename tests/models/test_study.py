@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_dicom.models import Series, Patient, Study, Image
-from tests.models.fixtures import (
+from tests.fixtures import (
     TEST_IMAGE_FIELDS,
     TEST_SERIES_FIELDS,
     TEST_STUDY_FIELDS,

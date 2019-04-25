@@ -4,7 +4,7 @@ import pydicom
 
 from django.test import TestCase
 from django_dicom.reader import DicomParser
-from tests.models.fixtures import TEST_DWI_IMAGE_PATH
+from tests.fixtures import TEST_DWI_IMAGE_PATH
 
 
 class DicomParserTestCase(TestCase):
