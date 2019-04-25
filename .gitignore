@@ -42,3 +42,4 @@ venv
 **.pkl
 
 pip-wheel-metadata/
+docs/build/

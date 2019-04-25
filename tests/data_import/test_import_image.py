@@ -24,13 +24,38 @@ IMPORTED_DIR = os.path.join(TESTS_DIR, "MRI")
 
 
 class ImportImageTestCase(TestCase):
+    """
+    Tests for the :class:`~django_dicom.data_import.import_image.ImportImage` class
+    which is meant to handle the addition of new DICOM images to the database.
+
+    """
+
     @classmethod
     def setUpTestData(cls):
+        """
+        Creates :class:`~django_dicom.models.series.Series`, :class:`~django_dicom.models.study.Study`,
+        and :class:`~django_dicom.models.patient.Patient` instances to test for cases
+        in which we add DICOM images under these conditions (related entities exist).
+        `More Information`_
+
+        .. _More Information: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
+        
+        """
+
         TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         Series.objects.create(**TEST_SERIES_FIELDS)
 
     def tearDown(self):
+        """
+        Delete any temporary files that may have been created during the
+        :class:`~django_dicom.models.image.Image` instance's creation.        
+        `More Information`_
+
+        .. _More Information: https://docs.python.org/3/library/unittest.html#unittest.TestCase.tearDown
+
+        """
+
         for dcm in glob.glob(TEMP_FILES):
             os.remove(dcm)
 

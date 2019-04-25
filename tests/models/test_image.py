@@ -21,11 +21,22 @@ from tests.fixtures import (
 
 
 class ImageTestCase(TestCase):
+    """
+    Tests for the :class:`~django_dicom.models.image.Image` model.    
+
+    """
+
     NON_HEADER_FIELDS = ["id", "dcm", "created", "modified", "series"]
     HEADER_FIELDS = ["uid", "number", "date", "time"]
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Creates instances to test the :class:`~django_dicom.models.image.Image`
+        model.
+
+        """
+
         TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
         TEST_DWI_SERIES_FIELDS["patient"] = TEST_SERIES_FIELDS["patient"]
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
@@ -38,12 +49,22 @@ class ImageTestCase(TestCase):
         Image.objects.create(**TEST_DWI_IMAGE_FIELDS)
 
     def setUp(self):
+        """
+        Adds the created instances to the tests' contexts.
+        `More Information`_
+
+        .. _More Information: https://docs.python.org/3/library/unittest.html#unittest.TestCase.setUp        
+        """
+
         self.series = Series.objects.get(uid=TEST_SERIES_FIELDS["uid"])
         self.image = Image.objects.get(uid=TEST_IMAGE_FIELDS["uid"])
         self.dwi_series = Series.objects.get(uid=TEST_DWI_SERIES_FIELDS["uid"])
         self.dwi_image = Image.objects.get(uid=TEST_DWI_IMAGE_FIELDS["uid"])
 
-    # Tests for DicomEntity functionality
+    #######################################
+    # Tests for DicomEntity functionality #
+    #######################################
+
     def test_is_dicom_entity(self):
         """
         Tests that the created :class:`~django_dicom.models.image.Image` instance
@@ -117,7 +138,11 @@ class ImageTestCase(TestCase):
         }
         self.assertDictEqual(values, expected_values)
 
-    # Fields
+    ##########
+    # Fields #
+    ##########
+
+    # dcm
     def test_dcm_extension_validation(self):
         """
         Tests that only *.dcm* files may be used to instantiate an
@@ -131,6 +156,7 @@ class ImageTestCase(TestCase):
         with self.assertRaises(ValidationError):
             self.image.full_clean()
 
+    # uid
     def test_uid_max_length(self):
         """
         DICOM's SOPInstanceUID_ attribute may only be as long as 64 characters (
@@ -190,6 +216,7 @@ class ImageTestCase(TestCase):
         field = self.image._meta.get_field("uid")
         self.assertEqual(field.verbose_name, "Image UID")
 
+    # number
     def test_number_vebose_name(self):
         """
         Test the *number* field vebose name.
@@ -199,6 +226,7 @@ class ImageTestCase(TestCase):
         field = self.image._meta.get_field("number")
         self.assertEqual(field.verbose_name, "Image Number")
 
+    # Others
     def test_fields_blank_and_null_configuration(self):
         """
         Every :class:`~django_dicom.models.image.Image` instance must have all of
@@ -213,7 +241,10 @@ class ImageTestCase(TestCase):
                 self.assertFalse(field.blank, f"{field.name} should not be blankable!")
             self.assertFalse(field.null, f"{field.name} should not be nullable!")
 
-    # Methods
+    ###########
+    # Methods #
+    ###########
+
     def test_string(self):
         """
         Tests that an :class:`~django_dicom.models.image.Image` instance's `__str__`_
@@ -303,7 +334,10 @@ class ImageTestCase(TestCase):
         self.assertIsNone(self.image.get_b_value())
         self.assertEqual(self.dwi_image.get_b_value(), 0)
 
-    # Properties
+    ##############
+    # Properties #
+    ##############
+
     def test_header(self):
         """
         Tests that the *_header* class attribute is properly updated by the

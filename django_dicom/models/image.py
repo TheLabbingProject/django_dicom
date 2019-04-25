@@ -43,6 +43,9 @@ class Image(DicomEntity):
         "time": "InstanceCreationTime",
     }
 
+    class Meta:
+        indexes = [models.Index(fields=["uid"]), models.Index(fields=["date", "time"])]
+
     def __str__(self) -> str:
         return self.uid
 
@@ -50,32 +53,108 @@ class Image(DicomEntity):
         return reverse("dicom:image_detail", args=[str(self.id)])
 
     def read_file(self, header_only: bool = False) -> pydicom.FileDataset:
+        """
+        Reads the DICOM image file to memory.
+        
+        Parameters
+        ----------
+        header_only : bool, optional
+            Exclude pixel data or not, by default False which will include pixel data.
+        
+        Returns
+        -------
+        :class:`pydicom.dataset.FileDataset`
+            DICOM image file as object.
+        """
         return pydicom.read_file(self.dcm.path, stop_before_pixels=header_only)
 
     def get_data(self) -> np.ndarray:
+        """
+        Returns the image's pixel array as a `NumPy`_ array.
+        
+        Returns
+        -------
+        :class:`numpy.ndarray`
+            Image's pixel array.
+
+        .. _NumPy: http://www.numpy.org/
+        """
         return self.read_file(header_only=False).pixel_array
 
     def read_header(self) -> HeaderInformation:
+        """
+        Reads the header information from the associated DICOM file.
+        
+        Returns
+        -------
+        :class:`~django_dicom.reader.header_information.HeaderInformation`
+            Image's header information.
+        """
+
         raw_header = self.read_file(header_only=True)
         return HeaderInformation(raw_header)
 
     def get_b_value(self) -> int:
-        return self.header.get_value(("0019", "100c"))
+        """
+        Returns the `b-value`_ for diffusion weighted images (`DWI`_). 
+        Currently only SIEMENS tags are supported.
+        
+        Returns
+        -------
+        int
+            Degree of diffusion weighting applied.
+
+        .. _b-value: https://radiopaedia.org/articles/b-values-1
+        .. _DWI: https://en.wikipedia.org/wiki/Diffusion_MRI#Diffusion_imaging
+        """
+
+        manufacturer = self.header.get_value("Manufacturer")
+        if manufacturer == "SIEMENS":
+            return self.header.get_value(("0019", "100c"))
 
     @property
     def header(self) -> HeaderInformation:
+        """
+        Caches the created :class:`~django_dicom.reader.header_information.HeaderInformation`
+        instance to prevent multiple reades.
+        
+        Returns
+        -------
+        :class:`~django_dicom.reader.header_information.HeaderInformation`
+            The image's header information.
+        """
+
         if not isinstance(self._header, HeaderInformation):
             self._header = self.read_header()
         return self._header
 
     @property
-    def slice_timing(self):
-        return self.header.get_value(("0019", "1029"))
+    def slice_timing(self) -> list:
+        """
+        Returns the slice timing vector for this image. 
+        Currently only SIEMENS tags are supported.
+        
+        Returns
+        -------
+        list
+            This image's slice times.
+        """
+        manufacturer = self.header.get_value("Manufacturer")
+        if manufacturer == "SIEMENS":
+            return self.header.get_value(("0019", "1029"))
 
     @property
-    def gradient_direction(self):
-        return self.header.get_value(("0019", "100e"))
-
-    class Meta:
-        indexes = [models.Index(fields=["uid"]), models.Index(fields=["date", "time"])]
+    def gradient_direction(self) -> list:
+        """
+        Returns the gradient direction vector for this image. 
+        Currently only SIEMENS tags are supported.
+        
+        Returns
+        -------
+        list
+            This image's gradient direction.
+        """
+        manufacturer = self.header.get_value("Manufacturer")
+        if manufacturer == "SIEMENS":
+            return self.header.get_value(("0019", "100e"))
 

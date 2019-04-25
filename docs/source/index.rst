@@ -10,11 +10,12 @@ Welcome to django_dicom's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-    modules/django_dicom
-    modules/django_dicom.data_import
-    modules/django_dicom.models
-    modules/django_dicom.reader
-    modules/django_dicom.tests
+   modules/modules
+   modules/django_dicom
+   modules/django_dicom.data_import
+   modules/django_dicom.models
+   modules/django_dicom.reader
+   modules/tests
 
 
 Indices and tables

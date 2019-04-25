@@ -13,11 +13,20 @@ IMPORTED_DIR = os.path.join(TESTS_DIR, "MRI")
 
 
 class LocalImportTestCase(TestCase):
+    """
+    Tests for the :class:`~django_dicom.data_import.local_import.LocalImport` class,
+    which is meant to provide methods to facilitate data import.
+    
+    """
+
     def tearDown(self):
         """
         Tries to remove the :class:`~django_dicom.models.image.Image` instances
         that may have been created during each test, as well as the destination
         directory.
+        `More Information`_
+
+        .. _More Information: https://docs.python.org/3/library/unittest.html#unittest.TestCase.tearDown
 
         """
 

@@ -23,8 +23,19 @@ from tests.fixtures import (
 
 
 class SeriesTestCase(TestCase):
+    """
+    Tests for the :class:`~django_dicom.models.series.Series` model.
+    
+    """
+
     @classmethod
     def setUpTestData(cls):
+        """
+        Creates instances to be used in the tests.
+        `More Information`_
+
+        .. _More Information: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
+        """
         TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
         TEST_DWI_SERIES_FIELDS["patient"] = TEST_SERIES_FIELDS["patient"]
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
@@ -37,12 +48,22 @@ class SeriesTestCase(TestCase):
         Image.objects.create(**TEST_DWI_IMAGE_FIELDS)
 
     def setUp(self):
+        """
+        Adds the created instances to the tests' contexts.
+        `More Information`_
+
+        .. _More Information: https://docs.python.org/3/library/unittest.html#unittest.TestCase.setUp
+        """
+
         self.series = Series.objects.get(uid=TEST_SERIES_FIELDS["uid"])
         self.image = Image.objects.get(uid=TEST_IMAGE_FIELDS["uid"])
         self.dwi_series = Series.objects.get(uid=TEST_DWI_SERIES_FIELDS["uid"])
         self.dwi_image = Image.objects.get(uid=TEST_DWI_IMAGE_FIELDS["uid"])
 
-    # Meta
+    ########
+    # Meta #
+    ########
+
     def test_series_verbose_name_plural(self):
         """
         Validate the `verbose name plural`_ ("`Series`_") of the :class:`~django_dicom.models.series.Series` model.
@@ -65,7 +86,11 @@ class SeriesTestCase(TestCase):
 
     # TODO: Test for indexes
 
-    # Fields
+    ##########
+    # Fields #
+    ##########
+
+    # uid
     def test_uid_max_length(self):
         """
         DICOM's SeriesInstanceUID_ attribute may only be as long as 64 characters (
@@ -135,6 +160,7 @@ class SeriesTestCase(TestCase):
         self.assertFalse(field.blank)
         self.assertFalse(field.null)
 
+    # number
     def test_number_vebose_name(self):
         """
         Test the *number* field vebose name.
@@ -157,6 +183,7 @@ class SeriesTestCase(TestCase):
         self.assertTrue(field.blank)
         self.assertTrue(field.null)
 
+    # description
     def test_description_max_length(self):
         """
         DICOM's `Series Description`_ attribute may only be as long as 64 characters (
@@ -192,6 +219,7 @@ class SeriesTestCase(TestCase):
         field = self.series._meta.get_field("description")
         self.assertEqual(field.verbose_name, "Series Description")
 
+    # date
     def test_date_blank_and_null(self):
         """
         The `Series Date`_ attribute is optional (`type 3 data element`).
@@ -205,6 +233,7 @@ class SeriesTestCase(TestCase):
         self.assertTrue(field.blank)
         self.assertTrue(field.null)
 
+    # time
     def test_time_blank_and_null(self):
         """
         The `Series Time`_ attribute is optional (`type 3 data element`).
@@ -218,6 +247,7 @@ class SeriesTestCase(TestCase):
         self.assertTrue(field.blank)
         self.assertTrue(field.null)
 
+    # echo_time
     def test_echo_time_blank_and_null(self):
         """
         The `Echo Time`_ attribute may be empty (`type 2 data element`).
@@ -245,6 +275,7 @@ class SeriesTestCase(TestCase):
             self.series.full_clean()
         self.series.echo_time = value
 
+    # inversion_time
     def test_inversion_time_blank_and_null(self):
         """
         The `Inversion Time`_ attribute may be empty (`type 2C data element`).
@@ -272,6 +303,7 @@ class SeriesTestCase(TestCase):
             self.series.full_clean()
         self.series.inversion_time = value
 
+    # repetition_time
     def test_repetition_time_blank_and_null(self):
         """
         The `Repetition Time`_ attribute may be empty (`type 2C data element`).
@@ -299,6 +331,7 @@ class SeriesTestCase(TestCase):
             self.series.full_clean()
         self.series.repetition_time = value
 
+    # scanning_sequence
     def test_scanning_sequence_blank_and_null(self):
         """
         The `Scanning Sequence`_ attribute may not be empty (`type 1 data element`).
@@ -348,6 +381,7 @@ class SeriesTestCase(TestCase):
         field = self.series._meta.get_field("scanning_sequence")
         self.assertEqual(field.base_field.choices, ScanningSequence.choices())
 
+    # sequence_variant
     def test_sequence_variant_blank_and_null(self):
         """
         The `Sequence Variant`_ attribute may not be empty (`type 1 data element`).
@@ -398,6 +432,7 @@ class SeriesTestCase(TestCase):
         field = self.series._meta.get_field("sequence_variant")
         self.assertEqual(field.base_field.choices, SequenceVariant.choices())
 
+    # pixel_spacing
     def test_pixel_spacing_blank_and_null(self):
         """
         The `Pixel Spacing`_ attribute may not be empty (`type 1 data element`).
@@ -438,6 +473,7 @@ class SeriesTestCase(TestCase):
                 self.series.full_clean()
         self.series.pixel_spacing = original_value
 
+    # manufacturer
     def test_manufacturer_blank_and_null(self):
         """
         The `Manufacturer`_ attribute may be empty (`type 2 data element`).
@@ -464,6 +500,7 @@ class SeriesTestCase(TestCase):
         field = self.series._meta.get_field("manufacturer")
         self.assertEqual(field.max_length, 64)
 
+    # manufacturer_model
     def test_manufacturer_model_name_blank_and_null(self):
         """
         The `Manufacturer's Model Name`_ attribute is optional (`type 3 data element`).
@@ -489,6 +526,7 @@ class SeriesTestCase(TestCase):
         field = self.series._meta.get_field("manufacturer_model_name")
         self.assertEqual(field.max_length, 64)
 
+    # magnetic_field_strength
     def test_magnetic_field_strengh_blank_and_null(self):
         """
         The `Magnetic Field Strength`_ attribute is optional (`type 3 data element`).
@@ -517,6 +555,7 @@ class SeriesTestCase(TestCase):
             self.series.full_clean()
         self.series.magnetic_field_strength = value
 
+    # device_serial_number
     def test_device_serial_number_blank_and_null(self):
         """
         The `Device Serial Number`_ attribute is optional (`type 3 data element`).
@@ -542,6 +581,7 @@ class SeriesTestCase(TestCase):
         field = self.series._meta.get_field("device_serial_number")
         self.assertEqual(field.max_length, 64)
 
+    # body_part_examined
     def test_body_part_examined_blank_and_null(self):
         """
         The `Body Part Examined`_ attribute is optional (`type 3 data element`).
@@ -567,6 +607,7 @@ class SeriesTestCase(TestCase):
         field = self.series._meta.get_field("body_part_examined")
         self.assertEqual(field.max_length, 16)
 
+    # patient_position
     def test_patient_position_blank_and_null(self):
         """
         The `Patient Position`_ attribute may be empty (`type 2C data element`).
@@ -602,6 +643,7 @@ class SeriesTestCase(TestCase):
         field = self.series._meta.get_field("patient_position")
         self.assertEqual(field.choices, PatientPosition.choices())
 
+    # modality
     def test_modality_blank_and_null(self):
         """
         The `Modality`_ attribute may not be empty (`type 1 data element`).
@@ -636,6 +678,7 @@ class SeriesTestCase(TestCase):
         field = self.series._meta.get_field("modality")
         self.assertEqual(field.choices, Modality.choices())
 
+    # institution_name
     def test_institution_name_blank_and_null(self):
         """
         The `Institution Name`_ attribute is optional (`type 3 data element`).
@@ -660,6 +703,7 @@ class SeriesTestCase(TestCase):
         field = self.series._meta.get_field("institution_name")
         self.assertEqual(field.max_length, 64)
 
+    # protocol_name
     def test_protocol_name_blank_and_null(self):
         """
         The `Protocol Name`_ attribute is optional (`type 3 data element`).
@@ -684,6 +728,7 @@ class SeriesTestCase(TestCase):
         field = self.series._meta.get_field("protocol_name")
         self.assertEqual(field.max_length, 64)
 
+    # flip_angle
     def test_flip_angle_blank_and_null(self):
         """
         The `Flip Angle`_ attribute is optional (`type 3 data element`).
@@ -696,6 +741,7 @@ class SeriesTestCase(TestCase):
         self.assertTrue(field.blank)
         self.assertTrue(field.null)
 
+    # mr_acquisition_type
     def test_mr_acquisition_type_max_length(self):
         """
         DICOM's `MR Acquisition Type`_ attribute may only be as long as 2 characters.
@@ -719,6 +765,7 @@ class SeriesTestCase(TestCase):
         field = self.series._meta.get_field("mr_acquisition_type")
         self.assertEqual(field.choices, choices)
 
+    # study
     def test_study_blank_and_null(self):
         """
         The `Study Instance UID`_ attribute may not be empty (`type 1 data element`)
@@ -732,6 +779,7 @@ class SeriesTestCase(TestCase):
         self.assertFalse(field.blank)
         self.assertFalse(field.null)
 
+    # patient
     def test_patient_blank_and_null(self):
         """
         DICOM's Patient attributes are all either conditionally required or nullable,
@@ -743,7 +791,10 @@ class SeriesTestCase(TestCase):
         self.assertTrue(field.blank)
         self.assertTrue(field.null)
 
-    # Methods
+    ###########
+    # Methods #
+    ###########
+
     def test_string(self):
         """
         Tests that an :class:`~django_dicom.models.series.Series` instance's `__str__`_

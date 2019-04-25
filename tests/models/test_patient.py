@@ -9,20 +9,41 @@ from tests.fixtures import (
 
 
 class PatientTestCase(TestCase):
+    """
+    Tests for the :class:`~django_dicom.models.patient.Patient` model.
+    
+    """
+
     @classmethod
     def setUpTestData(cls):
+        """
+        Creates instances to be used in the tests.
+        `More Information`_
+
+        .. _More Information: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
+        """
         TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
         Image.objects.create(**TEST_IMAGE_FIELDS)
 
     def setUp(self):
+        """
+        Adds the created instances to the tests' contexts.
+        `More Information`_
+
+        .. _More Information: https://docs.python.org/3/library/unittest.html#unittest.TestCase.setUp
+        """
         self.image = Image.objects.get(uid=TEST_IMAGE_FIELDS["uid"])
         self.series = Series.objects.get(uid=TEST_SERIES_FIELDS["uid"])
         self.study = self.series.study
         self.patient = self.series.patient
 
-    # Fields
+    ##########
+    # Fields #
+    ##########
+
+    # uid
     def test_uid_max_length(self):
         """
         DICOM's `Patient ID`_ attribute may only be as long as 64 characters (
@@ -45,7 +66,7 @@ class PatientTestCase(TestCase):
         field = self.patient._meta.get_field("uid")
         self.assertTrue(field.unique)
 
-    def test_uid_vebose_name(self):
+    def test_uid_verbose_name(self):
         """
         Test the *UID* field vebose name.
         
@@ -64,6 +85,7 @@ class PatientTestCase(TestCase):
         self.assertFalse(field.blank)
         self.assertFalse(field.null)
 
+    # date_of_birth
     def test_date_of_birth_blank_and_null(self):
         """
         The `Patient's Birth Date`_ attribute may be empty (`type 2 data element`_).
@@ -77,6 +99,7 @@ class PatientTestCase(TestCase):
         self.assertTrue(field.blank)
         self.assertTrue(field.null)
 
+    # sex
     def test_sex_max_length(self):
         """
         Tests that the sex field has the expected max_length.
@@ -99,6 +122,7 @@ class PatientTestCase(TestCase):
         self.assertTrue(field.blank)
         self.assertTrue(field.null)
 
+    # name
     def test_name_blank_and_null(self):
         """
         Tests that the name fields are blankable and nullable according to the
@@ -126,7 +150,10 @@ class PatientTestCase(TestCase):
             field = self.patient._meta.get_field(field_name)
             self.assertEqual(field.max_length, 64)
 
-    # Methods
+    ###########
+    # Methods #
+    ###########
+
     def test_string(self):
         """
         Tests that an :meth:`~django_dicom.models.patient.Patient.__str__` method returns

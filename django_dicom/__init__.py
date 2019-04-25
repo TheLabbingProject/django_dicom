@@ -1,1 +1,1 @@
-default_app_config = 'django_dicom.apps.DjangoDicomConfig'
+default_app_config = "django_dicom.apps.DjangoDicomConfig"

@@ -10,19 +10,39 @@ from tests.fixtures import (
 
 
 class SeriesTestCase(TestCase):
+    """
+    Tests for the :class:`~django_dicom.models.study.Study` model.
+    
+    """
+
     @classmethod
     def setUpTestData(cls):
+        """
+        Creates instances to be used in the tests.
+        `More Information`_
+
+        .. _More Information: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
+        """
         TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
         Image.objects.create(**TEST_IMAGE_FIELDS)
 
     def setUp(self):
+        """
+        Adds the created instances to the tests' contexts.
+        `More Information`_
+
+        .. _More Information: https://docs.python.org/3/library/unittest.html#unittest.TestCase.setUp
+        """
         self.image = Image.objects.get(uid=TEST_IMAGE_FIELDS["uid"])
         self.series = Series.objects.get(uid=TEST_SERIES_FIELDS["uid"])
         self.study = self.series.study
 
-    # Meta
+    ########
+    # Meta #
+    ########
+
     def test_study_verbose_name_plural(self):
         """
         Validate the `verbose name plural`_ ("`Studies`_") of the :class:`~django_dicom.models.study.Study` model.
@@ -33,7 +53,11 @@ class SeriesTestCase(TestCase):
 
         self.assertEqual(Study._meta.verbose_name_plural, "Studies")
 
-    # Fields
+    ##########
+    # Fields #
+    ##########
+
+    # uid
     def test_uid_max_length(self):
         """
         DICOM's `Study Instance UID`_ attribute may only be as long as 64 characters (
@@ -103,6 +127,7 @@ class SeriesTestCase(TestCase):
         self.assertFalse(field.blank)
         self.assertFalse(field.null)
 
+    # description
     def test_description_max_length(self):
         """
         DICOM's `Study Description`_ attribute may only be as long as 64 characters (
@@ -129,6 +154,7 @@ class SeriesTestCase(TestCase):
         self.assertTrue(field.blank)
         self.assertTrue(field.null)
 
+    # date
     def test_date_blank_and_null(self):
         """
         The `Study Date`_ attribute may be empty (`type 2 data element`).
@@ -142,6 +168,7 @@ class SeriesTestCase(TestCase):
         self.assertTrue(field.blank)
         self.assertTrue(field.null)
 
+    # time
     def test_time_blank_and_null(self):
         """
         The `Study Time`_ attribute may be empty (`type 2 data element`).
@@ -155,7 +182,10 @@ class SeriesTestCase(TestCase):
         self.assertTrue(field.blank)
         self.assertTrue(field.null)
 
-    # Methods
+    ###########
+    # Methods #
+    ###########
+
     def test_string(self):
         """
         Tests that an :meth:`~django_dicom.models.study.Study.__str__` method returns

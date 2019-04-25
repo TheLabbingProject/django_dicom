@@ -9,7 +9,6 @@ Subpackages
     django_dicom.data_import
     django_dicom.models
     django_dicom.reader
-    django_dicom.tests
 
 Submodules
 ----------

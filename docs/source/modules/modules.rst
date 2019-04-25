@@ -6,4 +6,3 @@ django_dicom
 
    django_dicom
    tests
-   setup
