@@ -36,9 +36,9 @@ class ImportImageTestCase(TestCase):
         Creates :class:`~django_dicom.models.series.Series`, :class:`~django_dicom.models.study.Study`,
         and :class:`~django_dicom.models.patient.Patient` instances to test for cases
         in which we add DICOM images under these conditions (related entities exist).
-        `More Information`_
+        For more information see Django's :class:`~django.test.TestCase` documentation_.
 
-        .. _More Information: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
+        .. _documentation: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
         
         """
 
@@ -49,10 +49,8 @@ class ImportImageTestCase(TestCase):
     def tearDown(self):
         """
         Delete any temporary files that may have been created during the
-        :class:`~django_dicom.models.image.Image` instance's creation.        
-        `More Information`_
-
-        .. _More Information: https://docs.python.org/3/library/unittest.html#unittest.TestCase.tearDown
+        :class:`~django_dicom.models.image.Image` instance's creation.
+        For more information see unittest's :meth:`~unittest.TestCase.tearDown` method.
 
         """
 

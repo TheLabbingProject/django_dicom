@@ -18,10 +18,11 @@ class PatientTestCase(TestCase):
     def setUpTestData(cls):
         """
         Creates instances to be used in the tests.
-        `More Information`_
+        For more information see Django's :class:`~django.test.TestCase` documentation_.
 
-        .. _More Information: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
+        .. _documentation: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
         """
+
         TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
@@ -30,10 +31,10 @@ class PatientTestCase(TestCase):
     def setUp(self):
         """
         Adds the created instances to the tests' contexts.
-        `More Information`_
+        For more information see unittest's :meth:`~unittest.TestCase.setUp` method.
 
-        .. _More Information: https://docs.python.org/3/library/unittest.html#unittest.TestCase.setUp
         """
+
         self.image = Image.objects.get(uid=TEST_IMAGE_FIELDS["uid"])
         self.series = Series.objects.get(uid=TEST_SERIES_FIELDS["uid"])
         self.study = self.series.study
@@ -158,10 +159,12 @@ class PatientTestCase(TestCase):
         """
         Tests that an :meth:`~django_dicom.models.patient.Patient.__str__` method returns
         its UID.
-        `More information`_
+        For more information see `Django's str method documentation`_.
 
-        .. _More information: https://docs.djangoproject.com/en/2.2/ref/models/instances/#str        
+        .. _Django's str method documentation: https://docs.djangoproject.com/en/2.2/ref/models/instances/#str
+
         """
+
         self.assertEqual(str(self.patient), self.patient.uid)
 
     def test_get_absolute_url(self):

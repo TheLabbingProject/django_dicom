@@ -19,10 +19,12 @@ class SeriesTestCase(TestCase):
     def setUpTestData(cls):
         """
         Creates instances to be used in the tests.
-        `More Information`_
+        For more information see Django's :class:`~django.test.TestCase` documentation_.
 
-        .. _More Information: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
+        .. _documentation: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
+
         """
+
         TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
@@ -31,10 +33,10 @@ class SeriesTestCase(TestCase):
     def setUp(self):
         """
         Adds the created instances to the tests' contexts.
-        `More Information`_
+        For more information see unittest's :meth:`~unittest.TestCase.setUp` method.
 
-        .. _More Information: https://docs.python.org/3/library/unittest.html#unittest.TestCase.setUp
         """
+
         self.image = Image.objects.get(uid=TEST_IMAGE_FIELDS["uid"])
         self.series = Series.objects.get(uid=TEST_SERIES_FIELDS["uid"])
         self.study = self.series.study
@@ -45,10 +47,9 @@ class SeriesTestCase(TestCase):
 
     def test_study_verbose_name_plural(self):
         """
-        Validate the `verbose name plural`_ ("`Studies`_") of the :class:`~django_dicom.models.study.Study` model.
+        Validate the `verbose name plural`_ ("Studies") of the :class:`~django_dicom.models.study.Study` model.
 
-        .. _verbose name plural: https://docs.djangoproject.com/en/2.2/ref/models/options/#verbose-name-plural
-        .. _Series: https://en.wiktionary.org/wiki/series        
+        .. _verbose name plural: https://docs.djangoproject.com/en/2.2/ref/models/options/#verbose-name-plural       
         """
 
         self.assertEqual(Study._meta.verbose_name_plural, "Studies")
@@ -190,19 +191,19 @@ class SeriesTestCase(TestCase):
         """
         Tests that an :meth:`~django_dicom.models.study.Study.__str__` method returns
         its UID.
-        `More information`_
+        For more information see `Django's str method documentation`_.
 
-        .. _More information: https://docs.djangoproject.com/en/2.2/ref/models/instances/#str        
         """
+
         self.assertEqual(str(self.study), self.study.uid)
 
     def test_get_absolute_url(self):
         """
         Tests the :meth:`~django_dicom.models.study.Study.get_absolute_url` method
         returns the expeted url.
-        `More information`_
+        For more information regarding `get_absolute_url` see `the Django documentation`_.
         
-        .. _More information: https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url
+        .. _the Django documentation: https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url
         """
 
         url = self.study.get_absolute_url()

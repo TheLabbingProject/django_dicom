@@ -24,9 +24,7 @@ class LocalImportTestCase(TestCase):
         Tries to remove the :class:`~django_dicom.models.image.Image` instances
         that may have been created during each test, as well as the destination
         directory.
-        `More Information`_
-
-        .. _More Information: https://docs.python.org/3/library/unittest.html#unittest.TestCase.tearDown
+        For more information see unittest's :meth:`~unittest.TestCase.tearDown` method.
 
         """
 

@@ -232,13 +232,13 @@ class Series(DicomEntity):
         """
         Returns the `gradient directions (B-vectors)`_ for `SIEMENS originated DWI`_ DICOM data.
         
+        .. _gradient directions (B-vectors): https://na-mic.org/wiki/NAMIC_Wiki:DTI:DICOM_for_DWI_and_DTI#DICOM_for_DWI
+        .. _SIEMENS originated DWI: https://na-mic.org/wiki/NAMIC_Wiki:DTI:DICOM_for_DWI_and_DTI#Private_vendor:_Siemens        
+
         Returns
         -------
         list
             B-vectors for the three dimensions.
-
-        .. _gradient directions (B-vector): https://na-mic.org/wiki/NAMIC_Wiki:DTI:DICOM_for_DWI_and_DTI#DICOM_for_DWI
-        .. _SIEMENS originated DWI: https://na-mic.org/wiki/NAMIC_Wiki:DTI:DICOM_for_DWI_and_DTI#Private_vendor:_Siemens
         """
         if self.manufacturer == "SIEMENS":
             try:

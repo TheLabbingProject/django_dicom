@@ -24,10 +24,10 @@ class ChoiceArrayFieldTestCase(TestCase):
         """
         Adds a :class:`~django_dicom.models.fields.ChoiceArrayField` instance to
         the tests' contexts.
-        `More Information`_
-
-        .. _More Information: https://docs.python.org/3/library/unittest.html#unittest.TestCase.setUp
+        For more information see unittest's :meth:`~unittest.TestCase.setUp` method.
+        
         """
+
         self.field = ChoiceArrayField(
             CharField(max_length=2, choices=self.CHOICES), size=3
         )

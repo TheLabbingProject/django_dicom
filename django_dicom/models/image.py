@@ -72,12 +72,12 @@ class Image(DicomEntity):
         """
         Returns the image's pixel array as a `NumPy`_ array.
         
+        .. _NumPy: http://www.numpy.org/
+
         Returns
         -------
         :class:`numpy.ndarray`
             Image's pixel array.
-
-        .. _NumPy: http://www.numpy.org/
         """
         return self.read_file(header_only=False).pixel_array
 
@@ -98,14 +98,14 @@ class Image(DicomEntity):
         """
         Returns the `b-value`_ for diffusion weighted images (`DWI`_). 
         Currently only SIEMENS tags are supported.
-        
+
+        .. _b-value: https://radiopaedia.org/articles/b-values-1
+        .. _DWI: https://en.wikipedia.org/wiki/Diffusion_MRI#Diffusion_imaging
+
         Returns
         -------
         int
             Degree of diffusion weighting applied.
-
-        .. _b-value: https://radiopaedia.org/articles/b-values-1
-        .. _DWI: https://en.wikipedia.org/wiki/Diffusion_MRI#Diffusion_imaging
         """
 
         manufacturer = self.header.get_value("Manufacturer")

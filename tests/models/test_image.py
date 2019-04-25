@@ -34,7 +34,9 @@ class ImageTestCase(TestCase):
         """
         Creates instances to test the :class:`~django_dicom.models.image.Image`
         model.
+        For more information see Django's :class:`~django.test.TestCase` documentation_.
 
+        .. _documentation: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
         """
 
         TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
@@ -51,9 +53,8 @@ class ImageTestCase(TestCase):
     def setUp(self):
         """
         Adds the created instances to the tests' contexts.
-        `More Information`_
+        For more information see unittest's :meth:`~unittest.TestCase.setUp` method.
 
-        .. _More Information: https://docs.python.org/3/library/unittest.html#unittest.TestCase.setUp        
         """
 
         self.series = Series.objects.get(uid=TEST_SERIES_FIELDS["uid"])
@@ -247,17 +248,17 @@ class ImageTestCase(TestCase):
 
     def test_string(self):
         """
-        Tests that an :class:`~django_dicom.models.image.Image` instance's `__str__`_
+        Tests that the instance's :meth:`~django_dicom.models.image.Image.__str__`
         method returns its UID.
-
-        .. ___str__: https://docs.djangoproject.com/en/2.2/ref/models/instances/#str        
+        For more information see `Django's str method documentation`_.
+        
         """
 
         self.assertEqual(str(self.image), self.image.uid)
 
     def test_get_absolute_url(self):
         """
-        Tests the :class:`~django_dicom.models.image.Image` model's `get_absolute_url`
+        Tests the :class:`~django_dicom.models.image.Image` model's `get_absolute_url`_
         method.
         
         .. _get_absolute_url: https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url

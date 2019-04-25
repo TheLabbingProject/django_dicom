@@ -33,11 +33,8 @@ class ImportImage:
 
     def store_file(self) -> str:
         """
-        Stores the DICOM file in a temporary location under `MEDIA_ROOT`_ using
-        Django's `default_storage`_.
-
-        .. _MEDIA_ROOT: https://docs.djangoproject.com/en/2.2/ref/settings/#std:setting-MEDIA_ROOT
-        .. _default_storage: https://docs.djangoproject.com/en/2.2/topics/files/#file-storage
+        Stores the DICOM file in a temporary location under `MEDIA_ROOT <https://docs.djangoproject.com/en/2.2/ref/settings/#media-root>`_ 
+        using Django's `default_storage <https://docs.djangoproject.com/en/2.2/topics/files/#file-storage>`_.
         
         Returns
         -------
@@ -111,10 +108,8 @@ class ImportImage:
 
     def get_image_destination(self) -> str:
         """
-        Returns the default relative path for this image under `MEDIA_ROOT`_.
+        Returns the default relative path for this image under `MEDIA_ROOT <https://docs.djangoproject.com/en/2.2/ref/settings/#media-root>`_.
         TODO: Add a way for the user to configure this.
-
-        .. _MEDIA_ROOT: https://docs.djangoproject.com/en/2.2/ref/settings/#media-root
         
         Returns
         -------
@@ -129,9 +124,7 @@ class ImportImage:
 
     def move_image_to_destination(self) -> str:
         """
-        Moves the created image to its default location under `MEDIA_ROOT`_.
-
-        .. _MEDIA_ROOT: https://docs.djangoproject.com/en/2.2/ref/settings/#media-root
+        Moves the created image to its default location under `MEDIA_ROOT <https://docs.djangoproject.com/en/2.2/ref/settings/#media-root>`_.
         
         Returns
         -------

@@ -32,9 +32,9 @@ class SeriesTestCase(TestCase):
     def setUpTestData(cls):
         """
         Creates instances to be used in the tests.
-        `More Information`_
+        For more information see Django's :class:`~django.test.TestCase` documentation_.
 
-        .. _More Information: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
+        .. _documentation: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
         """
         TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
         TEST_DWI_SERIES_FIELDS["patient"] = TEST_SERIES_FIELDS["patient"]
@@ -50,9 +50,8 @@ class SeriesTestCase(TestCase):
     def setUp(self):
         """
         Adds the created instances to the tests' contexts.
-        `More Information`_
+        For more information see unittest's :meth:`~unittest.TestCase.setUp` method.
 
-        .. _More Information: https://docs.python.org/3/library/unittest.html#unittest.TestCase.setUp
         """
 
         self.series = Series.objects.get(uid=TEST_SERIES_FIELDS["uid"])
@@ -797,17 +796,18 @@ class SeriesTestCase(TestCase):
 
     def test_string(self):
         """
-        Tests that an :class:`~django_dicom.models.series.Series` instance's `__str__`_
+        Tests that an :class:`~django_dicom.models.series.Series` instance's str
         method returns its UID.
+        For more information see `Django's str method documentation`_.
 
-        .. ___str__: https://docs.djangoproject.com/en/2.2/ref/models/instances/#str        
         """
+
         self.assertEqual(str(self.series), self.series.uid)
         self.assertEqual(str(self.dwi_series), self.dwi_series.uid)
 
     def test_get_absolute_url(self):
         """
-        Tests the :class:`~django_dicom.models.series.Series` model's `get_absolute_url`
+        Tests the :class:`~django_dicom.models.series.Series` model's `get_absolute_url`_
         method.
         
         .. _get_absolute_url: https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url
