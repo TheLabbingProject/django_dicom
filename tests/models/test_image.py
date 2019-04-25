@@ -1,48 +1,23 @@
 import numpy as np
-import os
 import pydicom
 
-from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_dicom.apps import DjangoDicomConfig
-from django_dicom.models import Image, Series
+from django_dicom.models import Image, Series, Patient, Study
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.reader import HeaderInformation
 from django_dicom.utils import snake_case_to_camel_case
-
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-TEST_IMAGE_PATH = os.path.join(dir_path, "../files/001.dcm")
-TEST_IMAGE_FIELDS = {
-    "dcm": TEST_IMAGE_PATH,
-    "uid": "1.3.12.2.1107.5.2.43.66024.2018050112252318571884482",
-    "number": 1,
-    "date": datetime.strptime("20180501", "%Y%m%d").date(),
-    "time": datetime.strptime("12:25:23.268000", "%H:%M:%S.%f").time(),
-}
-TEST_SERIES_FIELDS = {
-    "uid": "1.3.12.2.1107.5.2.43.66024.2017081508562441722500532.0.0.0",
-    "date": datetime.strptime("20180501", "%Y%m%d").date(),
-    "time": datetime.strptime("08:56:36.246000", "%H:%M:%S.%f").time(),
-    "description": "localizer_3D (9X5X5)",
-    "number": 1,
-}
-TEST_DWI_IMAGE_PATH = os.path.join(dir_path, "../files/dwi_image.dcm")
-TEST_DWI_IMAGE_FIELDS = {
-    "dcm": TEST_DWI_IMAGE_PATH,
-    "uid": "1.3.12.2.1107.5.2.43.66024.2018050112370126207588149",
-    "number": 1,
-    "date": datetime.strptime("20180501", "%Y%m%d").date(),
-    "time": datetime.strptime("12:37:55.436000", "%H:%M:%S.%f").time(),
-}
-TEST_DWI_SERIES_FIELDS = {
-    "uid": "1.3.12.2.1107.5.2.43.66024.2018050112364393558587968.0.0.0",
-    "date": datetime.strptime("20180501", "%Y%m%d").date(),
-    "time": datetime.strptime("12:37:55.433000", "%H:%M:%S.%f").time(),
-    "description": "Ax1D_advdiff_d12D21_TE51_B1000",
-    "number": 4,
-}
+from tests.models.fixtures import (
+    # TEST_IMAGE_PATH,
+    # TEST_DWI_IMAGE_PATH,
+    TEST_IMAGE_FIELDS,
+    TEST_DWI_IMAGE_FIELDS,
+    TEST_SERIES_FIELDS,
+    TEST_DWI_SERIES_FIELDS,
+    TEST_STUDY_FIELDS,
+    TEST_PATIENT_FIELDS,
+)
 
 
 class ImageTestCase(TestCase):
@@ -51,27 +26,22 @@ class ImageTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        """
-        Creates the :class:`~django_dicom.models.image.Image` instances that will 
-        be used for testing.
-        
-        """
-
+        TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
+        TEST_DWI_SERIES_FIELDS["patient"] = TEST_SERIES_FIELDS["patient"]
+        TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
+        TEST_DWI_SERIES_FIELDS["study"] = TEST_SERIES_FIELDS["study"]
         TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
-        Image.objects.create(**TEST_IMAGE_FIELDS)
         TEST_DWI_IMAGE_FIELDS["series"] = Series.objects.create(
             **TEST_DWI_SERIES_FIELDS
         )
+        Image.objects.create(**TEST_IMAGE_FIELDS)
         Image.objects.create(**TEST_DWI_IMAGE_FIELDS)
 
     def setUp(self):
-        """
-        Adds the images created in :meth:`~setUpTestData` to the tests' context.
-
-        """
-
-        self.image = Image.objects.get(id=1)
-        self.dwi_image = Image.objects.get(id=2)
+        self.series = Series.objects.get(uid=TEST_SERIES_FIELDS["uid"])
+        self.image = Image.objects.get(uid=TEST_IMAGE_FIELDS["uid"])
+        self.dwi_series = Series.objects.get(uid=TEST_DWI_SERIES_FIELDS["uid"])
+        self.dwi_image = Image.objects.get(uid=TEST_DWI_IMAGE_FIELDS["uid"])
 
     # Tests for DicomEntity functionality
     def test_is_dicom_entity(self):
@@ -161,10 +131,10 @@ class ImageTestCase(TestCase):
         with self.assertRaises(ValidationError):
             self.image.full_clean()
 
-    def test_image_uid_max_length(self):
+    def test_uid_max_length(self):
         """
         DICOM's SOPInstanceUID_ attribute may only be as long as 64 characters (
-        see the UI `value-representation specification`).
+        see the Unique Identifier (UI) `value-representation specification`).
 
         .. _SOPInstanceUID: https://dicom.innolitics.com/ciods/mr-image/sop-common/00080018
         .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
@@ -174,7 +144,16 @@ class ImageTestCase(TestCase):
         field = self.image._meta.get_field("uid")
         self.assertEqual(field.max_length, 64)
 
-    def test_image_uid_validation(self):
+    def test_uid_is_unique(self):
+        """
+        Validates that the UID field is unique.
+
+        """
+
+        field = self.image._meta.get_field("uid")
+        self.assertTrue(field.unique)
+
+    def test_uid_validation(self):
         """
         An :class:`~django_dicom.models.image.Image` instance UID field may only
         be composed of dots and digits.
@@ -202,7 +181,7 @@ class ImageTestCase(TestCase):
                 self.image.full_clean()
         self.image.uid = uid
 
-    def test_image_uid_vebose_name(self):
+    def test_uid_vebose_name(self):
         """
         Test the UID field vebose name.
         
@@ -211,7 +190,7 @@ class ImageTestCase(TestCase):
         field = self.image._meta.get_field("uid")
         self.assertEqual(field.verbose_name, "Image UID")
 
-    def test_image_number_vebose_name(self):
+    def test_number_vebose_name(self):
         """
         Test the *number* field vebose name.
         
@@ -346,7 +325,7 @@ class ImageTestCase(TestCase):
 
         """
 
-        expected = [0.0, 1380.0, 277.5, 1655.0, 552.5, 1930.0, 827.5, 2205.0, 1102.5]
+        expected = DWI_SLICE_TIMING
         self.assertEqual(self.dwi_image.slice_timing, expected)
 
     def test_gradient_diretion(self):
@@ -358,5 +337,69 @@ class ImageTestCase(TestCase):
 
         """
 
-        expected = [0.57735026, 0.57735038, 0.57735032]
+        expected = [0.70710677, -0.70710677, 0.0]
         self.assertEqual(self.dwi_image.gradient_direction, expected)
+
+
+DWI_SLICE_TIMING = [
+    2460.0,
+    0.0,
+    1640.0,
+    165.0,
+    1805.0,
+    327.5,
+    1967.5,
+    492.5,
+    2132.5,
+    655.0,
+    2295.0,
+    985.0,
+    2625.0,
+    1147.5,
+    2787.5,
+    1312.5,
+    2952.5,
+    1475.0,
+    3115.0,
+    820.0,
+    2460.0,
+    0.0,
+    1640.0,
+    165.0,
+    1805.0,
+    327.5,
+    1967.5,
+    492.5,
+    2132.5,
+    655.0,
+    2295.0,
+    985.0,
+    2625.0,
+    1147.5,
+    2787.5,
+    1312.5,
+    2952.5,
+    1475.0,
+    3115.0,
+    820.0,
+    2460.0,
+    0.0,
+    1640.0,
+    165.0,
+    1805.0,
+    327.5,
+    1967.5,
+    492.5,
+    2132.5,
+    655.0,
+    2295.0,
+    985.0,
+    2625.0,
+    1147.5,
+    2787.5,
+    1312.5,
+    2952.5,
+    1475.0,
+    3115.0,
+    820.0,
+]

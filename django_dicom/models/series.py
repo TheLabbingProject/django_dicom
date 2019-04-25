@@ -36,17 +36,11 @@ class Series(DicomEntity):
         verbose_name="Series UID",
         help_text=help_text.SERIES_UID,
     )
-    date = models.DateField(
+    number = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name="Series Date",
-        help_text=help_text.SERIES_DATE,
-    )
-    time = models.TimeField(
-        blank=True,
-        null=True,
-        verbose_name="Series Time",
-        help_text=help_text.SERIES_TIME,
+        verbose_name="Series Number",
+        help_text=help_text.SERIES_NUMBER,
     )
     description = models.CharField(
         max_length=64,
@@ -55,13 +49,8 @@ class Series(DicomEntity):
         verbose_name="Series Description",
         help_text=help_text.SERIES_DESCRIPTION,
     )
-    number = models.IntegerField(
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(0)],
-        verbose_name="Series Number",
-        help_text=help_text.SERIES_NUMBER,
-    )
+    date = models.DateField(blank=True, null=True, help_text=help_text.SERIES_DATE)
+    time = models.TimeField(blank=True, null=True, help_text=help_text.SERIES_TIME)
     echo_time = models.FloatField(
         blank=True,
         null=True,
@@ -83,21 +72,16 @@ class Series(DicomEntity):
     scanning_sequence = ChoiceArrayField(
         models.CharField(max_length=2, choices=ScanningSequence.choices()),
         size=5,
-        blank=True,
-        null=True,
         help_text=help_text.SCANNING_SEQUENCE,
     )
     sequence_variant = ChoiceArrayField(
         models.CharField(max_length=4, choices=SequenceVariant.choices()),
-        blank=True,
-        null=True,
+        size=6,
         help_text=help_text.SEQUENCE_VARIANT,
     )
     pixel_spacing = ArrayField(
         models.FloatField(validators=[MinValueValidator(0)]),
         size=2,
-        blank=True,
-        null=True,
         help_text=help_text.PIXEL_SPACING,
     )
     manufacturer = models.CharField(
@@ -124,18 +108,12 @@ class Series(DicomEntity):
     patient_position = models.CharField(
         max_length=4,
         choices=PatientPosition.choices(),
-        default=PatientPosition.HFS.name,
         blank=True,
         null=True,
         help_text=help_text.PATIENT_POSITION,
     )
     modality = models.CharField(
-        max_length=10,
-        choices=Modality.choices(),
-        default=Modality.MR.name,
-        blank=True,
-        null=True,
-        help_text=help_text.MODALITY,
+        max_length=10, choices=Modality.choices(), help_text=help_text.MODALITY
     )
     institution_name = models.CharField(
         max_length=64, blank=True, null=True, help_text=help_text.INSTITUTE_NAME
@@ -152,15 +130,12 @@ class Series(DicomEntity):
     mr_acquisition_type = models.CharField(
         max_length=2,
         choices=MR_ACQUISITION_TYPE_CHOICES,
-        default=MR_ACQUISITION_2D,
         blank=True,
         null=True,
         help_text=help_text.MR_ACQUISITION_TYPE,
     )
 
-    study = models.ForeignKey(
-        "django_dicom.Study", blank=True, null=True, on_delete=models.PROTECT
-    )
+    study = models.ForeignKey("django_dicom.Study", on_delete=models.PROTECT)
     patient = models.ForeignKey(
         "django_dicom.Patient", blank=True, null=True, on_delete=models.PROTECT
     )
@@ -188,35 +163,98 @@ class Series(DicomEntity):
         return reverse("dicom:series_detail", args=[str(self.id)])
 
     def get_data(self) -> np.ndarray:
+        """
+        Returns a NumPy array with the series data.
+        
+        Returns
+        -------
+        np.ndarray
+            Series pixel array.
+        """
         images = self.image_set.order_by("number")
         return np.stack([image.get_data() for image in images], axis=-1)
 
-    def to_tree_node(self) -> dict:
+    def to_jstree_node(self) -> dict:
+        """
+        Create a jstree node representation of this instance.
+        
+        Returns
+        -------
+        dict
+            jstree node dictionary.
+        """
+
         return {
             "id": f"series_{self.id}",
             "icon": "fas fa-flushed",
             "text": self.description,
         }
 
-    def get_path(self):
-        return os.path.dirname(self.image_set.first().file.path)
+    def get_path(self) -> str:
+        """
+        Returns the base directory containing the images composing this series.
+        
+        Returns
+        -------
+        str
+            This series's base directory path.
+        """
+
+        return os.path.dirname(self.image_set.first().dcm.path)
 
     def get_scanning_sequence_display(self) -> list:
+        """
+        Returns the :class:`~django_dicom.reader.code_strings.scanning_sequence.ScanningSequence`
+        Enum values corresponding to the *scanning_sequence* field's value.
+        
+        Returns
+        -------
+        list
+            :class:`~django_dicom.reader.code_strings.scanning_sequence.ScanningSequence` Enum values.
+        """
+
         return [ScanningSequence[name].value for name in self.scanning_sequence]
 
     def get_sequence_variant_display(self) -> list:
+        """
+        Returns the :class:`~django_dicom.reader.code_strings.sequence_variant.SequenceVariant`
+        Enum values corresponding to the *sequence_variant* field's value.
+        
+        Returns
+        -------
+        list
+            :class:`~django_dicom.reader.code_strings.sequence_variant.SequenceVariant` Enum values.
+        """
+
         return [SequenceVariant[name].value for name in self.sequence_variant]
 
-    def get_gradient_directions(self):
-        try:
-            return [
-                list(vector)
-                for vector in zip(
-                    *[
-                        image.gradient_direction
-                        for image in self.image_set.order_by("number").all()
-                    ]
-                )
-            ]
-        except TypeError:
-            return None
+    def get_gradient_directions(self) -> list:
+        """
+        Returns the `gradient directions (B-vectors)`_ for `SIEMENS originated DWI`_ DICOM data.
+        
+        Returns
+        -------
+        list
+            B-vectors for the three dimensions.
+
+        .. _gradient directions (B-vector): https://na-mic.org/wiki/NAMIC_Wiki:DTI:DICOM_for_DWI_and_DTI#DICOM_for_DWI
+        .. _SIEMENS originated DWI: https://na-mic.org/wiki/NAMIC_Wiki:DTI:DICOM_for_DWI_and_DTI#Private_vendor:_Siemens
+        """
+        if self.manufacturer == "SIEMENS":
+            try:
+                return [
+                    list(vector)
+                    for vector in zip(
+                        *[
+                            image.gradient_direction
+                            for image in self.image_set.order_by("number").all()
+                        ]
+                    )
+                ]
+            except TypeError:
+                return None
+        else:
+            raise NotImplementedError(
+                f"{self.manufacturer} is not a supported manufacturer for gradient directions retrieval!"
+            )
+

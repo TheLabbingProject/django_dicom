@@ -37,9 +37,7 @@ htmlcov
 # Other
 *.pem
 
-# DICOM files
-**.dcm
-**.zip
+
 venv
 **.pkl
 

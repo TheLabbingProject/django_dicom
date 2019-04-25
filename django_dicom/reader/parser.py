@@ -2,6 +2,7 @@ import array
 
 from datetime import datetime
 from django_dicom.reader.code_strings import (
+    Modality,
     Sex,
     PatientPosition,
     ScanningSequence,
@@ -19,12 +20,13 @@ class DicomParser:
     # Code String (CS) data elements are best represented by an Enum, so this
     # dictionary keeps a reference to the appropriate Enums by tag.
     CODE_STRINGS_DICT = {
+        "(0008, 0060)": Modality,
         "(0018, 5100)": PatientPosition,
         "(0018, 0020)": ScanningSequence,
         "(0018, 0021)": SequenceVariant,
         "(0010, 0040)": Sex,
     }
-    SINGLE_VALUE_CODE_STRINGS = ["(0010, 0040)", "(0018, 5100)"]
+    SINGLE_VALUE_CODE_STRINGS = ["(0010, 0040)", "(0018, 5100)", "(0008, 0060)"]
 
     # This dictionary keeps a reference from the various DICOM header information
     # value representations (VRs) to the appropriate parsing method.
@@ -35,9 +37,13 @@ class DicomParser:
         ValueRepresentation.DATE_TIME: "parse_datetime",
         ValueRepresentation.INTEGER_STRING: "parse_integer_string",
         ValueRepresentation.DECIMAL_STRING: "parse_decimal_string",
-        ValueRepresentation.SEQUENCE_OF_ITEMS: list,
         ValueRepresentation.UNKNOWN: "parse_unknown",
         ValueRepresentation.CODE_STRING: "parse_code_string",
+        # ValueRepresentation.SEQUENCE_OF_ITEMS: list,
+        # Sequence of Items (SQ) attributes need to be listed, but then
+        # they return a list of data elements, which are also divided into
+        # groups. Not sure yet what would be the best way to parse it, but it
+        # might be a list of dictionaries.
     }
 
     def parse_age_string(self, element: DataElement) -> float:
@@ -192,7 +198,7 @@ class DicomParser:
         return element.value
 
     # Custom parsing methods (tag dependent rather than value representation dependant)
-    def parse_slice_timing(self, value: bytes) -> list:
+    def parse_siemens_slice_timing(self, value: bytes) -> list:
         """
         Parses a SIEMENS MR image's slice timing as saved in the private 
         (0019, 1029) `MosaicRefAcqTimes`_ tag to a list of floats representing
@@ -213,7 +219,7 @@ class DicomParser:
 
         return [round(slice_time, 5) for slice_time in list(array.array("d", value))]
 
-    def parse_gradient_direction(self, value: bytes) -> list:
+    def parse_siemens_gradient_direction(self, value: bytes) -> list:
         """
         Parses a SIEMENS MR image's B-vector as represented in the private
         (0019, 100E) `DiffusionGradientDirection`_ DICOM tag.
@@ -257,11 +263,11 @@ class DicomParser:
         elif element.tag == ("0019", "100c"):
             return int(element.value)
         # Diffusion Directionality / Gradient Mode
-        elif element.tag in [("0019", "100d"), ("0019", "100f")]:
+        elif element.tag in (("0019", "100d"), ("0019", "100f")):
             return element.value.decode("utf-8").strip()
         # Diffusion Gradient Direction
         elif element.tag == ("0019", "100e"):
-            return self.parse_gradient_direction(element.value)
+            return self.parse_siemens_gradient_direction(element.value)
         # B Matrix
         elif element.tag == ("0019", "1027"):
             return list(array.array("d", element.value))
@@ -273,8 +279,11 @@ class DicomParser:
         #   Siemens slice timing
         # https://en.wikibooks.org/wiki/SPM/Slice_Timing#Siemens_scanners
         elif element.tag == ("0019", "1029"):
-            return self.parse_slice_timing(element.value)
-        return None
+            return self.parse_siemens_slice_timing(element.value)
+
+        # If no parsing method exists for this DICOM attribute, simply return
+        # the raw value.
+        return element.value
 
     def parse(self, element: DataElement):
         """
@@ -303,5 +312,8 @@ class DicomParser:
                 return method(element)
             except KeyError:
                 return element.value
-        except AttributeError:
-            return None
+        except ValueError:
+            raise NotImplementedError(
+                f"{element.VR} is not a supported value-representation!"
+            )
+

@@ -7,9 +7,6 @@ Subpackages
 .. toctree::
 
     django_dicom.data_import
-    django_dicom.exploration
-    django_dicom.interfaces
-    django_dicom.migrations
     django_dicom.models
     django_dicom.reader
     django_dicom.tests

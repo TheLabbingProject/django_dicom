@@ -3,9 +3,6 @@ from pydicom.dataelem import DataElement
 from pydicom.dataset import FileDataset
 
 
-# TODO: Move image to new location
-
-
 class HeaderInformation:
     """
     Facilitates access to DICOM_ header information from pydicom_'s FileDataset_.
@@ -16,7 +13,7 @@ class HeaderInformation:
 
     """
 
-    def __init__(self, header: FileDataset, parser: type = DicomParser):
+    def __init__(self, raw: FileDataset, parser: type = DicomParser):
         """
         HeaderInformation is meant to be initialized with a pydicom_ FileDataset_
         representing a single image's header.
@@ -35,7 +32,7 @@ class HeaderInformation:
 
         """
 
-        self.header = header
+        self.raw = raw
         self.parser = parser()
 
     def get_element_by_keyword(self, keyword: str) -> DataElement:
@@ -59,7 +56,7 @@ class HeaderInformation:
         """
 
         try:
-            return self.header.data_element(keyword)
+            return self.raw.data_element(keyword)
         except KeyError:
             return None
 
@@ -82,7 +79,7 @@ class HeaderInformation:
         DataElement
             The requested data element..
         """
-        return self.header.get(tag)
+        return self.raw.get(tag)
 
     def get_element(self, tag_or_keyword) -> DataElement:
         """
@@ -135,9 +132,10 @@ class HeaderInformation:
         """
 
         element = self.get_element(tag_or_keyword)
-        if element:
+        try:
             return element.value
-        return None
+        except AttributeError:
+            return None
 
     def get_parsed_value(self, tag_or_keyword):
         """

@@ -17,11 +17,11 @@ dicom_patterns = (
         path("study/<int:pk>/", views.StudyDetailView.as_view(), name="study_detail"),
         path("patients/", views.PatientListView.as_view(), name="patient_list"),
         path(
-            "patients/<int:pk>/",
+            "patient/<int:pk>/",
             views.PatientDetailView.as_view(),
             name="patient_detail",
         ),
-        path("new_patients/", views.NewPatientsListView.as_view(), name="new_patients"),
+        path("new_patient/", views.NewPatientsListView.as_view(), name="new_patients"),
     ],
     "dicom",
 )

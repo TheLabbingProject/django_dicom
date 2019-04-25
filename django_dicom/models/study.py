@@ -1,6 +1,5 @@
 from django.db import models
 from django.urls import reverse
-from django_dicom.models import Image
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.validators import digits_and_dots_only
 
@@ -21,10 +20,9 @@ class Study(DicomEntity):
         validators=[digits_and_dots_only],
         verbose_name="Study UID",
     )
-    description = models.CharField(max_length=64)
+    description = models.CharField(max_length=64, blank=True, null=True)
     date = models.DateField(blank=True, null=True)
     time = models.TimeField(blank=True, null=True)
-    comments = models.TextField(max_length=1000, blank=True, null=True)
 
     FIELD_TO_HEADER = {
         "uid": "StudyInstanceUID",
@@ -33,17 +31,12 @@ class Study(DicomEntity):
         "description": "StudyDescription",
     }
 
+    class Meta:
+        verbose_name_plural = "Studies"
+        indexes = [models.Index(fields=["uid"])]
+
     def __str__(self) -> str:
         return self.uid
 
     def get_absolute_url(self):
         return reverse("dicom:study_detail", args=[str(self.id)])
-
-    class Meta:
-        verbose_name_plural = "Studies"
-        indexes = [models.Index(fields=["uid"])]
-
-    @property
-    def image_set(self):
-        return Image.objects.filter(series__in=self.series_set.all())
-

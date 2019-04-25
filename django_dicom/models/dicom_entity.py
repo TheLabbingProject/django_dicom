@@ -11,9 +11,6 @@ class DicomEntity(TimeStampedModel):
     .. _DICOM entity: https://dcm4che.atlassian.net/wiki/spaces/d2/pages/1835038/A+Very+Basic+DICOM+Introduction    
     """
 
-    # Every dicom entity has a UID
-    uid = models.CharField(max_length=64, unique=True)
-
     # This dictionairy is used to identify fields that do not represent DICOM
     # header information. These fields will not be updated when calling a derived
     # model's update_fields_from_header() method.

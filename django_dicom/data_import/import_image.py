@@ -62,14 +62,6 @@ class ImportImage:
         temp_file_name = self.store_file()
         return Image(dcm=temp_file_name)
 
-    def update_image_fields_from_header(self) -> None:
-        """
-        Updates the added image's fields using header information and saves.
-        """
-
-        self.image.update_fields_from_header(self.image.header)
-        self.image.save()
-
     def get_entity_uid_from_header(self, Entity: DicomEntity) -> str:
         """
         Returns the UID of the given entity from the DICOM header information.
@@ -88,15 +80,18 @@ class ImportImage:
         keyword = Entity.get_header_keyword("uid")
         return self.image.header.get_value(keyword)
 
-    def get_or_create_entity(self, Entity: DicomEntity) -> tuple:
+    def get_or_create_entity(self, Entity: DicomEntity, save: bool = True) -> tuple:
         """
         Gets or creates an instance of the given :class:`django_dicom.DicomEntity`
         using its UID. 
+        The *save* parameter is mostly meant to help with testing.
         
         Parameters
         ----------
         Entity : DicomEntity
             One of the DICOM entities (Image, Series, Study, and Patient).
+        save : bool
+            Whether to save the instance to the database if it is created (default to True, which will call the save() method).
         
         Returns
         -------
@@ -105,11 +100,14 @@ class ImportImage:
         """
 
         uid = self.get_entity_uid_from_header(Entity)
-        entity, created = Entity.objects.get_or_create(uid=uid)
-        if created:
+        try:
+            return Entity.objects.get(uid=uid), False
+        except ObjectDoesNotExist:
+            entity = Entity(uid=uid)
             entity.update_fields_from_header(self.image.header)
-            entity.save()
-        return entity
+            if save:
+                entity.save()
+            return entity, True
 
     def get_image_destination(self) -> str:
         """
@@ -145,13 +143,11 @@ class ImportImage:
         destination = os.path.join(settings.MEDIA_ROOT, relative_destination)
         # Save a reference to the current path for renaming
         current_path = self.image.dcm.path
-        # Changing the image's FileField value
-        self.image.dcm.name = relative_destination
         # Make sure the destination directory exists
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         # Move file
         os.rename(current_path, destination)
-        return destination
+        return relative_destination
 
     def generate_entities_and_relationships(self) -> None:
         """
@@ -160,21 +156,33 @@ class ImportImage:
 
         self.image = self.create_image()
         self.image.update_fields_from_header(self.image.header)
-        self.image.series = self.get_or_create_entity(Series)
-        self.image.series.study = self.get_or_create_entity(Study)
-        self.image.series.patient = self.get_or_create_entity(Patient)
+
+        # We create the Series instance but avoid saving if it was created in
+        # order to have a chance to first set its patient and study fields.
+        series, created_series = self.get_or_create_entity(Series, save=False)
+        if created_series or not all([series.study, series.patient]):
+            # If the instance was created, we get or create the appropriate
+            # Patient and Study instances and set the created instance's fields.
+            patient, _ = self.get_or_create_entity(Patient)
+            study, _ = self.get_or_create_entity(Study)
+            series.patient = patient
+            series.study = study
+        series.save()
+
+        # Finally we can relate the Series instance to the created Image instance and save.
+        self.image.series = series
         self.image.save()
 
     def handle_integrity_error(self) -> tuple:
         """
         If an IntegrityError is raised during generation of the DICOM entities,
-        print a warning message and delete the file and Image instance. An
-        InegrityError should indicate the image already exists in the database, 
+        delete the temporary file.
+        An InegrityError should indicate the image already exists in the database,
         so the method also tries to return the existing Image instance.
         
         Returns
         -------
-        tuple 
+        tuple
             ( existing_image , created )
         """
 
@@ -197,8 +205,7 @@ class ImportImage:
                 self.generate_entities_and_relationships()
 
         # An IntegrityError should indicate the image exists in the database.
-        except IntegrityError as e:
-            print(e.args)
+        except IntegrityError:
 
             # Assume image exists in database and returns it.
             try:
@@ -212,5 +219,6 @@ class ImportImage:
 
         # If we got here, the transaction must have been successful, so we move the
         # dcm file to its desired location in the file-system and return it.
-        self.move_image_to_destination()
+        self.image.dcm.name = self.move_image_to_destination()
+        self.image.save()
         return self.image, True

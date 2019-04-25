@@ -18,8 +18,9 @@ class Patient(DicomEntity):
     
     """
 
+    uid = models.CharField(max_length=64, unique=True, verbose_name="Patient ID")
     date_of_birth = models.DateField(blank=True, null=True)
-    sex = models.CharField(max_length=6, choices=Sex.choices(), blank=True, null=True)
+    sex = models.CharField(max_length=1, choices=Sex.choices(), blank=True, null=True)
 
     # Name parts as they are called in DICOM headers
     given_name = models.CharField(max_length=64, blank=True, null=True)
@@ -27,8 +28,6 @@ class Patient(DicomEntity):
     middle_name = models.CharField(max_length=64, blank=True, null=True)
     name_prefix = models.CharField(max_length=64, blank=True, null=True)
     name_suffix = models.CharField(max_length=64, blank=True, null=True)
-
-    comments = models.TextField(max_length=1000, blank=True, null=True)
 
     # subject = models.ForeignKey(
     #     "research.Subject",
@@ -51,6 +50,9 @@ class Patient(DicomEntity):
         "name_suffix",
     ]
 
+    class Meta:
+        indexes = [models.Index(fields=["uid"]), models.Index(fields=["date_of_birth"])]
+
     def __str__(self) -> str:
         return self.uid
 
@@ -58,9 +60,28 @@ class Patient(DicomEntity):
         return reverse("dicom:patient_detail", args=[str(self.id)])
 
     def get_full_name(self) -> str:
+        """
+        Returns the first and last names of the patient.
+        
+        Returns
+        -------
+        str
+            Patient's first and last names.
+        """
+
         return f"{self.given_name} {self.family_name}"
 
     def update_patient_name(self, header: HeaderInformation) -> None:
+        """
+        Parses the patient's name from the DICOM header and updates the instance's
+        fields.
+        
+        Parameters
+        ----------
+        header : :class:`~django_dicom.reader.header_information.HeaderInformation`
+            A DICOM image's :class:`~django_dicom.reader.header_information.HeaderInformation` instance.
+        """
+
         value = header.get_raw_value("PatientName")
         for part in self.NAME_PARTS:
             part_value = getattr(value, part, None)
@@ -86,52 +107,53 @@ class Patient(DicomEntity):
         super().update_fields_from_header(header, exclude=exclude)
         self.update_patient_name(header)
 
-    def to_tree(self) -> list:
-        return [series.to_tree_node() for series in self.series_set.all()]
+    def to_jstree(self) -> list:
+        """
+        Creates a list of jstree nodes (dictionaries) representing this patient's
+        series set.
+        
+        Returns
+        -------
+        list
+            This patient's series set representation for jstree.
+        """
 
-    def get_anatomicals(self, by_date: bool = False):
-        return self.series_set.get_anatomicals(by_date=by_date)
+        return [series.to_jstree_node() for series in self.series_set.all()]
 
-    def get_default_anatomical(self):
-        return self.series_set.get_default_anatomical()
+    # All of these methods are supposed to be utility methods to facilitate
+    # querying. I'm not entirely sure they should be here or be at all.
 
-    def get_second_session_anatomical(self):
-        anatomicals_by_date = self.series_set.get_anatomicals(by_date=True)
-        if len(anatomicals_by_date) > 1:
-            default = self.get_default_anatomical()
-            del anatomicals_by_date[default.date]
-            return (
-                list(anatomicals_by_date.values())[0]
-                .order_by("pixel_spacing__0", "pixel_spacing__1")
-                .first()
-            )
+    # def get_anatomicals(self, by_date: bool = False):
+    #     return self.series_set.get_anatomicals(by_date=by_date)
 
-    def get_inversion_recovery(self):
-        return self.series_set.get_inversion_recovery()
+    # def get_default_anatomical(self):
+    #     return self.series_set.get_default_anatomical()
 
-    def get_latest_inversion_recovery_sequence(self):
-        return self.series_set.get_latest_inversion_recovery_sequence()
+    # def get_second_session_anatomical(self):
+    #     anatomicals_by_date = self.series_set.get_anatomicals(by_date=True)
+    #     if len(anatomicals_by_date) > 1:
+    #         default = self.get_default_anatomical()
+    #         del anatomicals_by_date[default.date]
+    #         return (
+    #             list(anatomicals_by_date.values())[0]
+    #             .order_by("pixel_spacing__0", "pixel_spacing__1")
+    #             .first()
+    #         )
 
-    def get_anatomicals_by_pixel_spacing(self, pixel_spacing: list):
-        return self.series_set.get_anatomicals_by_pixel_spacing(pixel_spacing)
+    # def get_inversion_recovery(self):
+    #     return self.series_set.get_inversion_recovery()
 
-    def calculate_mutual_information(
-        self, other, histogram_bins: int = 10
-    ) -> np.float64:
-        self_anatomical = self.get_default_anatomical()
-        other_anatomical = other.get_default_anatomical()
-        return self_anatomical.calculate_mutual_information(
-            other_anatomical, histogram_bins
-        )
+    # def get_latest_inversion_recovery_sequence(self):
+    #     return self.series_set.get_latest_inversion_recovery_sequence()
 
-    class Meta:
-        indexes = [models.Index(fields=["uid"]), models.Index(fields=["date_of_birth"])]
+    # def get_anatomicals_by_pixel_spacing(self, pixel_spacing: list):
+    #     return self.series_set.get_anatomicals_by_pixel_spacing(pixel_spacing)
 
-    @property
-    def has_series(self):
-        return bool(self.series_set.count())
-
-    @property
-    def image_set(self):
-        return Image.objects.filter(series__in=self.series_set.all())
-
+    # def calculate_mutual_information(
+    #     self, other, histogram_bins: int = 10
+    # ) -> np.float64:
+    #     self_anatomical = self.get_default_anatomical()
+    #     other_anatomical = other.get_default_anatomical()
+    #     return self_anatomical.calculate_mutual_information(
+    #         other_anatomical, histogram_bins
+    #     )
