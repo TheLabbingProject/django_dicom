@@ -1,8 +1,10 @@
-Reading Image Data
-------------------
+Reading Series Data
+-------------------
 
-Let's query one of the anatomical series we've added. We know their `Series Description`_ DICOM_
-header attribute should contain the acronym "MPRAGE"[#0]_, so one easy way for querying such a series would be::
+`django_dicom` relies on pydicom_'s :attr:`~pydicom.dataset.Dataset.pixel_array` property, which converts
+a single image's pixel data from bytes to a NumPy_ :class:`~numpy.ndarray`.
+
+Let's query an anatomical ("MPRAGE"[#0]_) :class:`~django_dicom.models.series.Series` instance we've added based on its `Series Description`_::
 
     from django_dicom.models import Series
 
@@ -30,12 +32,12 @@ This should return a figure similar to this:
 
 
 
-
-.. _DICOM: https://en.wikipedia.org/wiki/DICOM
-.. _ZIP archives: https://en.wikipedia.org/wiki/Zip_(file_format)
+.. Hyperlinks:
+.. _pydicom: https://github.com/pydicom/pydicom
 .. _Series Description: https://dicom.innolitics.com/ciods/mr-image/general-series/0008103e
 .. _NumPy: https://www.numpy.org/
 .. _matplotlib: https://matplotlib.org/
+
 
 .. rubric:: Footnotes
 
