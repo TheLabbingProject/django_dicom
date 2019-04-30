@@ -1,8 +1,5 @@
-import numpy as np
-
 from django.db import models
 from django.urls import reverse
-from django_dicom.models import Image
 from django_dicom.reader.code_strings import Sex
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.reader import HeaderInformation
@@ -28,14 +25,6 @@ class Patient(DicomEntity):
     middle_name = models.CharField(max_length=64, blank=True, null=True)
     name_prefix = models.CharField(max_length=64, blank=True, null=True)
     name_suffix = models.CharField(max_length=64, blank=True, null=True)
-
-    # subject = models.ForeignKey(
-    #     "research.Subject",
-    #     blank=True,
-    #     null=True,
-    #     on_delete=models.PROTECT,
-    #     related_name="mri_patient_set",
-    # )
 
     FIELD_TO_HEADER = {
         "uid": "PatientID",
