@@ -140,7 +140,7 @@ class SeriesTestCase(TestCase):
                 self.series.full_clean()
         self.series.uid = uid
 
-    def test_uid_vebose_name(self):
+    def test_uid_verbose_name(self):
         """
         Test the *UID* field vebose name.
         

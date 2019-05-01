@@ -1,6 +1,8 @@
-# from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 # from django.urls import reverse_lazy
-# from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView
+
 # from django.views.generic.edit import FormView
 # from django_dicom.forms import CreateImagesForm
 import json
@@ -55,6 +57,21 @@ class ImageViewSet(DefaultsMixin, viewsets.ModelViewSet):
 
     @detail_route(methods=["GET"])
     def pixel_data(self, request, pk: int = None):
+        """
+        Returns the instance's pixel array as a :class:`~rest_framework.response.Response`.
+        
+        Parameters
+        ----------
+        request : :class:`~rest_framework.request.Request`
+            The request object.
+        pk : int, optional
+            The requested object's primary key, by default None
+        
+        Returns
+        -------
+        :class:`~rest_framework.response.Response`
+            Image pixel data as a response.
+        """
         image = self.get_object()
         if image:
             data = json.dumps({"data": image.get_data()}, cls=NumpyEncoder)
@@ -116,6 +133,22 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
 
     @detail_route(methods=["GET"])
     def pixel_data(self, request, pk: int = None):
+        """
+        Returns the instance's pixel array as a :class:`~rest_framework.response.Response`.
+        
+        Parameters
+        ----------
+        request : :class:`~rest_framework.request.Request`
+            The request object.
+        pk : int, optional
+            The requested object's primary key, by default None
+        
+        Returns
+        -------
+        :class:`~rest_framework.response.Response`
+            Series pixel data as a response.
+        """
+
         series = self.get_object()
         if series:
             data = json.dumps({"data": series.get_data()}, cls=NumpyEncoder)
@@ -145,14 +178,14 @@ class StudyViewSet(DefaultsMixin, viewsets.ModelViewSet):
     filter_class = StudyFilter
 
 
-# class ImageListView(LoginRequiredMixin, ListView):
-#     model = Image
-#     template_name = "dicom/instances/instance_list.html"
+class ImageListView(LoginRequiredMixin, ListView):
+    model = Image
+    template_name = "dicom/instances/instance_list.html"
 
 
-# class ImageDetailView(LoginRequiredMixin, DetailView):
-#     model = Image
-#     template_name = "dicom/instances/instance_detail.html"
+class ImageDetailView(LoginRequiredMixin, DetailView):
+    model = Image
+    template_name = "dicom/instances/instance_detail.html"
 
 
 # class ImagesCreateView(LoginRequiredMixin, FormView):
@@ -177,34 +210,34 @@ class StudyViewSet(DefaultsMixin, viewsets.ModelViewSet):
 #             return self.form_invalid(form)
 
 
-# class SeriesDetailView(LoginRequiredMixin, DetailView):
-#     model = Series
-#     template_name = "dicom/series/series_detail.html"
+class SeriesDetailView(LoginRequiredMixin, DetailView):
+    model = Series
+    template_name = "dicom/series/series_detail.html"
 
 
-# class SeriesListView(LoginRequiredMixin, ListView):
-#     model = Series
-#     template_name = "dicom/series/series_list.html"
+class SeriesListView(LoginRequiredMixin, ListView):
+    model = Series
+    template_name = "dicom/series/series_list.html"
 
 
-# class StudyDetailView(LoginRequiredMixin, DetailView):
-#     model = Study
-#     template_name = "dicom/studies/study_detail.html"
+class StudyDetailView(LoginRequiredMixin, DetailView):
+    model = Study
+    template_name = "dicom/studies/study_detail.html"
 
 
-# class StudyListView(LoginRequiredMixin, ListView):
-#     model = Study
-#     template_name = "dicom/studies/study_list.html"
+class StudyListView(LoginRequiredMixin, ListView):
+    model = Study
+    template_name = "dicom/studies/study_list.html"
 
 
-# class PatientDetailView(LoginRequiredMixin, DetailView):
-#     model = Patient
-#     template_name = "dicom/patients/patient_detail.html"
+class PatientDetailView(LoginRequiredMixin, DetailView):
+    model = Patient
+    template_name = "dicom/patients/patient_detail.html"
 
 
-# class PatientListView(LoginRequiredMixin, ListView):
-#     model = Patient
-#     template_name = "dicom/patients/patient_list.html"
+class PatientListView(LoginRequiredMixin, ListView):
+    model = Patient
+    template_name = "dicom/patients/patient_list.html"
 
 
 # class NewPatientsListView(LoginRequiredMixin, ListView):
