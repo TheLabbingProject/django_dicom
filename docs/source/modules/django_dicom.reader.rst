@@ -1,6 +1,14 @@
 django\_dicom.reader package
 ============================
 
+Module contents
+---------------
+
+.. automodule:: django_dicom.reader
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -31,15 +39,6 @@ django\_dicom.reader.value\_representation module
 -------------------------------------------------
 
 .. automodule:: django_dicom.reader.value_representation
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: django_dicom.reader
     :members:
     :undoc-members:
     :show-inheritance:

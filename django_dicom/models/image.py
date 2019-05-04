@@ -1,3 +1,4 @@
+import json
 import numpy as np
 import pydicom
 
@@ -6,6 +7,7 @@ from django.urls import reverse
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.validators import digits_and_dots_only, validate_file_extension
 from django_dicom.reader import HeaderInformation
+from django_dicom.utils import NumpyEncoder
 
 
 class Image(DicomEntity):
@@ -68,18 +70,27 @@ class Image(DicomEntity):
         """
         return pydicom.read_file(self.dcm.path, stop_before_pixels=header_only)
 
-    def get_data(self) -> np.ndarray:
+    def get_data(self, as_json: bool = False) -> np.ndarray:
         """
-        Returns the image's pixel array as a `NumPy`_ array.
+        Returns the image's pixel array as a `NumPy`_ array or as a JSON-like string if *as_json* is True.
         
         .. _NumPy: http://www.numpy.org/
+
+        Parameters
+        ----------
+        as_json : bool
+            Return the pixel array as a JSON formatted string.
 
         Returns
         -------
         :class:`numpy.ndarray`
             Image's pixel array.
         """
-        return self.read_file(header_only=False).pixel_array
+
+        data = self.read_file(header_only=False).pixel_array
+        if as_json:
+            return json.dumps({"data": data}, cls=NumpyEncoder)
+        return data
 
     def read_header(self) -> HeaderInformation:
         """

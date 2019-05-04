@@ -1,21 +1,18 @@
 from enum import Enum
 
 """
-This file contains an Enum with the two-character codes of the various DICOM value
-representations for header elements.
-
-*`One source`_*
-*`Another source`_*
-
-.. _One source: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
-.. _Another source: http://northstar-www.dartmouth.edu/doc/idl/html_6.2/Value_Representations.html
+This file contains an `Enum <https://docs.python.org/3/library/enum.html>`_ with the two-character codes of the
+various `DICOM <https://en.wikipedia.org/wiki/DICOM>`__
+`value-representations (VRs) <http://northstar-www.dartmouth.edu/doc/idl/html_6.2/Value_Representations.html>`_
+(also see `here <http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html>`_)
+for header `data elements <http://northstar-www.dartmouth.edu/doc/idl/html_6.2/DICOM_Attributes.html>`_.
 
 """
 
 
 class ValueRepresentation(Enum):
     """
-    DICOM value representations.
+    DICOM `value-representations (VRs) <http://northstar-www.dartmouth.edu/doc/idl/html_6.2/Value_Representations.html>`_.
     
     """
 

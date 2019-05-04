@@ -82,7 +82,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "node_modules"),
 ]
 
-MEDIA_ROOT = env("MEDIA_ROOT")
+MEDIA_ROOT = os.path.join(BASE_DIR, "tests")
 MEDIA_URL = "/media/"
 ROOT_URLCONF = "django_dicom.urls"
 

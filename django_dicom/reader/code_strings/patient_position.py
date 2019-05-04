@@ -2,6 +2,11 @@ from django_dicom.models.choice_enum import ChoiceEnum
 
 
 class PatientPosition(ChoiceEnum):
+    """
+    Represents the `Patient Position <https://dicom.innolitics.com/ciods/mr-image/general-series/00185100>`_ attribute.
+    
+    """
+
     HFP = "Head First-Prone"
     HFS = "Head First-Supine"
     HFDR = "Head First-Decubitus Right"

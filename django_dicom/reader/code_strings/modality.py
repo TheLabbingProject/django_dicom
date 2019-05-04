@@ -2,6 +2,11 @@ from django_dicom.models.choice_enum import ChoiceEnum
 
 
 class Modality(ChoiceEnum):
+    """
+    Represents the `Modality <https://dicom.innolitics.com/ciods/mr-image/general-series/00080060>`_ attribute.
+    
+    """
+
     AR = "Autorefraction"
     ASMT = "Content Assessment Results"
     AU = "Audio"

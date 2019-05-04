@@ -265,7 +265,7 @@ class ImageTestCase(TestCase):
         """
 
         url = self.image.get_absolute_url()
-        expected = f"/dicom/image/{self.image.id}/"
+        expected = f"/image/{self.image.id}/"
         self.assertEqual(url, expected)
 
     def test_read_file_method_return_type(self):

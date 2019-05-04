@@ -1,6 +1,15 @@
 django\_dicom.reader.code\_strings package
 ==========================================
 
+Module contents
+---------------
+
+.. automodule:: django_dicom.reader.code_strings
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Submodules
 ----------
 
@@ -40,15 +49,6 @@ django\_dicom.reader.code\_strings.sex module
 ---------------------------------------------
 
 .. automodule:: django_dicom.reader.code_strings.sex
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: django_dicom.reader.code_strings
     :members:
     :undoc-members:
     :show-inheritance:

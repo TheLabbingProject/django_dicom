@@ -1,3 +1,4 @@
+import json
 import numpy as np
 import os
 
@@ -17,6 +18,7 @@ from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.fields import ChoiceArrayField
 from django_dicom.models.managers import SeriesManager
 from django_dicom.models.validators import digits_and_dots_only
+from django_dicom.utils import NumpyEncoder
 
 
 class Series(DicomEntity):
@@ -162,17 +164,26 @@ class Series(DicomEntity):
     def get_absolute_url(self) -> str:
         return reverse("dicom:series_detail", args=[str(self.id)])
 
-    def get_data(self) -> np.ndarray:
+    def get_data(self, as_json: bool = False) -> np.ndarray:
         """
         Returns a NumPy array with the series data.
+
+        Parameters
+        ----------
+        as_json : bool
+            Return the pixel array as a JSON formatted string.        
         
         Returns
         -------
         np.ndarray
             Series pixel array.
         """
+
         images = self.image_set.order_by("number")
-        return np.stack([image.get_data() for image in images], axis=-1)
+        data = np.stack([image.get_data() for image in images], axis=-1)
+        if as_json:
+            return json.dumps({"data": data}, cls=NumpyEncoder)
+        return data
 
     def to_jstree_node(self) -> dict:
         """

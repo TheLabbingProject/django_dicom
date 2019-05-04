@@ -6,9 +6,7 @@ from rest_framework import serializers
 
 class SeriesSerializer(serializers.HyperlinkedModelSerializer):
     """
-    A serializer_ class for the :class:`~django_dicom.models.series.Series` model.
-
-    .. serializer: https://www.django-rest-framework.org/api-guide/serializers/
+    A `serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_ class for the :class:`~django_dicom.models.series.Series` model.
     
     """
 

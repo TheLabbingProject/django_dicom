@@ -85,12 +85,17 @@ class LocalImport:
 
     def path_generator(self, extension: str = "") -> str:
         """
-        Generates "*.dcm*" paths from the given directory tree.
-        
+        Generates paths from the given directory tree.
+
+        Parameters
+        ----------
+        extension : str
+            A file extension to filter the generated files with.
+
         Returns
         -------
         str
-            DICOM image path.
+            File path.
         """
 
         for directory, _, files in os.walk(self.path):

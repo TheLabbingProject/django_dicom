@@ -29,7 +29,7 @@ class DicomParser:
     SINGLE_VALUE_CODE_STRINGS = ["(0010, 0040)", "(0018, 5100)", "(0008, 0060)"]
 
     # This dictionary keeps a reference from the various DICOM header information
-    # value representations (VRs) to the appropriate parsing method.
+    # value-representations (VRs) to the appropriate parsing method.
     PARSING_METHOD = {
         ValueRepresentation.AGE_STRING: "parse_age_string",
         ValueRepresentation.DATE: "parse_date",
@@ -197,7 +197,7 @@ class DicomParser:
         # If no Enum exists, simply return the code-string value
         return element.value
 
-    # Custom parsing methods (tag dependent rather than value representation dependant)
+    # Custom parsing methods (tag dependent rather than value-representation dependant)
     def parse_siemens_slice_timing(self, value: bytes) -> list:
         """
         Parses a SIEMENS MR image's slice timing as saved in the private 
@@ -287,7 +287,7 @@ class DicomParser:
 
     def parse(self, element: DataElement):
         """
-        Tries to parse a pydicom_ DICOM data element using its value representation
+        Tries to parse a pydicom_ DICOM data element using its value-representation
         (VR) attribute. If no parser method is registered for the VR under the 
         PARSING_METHOD dictionary, will simply return the raw value.
 

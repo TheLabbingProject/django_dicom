@@ -1,6 +1,14 @@
 django\_dicom package
 =====================
 
+Module contents
+---------------
+
+.. automodule:: django_dicom
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -8,8 +16,10 @@ Subpackages
     :maxdepth: 2
 
     django_dicom.data_import
+    django_dicom.filters
     django_dicom.models
     django_dicom.reader
+    django_dicom.serializers
 
 Submodules
 ----------
@@ -58,15 +68,6 @@ django\_dicom.views module
 --------------------------
 
 .. automodule:: django_dicom.views
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: django_dicom
     :members:
     :undoc-members:
     :show-inheritance:

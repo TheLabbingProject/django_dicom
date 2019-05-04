@@ -34,7 +34,7 @@ class LocalImportTestCase(TestCase):
         except FileNotFoundError:
             pass
 
-    def test_init(self):
+    def test_initialization(self):
         """
         Tests that the :class:`~django_dicom.data_import.local_import.LocalImport`
         class is initialized properly.
