@@ -29,7 +29,7 @@ dicom_patterns = (
         ),
         # path("new_patient/", views.NewPatientsListView.as_view(), name="new_patients"),
     ],
-    "dicom",
+    app_name,
 )
 
 urlpatterns = [
