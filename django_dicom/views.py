@@ -10,7 +10,7 @@ from django_dicom.serializers import (
 )
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import authentication, filters, permissions, status, viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 
@@ -47,7 +47,7 @@ class ImageViewSet(DefaultsMixin, viewsets.ModelViewSet):
     search_fields = ("number", "date", "time", "uid")
     ordering_fields = ("series", "number", "date", "time")
 
-    @detail_route(methods=["GET"])
+    @action(detail=True)
     def pixel_data(self, request, pk: int = None):
         """
         Returns the instance's pixel array as a :class:`~rest_framework.response.Response`.
@@ -122,7 +122,7 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
         "institution_name",
     )
 
-    @detail_route(methods=["GET"])
+    @action(detail=True)
     def pixel_data(self, request, pk: int = None):
         """
         Returns the instance's pixel array as a :class:`~rest_framework.response.Response`.
@@ -144,6 +144,17 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
         if series:
             return Response(series.get_data(as_json=True))
         return Response("Invalid series ID!", status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True)
+    def tree_node(self, request, pk: int):
+        series = self.get_object()
+        return Response(
+            {
+                "id": f"dicom_series_{series.id}",
+                "name": series.description,
+                "file": "dcm",
+            }
+        )
 
 
 class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):
