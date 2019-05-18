@@ -12,7 +12,6 @@ router.register(r"patient", views.PatientViewSet)
 
 dicom_patterns = (
     [
-        # path("new/", views.ImagesCreateView.as_view(), name="images_create"),
         path("image/", views.ImageListView.as_view(), name="image_list"),
         path("image/<int:pk>/", views.ImageDetailView.as_view(), name="image_detail"),
         path("series/", views.SeriesListView.as_view(), name="series_list"),
@@ -27,7 +26,6 @@ dicom_patterns = (
             views.PatientDetailView.as_view(),
             name="patient_detail",
         ),
-        # path("new_patient/", views.NewPatientsListView.as_view(), name="new_patients"),
     ],
     app_name,
 )

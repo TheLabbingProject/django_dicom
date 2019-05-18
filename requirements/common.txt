@@ -1,0 +1,9 @@
+Django==2.2
+djangorestframework==3.9.2
+django-extensions==2.1.6
+django-filter==2.1.0
+pydicom==1.2.2
+numpy==1.16
+pandas==0.24
+psycopg2-binary==2.8
+tqdm==4.31.1
