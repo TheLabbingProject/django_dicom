@@ -7,6 +7,12 @@ with open("README.md", "r") as fh:
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
+with open("requirements/common.txt") as fh:
+    requirements = fh.read().splitlines()
+
+with open("requirements/dev.txt") as fh:
+    dev_requirements = fh.read().splitlines()
+
 setup(
     name="django_dicom",
     version="0.1.0",
@@ -20,6 +26,8 @@ setup(
     author="Zvi Baratz",
     author_email="z.baratz@gmail.com",
     keywords="django mri dicom dcm neuroimaging",
+    install_requires=requirements,
+    extras_require={"dev": dev_requirements},
     classifiers=[
         "Environment :: Web Environment",
         "Framework :: Django",
