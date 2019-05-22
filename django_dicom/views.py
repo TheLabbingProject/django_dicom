@@ -1,5 +1,3 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, DetailView
 from django_dicom.filters import ImageFilter, SeriesFilter, StudyFilter, PatientFilter
 from django_dicom.models import Image, Series, Study, Patient
 from django_dicom.serializers import (
@@ -145,17 +143,6 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
             return Response(series.get_data(as_json=True))
         return Response("Invalid series ID!", status=status.HTTP_404_NOT_FOUND)
 
-    @action(detail=True)
-    def tree_node(self, request, pk: int):
-        series = self.get_object()
-        return Response(
-            {
-                "id": f"dicom_series_{series.id}",
-                "name": series.description,
-                "file": "dcm",
-            }
-        )
-
 
 class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):
     """
@@ -178,74 +165,3 @@ class StudyViewSet(DefaultsMixin, viewsets.ModelViewSet):
     serializer_class = StudySerializer
     filter_class = StudyFilter
 
-
-class ImageListView(LoginRequiredMixin, ListView):
-    model = Image
-    template_name = "dicom/image/image_list.html"
-
-
-class ImageDetailView(LoginRequiredMixin, DetailView):
-    model = Image
-    template_name = "dicom/image/image_detail.html"
-
-
-class SeriesDetailView(LoginRequiredMixin, DetailView):
-    model = Series
-    template_name = "dicom/series/series_detail.html"
-
-
-class SeriesListView(LoginRequiredMixin, ListView):
-    model = Series
-    template_name = "dicom/series/series_list.html"
-
-
-class StudyDetailView(LoginRequiredMixin, DetailView):
-    model = Study
-    template_name = "dicom/study/study_detail.html"
-
-
-class StudyListView(LoginRequiredMixin, ListView):
-    model = Study
-    template_name = "dicom/study/study_list.html"
-
-
-class PatientDetailView(LoginRequiredMixin, DetailView):
-    model = Patient
-    template_name = "dicom/patient/patient_detail.html"
-
-
-class PatientListView(LoginRequiredMixin, ListView):
-    model = Patient
-    template_name = "dicom/patient/patient_list.html"
-
-
-# class ImagesCreateView(LoginRequiredMixin, FormView):
-#     form_class = CreateImagesForm
-#     template_name = "dicom/image/image_create.html"
-#     success_url = reverse_lazy("dicom:instance_list")
-#     temp_file_name = "tmp.dcm"
-#     temp_zip_name = "tmp.zip"
-
-#     def post(self, request, *args, **kwargs):
-#         form_class = self.get_form_class()
-#         form = self.get_form(form_class)
-#         if form.is_valid():
-#             files = request.FILES.getlist("dcm_files")
-#             for file in files:
-#                 if file.name.endswith(".dcm"):
-#                     Image.objects.from_dcm(file)
-#                 elif file.name.endswith(".zip"):
-#                     Image.objects.from_zip(file)
-#             return self.form_valid(form)
-#         else:
-#             return self.form_invalid(form)
-
-# class NewPatientsListView(LoginRequiredMixin, ListView):
-#     model = Patient
-#     template_name = "dicom/patients/patient_list.html"
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["patients"] = Patient.objects.filter(subject__isnull=True).all()
-#         context["chosen"] = Patient.objects.filter(subject__isnull=True).first()
-#         return context
