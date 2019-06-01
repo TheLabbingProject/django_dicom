@@ -59,6 +59,9 @@ class Series(DicomEntity):
         validators=[MinValueValidator(0)],
         help_text=help_text.ECHO_TIME,
     )
+    echo_train_length = models.PositiveIntegerField(
+        blank=True, null=True, help_text=help_text.ECHO_TRAIN_LENGTH
+    )
     inversion_time = models.FloatField(
         blank=True,
         null=True,
@@ -85,6 +88,9 @@ class Series(DicomEntity):
         models.FloatField(validators=[MinValueValidator(0)]),
         size=2,
         help_text=help_text.PIXEL_SPACING,
+    )
+    slice_thickness = models.FloatField(
+        validators=[MinValueValidator(0)], help_text=help_text.SLICE_THICKNESS
     )
     manufacturer = models.CharField(
         max_length=64, blank=True, null=True, help_text=help_text.MANUFACTURER
@@ -119,6 +125,9 @@ class Series(DicomEntity):
     )
     institution_name = models.CharField(
         max_length=64, blank=True, null=True, help_text=help_text.INSTITUTE_NAME
+    )
+    operators_name = models.CharField(
+        max_length=64, blank=True, null=True, help_text=help_text.OPERATORS_NAME
     )
     protocol_name = models.CharField(
         max_length=64, blank=True, null=True, help_text=help_text.PROTOCOL_NAME

@@ -35,12 +35,10 @@ class SeriesFilter(filters.FilterSet):
     
     """
 
-    patient_uid = filters.CharFilter(
-        "patient__uid", lookup_expr="icontains", label="Patient ID contains"
+    patient_id = filters.CharFilter(
+        "patient__id", lookup_expr="exact", label="Patient ID"
     )
-    study_uid = filters.CharFilter(
-        "study__uid", lookup_expr="contains", label="Study UID"
-    )
+    study_uid = filters.CharFilter("study__uid", lookup_expr="exact", label="Study UID")
     study_description = filters.CharFilter(
         "study__description", lookup_expr="contains", label="Study description contains"
     )
@@ -81,7 +79,7 @@ class SeriesFilter(filters.FilterSet):
         fields = (
             "id",
             "uid",
-            "patient_uid",
+            "patient_id",
             "study_uid",
             "study_description",
             "modality",

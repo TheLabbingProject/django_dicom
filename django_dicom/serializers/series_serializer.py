@@ -34,6 +34,7 @@ class SeriesSerializer(serializers.HyperlinkedModelSerializer):
             "scanning_sequence",
             "sequence_variant",
             "pixel_spacing",
+            "slice_thickness",
             "echo_time",
             "inversion_time",
             "repetition_time",
