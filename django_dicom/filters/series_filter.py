@@ -101,4 +101,5 @@ class SeriesFilter(filters.FilterSet):
             "magnetic_field_strength",
             "device_serial_number",
             "institution_name",
+            "patient__id",
         )
