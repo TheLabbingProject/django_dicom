@@ -10,6 +10,7 @@ class SeriesSerializer(serializers.HyperlinkedModelSerializer):
     
     """
 
+    url = serializers.HyperlinkedIdentityField(view_name="dicom:series-detail")
     study = serializers.HyperlinkedRelatedField(
         view_name="dicom:study-detail", queryset=Study.objects.all()
     )
@@ -21,6 +22,7 @@ class SeriesSerializer(serializers.HyperlinkedModelSerializer):
         model = Series
         fields = (
             "id",
+            "url",
             "study",
             "patient",
             "body_part_examined",
