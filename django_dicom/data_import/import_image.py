@@ -160,7 +160,7 @@ class ImportImage:
             study, _ = self.get_or_create_entity(Study)
             series.patient = patient
             series.study = study
-        series.save()
+            series.save()
 
         # Finally we can relate the Series instance to the created Image instance and save.
         self.image.series = series

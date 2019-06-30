@@ -90,7 +90,10 @@ class Series(DicomEntity):
         help_text=help_text.PIXEL_SPACING,
     )
     slice_thickness = models.FloatField(
-        validators=[MinValueValidator(0)], help_text=help_text.SLICE_THICKNESS
+        validators=[MinValueValidator(0)],
+        help_text=help_text.SLICE_THICKNESS,
+        blank=True,
+        null=True,
     )
     manufacturer = models.CharField(
         max_length=64, blank=True, null=True, help_text=help_text.MANUFACTURER

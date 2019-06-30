@@ -74,7 +74,7 @@ class PatientTestCase(TestCase):
         """
 
         field = self.patient._meta.get_field("uid")
-        self.assertEqual(field.verbose_name, "Patient ID")
+        self.assertEqual(field.verbose_name, "Patient UID")
 
     def test_uid_blank_and_null(self):
         """

@@ -1,3 +1,9 @@
+from os.path import join as opj
+
+from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django_dicom.data_import import ImportImage, LocalImport
 from django_dicom.filters import ImageFilter, SeriesFilter, StudyFilter, PatientFilter
 from django_dicom.models import Image, Series, Study, Patient
 from django_dicom.serializers import (
@@ -9,6 +15,7 @@ from django_dicom.serializers import (
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import authentication, filters, permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
 
@@ -44,6 +51,27 @@ class ImageViewSet(DefaultsMixin, viewsets.ModelViewSet):
     filter_class = ImageFilter
     search_fields = ("number", "date", "time", "uid")
     ordering_fields = ("series", "number", "date", "time")
+    parser_classes = (MultiPartParser,)
+
+    def put(self, request, format=None):
+        file_obj = request.data["file"]
+        if file_obj.name.endswith(".dcm"):
+            image, created = ImportImage(file_obj).run()
+        elif file_obj.name.endswith(".zip"):
+            content = ContentFile(file_obj.read())
+            temp_file_name = default_storage.save("tmp.zip", content)
+            temp_file_path = opj(settings.MEDIA_ROOT, temp_file_name)
+            LocalImport.import_local_zip_archive(temp_file_path, verbose=False)
+            return Response(
+                {"message": "Successfully imported ZIP archive!"},
+                status=status.HTTP_201_CREATED,
+            )
+        if created:
+            return Response(
+                {"message": f"Success! [Image #{image.id}]"},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True)
     def pixel_data(self, request, pk: int = None):

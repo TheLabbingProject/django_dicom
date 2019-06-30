@@ -16,7 +16,7 @@ class Patient(DicomEntity):
     
     """
 
-    uid = models.CharField(max_length=64, unique=True, verbose_name="Patient ID")
+    uid = models.CharField(max_length=64, unique=True, verbose_name="Patient UID")
     date_of_birth = models.DateField(blank=True, null=True)
     sex = models.CharField(max_length=1, choices=Sex.choices(), blank=True, null=True)
 

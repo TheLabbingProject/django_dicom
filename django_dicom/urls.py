@@ -10,8 +10,5 @@ router.register(r"studies", views.StudyViewSet)
 router.register(r"patients", views.PatientViewSet)
 
 
-urlpatterns = [
-    path("dicom/", include(router.urls)),
-    # path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
-]
+urlpatterns = [path("dicom/", include(router.urls))]
 
