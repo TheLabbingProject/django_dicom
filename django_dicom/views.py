@@ -15,6 +15,7 @@ from django_dicom.serializers import (
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import authentication, filters, permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
@@ -30,14 +31,16 @@ class DefaultsMixin:
         authentication.TokenAuthentication,
     )
     permission_classes = (permissions.IsAuthenticated,)
-    paginate_by = 25
-    paginate_by_param = "page_size"
-    max_paginate_by = 100
     filter_backends = (
         DjangoFilterBackend,
         filters.SearchFilter,
         filters.OrderingFilter,
     )
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 25
+    page_size_query_param = "page_size"
 
 
 class ImageViewSet(DefaultsMixin, viewsets.ModelViewSet):
@@ -181,6 +184,7 @@ class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):
     queryset = Patient.objects.all().order_by("family_name", "given_name")
     serializer_class = PatientSerializer
     filter_class = PatientFilter
+    pagination_class = StandardResultsSetPagination
 
 
 class StudyViewSet(DefaultsMixin, viewsets.ModelViewSet):
