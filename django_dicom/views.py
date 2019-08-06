@@ -13,10 +13,13 @@ from django_dicom.serializers import (
     PatientSerializer,
 )
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import authentication, filters, permissions, status, viewsets
+from rest_framework import status, viewsets
+from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 
@@ -26,16 +29,9 @@ class DefaultsMixin:
     
     """
 
-    authentication_classes = (
-        authentication.BasicAuthentication,
-        authentication.TokenAuthentication,
-    )
-    permission_classes = (permissions.IsAuthenticated,)
-    filter_backends = (
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    )
+    authentication_classes = (BasicAuthentication, TokenAuthentication)
+    permission_classes = (IsAuthenticated,)
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
 
 
 class StandardResultsSetPagination(PageNumberPagination):
