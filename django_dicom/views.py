@@ -104,6 +104,7 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
     queryset = Series.objects.all().order_by("-date", "time")
     serializer_class = SeriesSerializer
     filter_class = SeriesFilter
+    pagination_class = StandardResultsSetPagination
     search_fields = (
         "study",
         "patient",

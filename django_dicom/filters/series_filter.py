@@ -35,9 +35,6 @@ class SeriesFilter(filters.FilterSet):
     
     """
 
-    patient_id = filters.CharFilter(
-        "patient__id", lookup_expr="exact", label="Patient ID"
-    )
     study_uid = filters.CharFilter("study__uid", lookup_expr="exact", label="Study UID")
     study_description = filters.CharFilter(
         "study__description", lookup_expr="contains", label="Study description contains"
