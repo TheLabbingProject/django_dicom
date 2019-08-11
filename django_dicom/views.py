@@ -45,12 +45,13 @@ class ImageViewSet(DefaultsMixin, viewsets.ModelViewSet):
     
     """
 
-    queryset = Image.objects.all().order_by("-date", "time")
-    serializer_class = ImageSerializer
     filter_class = ImageFilter
-    search_fields = ("number", "date", "time", "uid")
     ordering_fields = ("series", "number", "date", "time")
+    pagination_class = StandardResultsSetPagination
     parser_classes = (MultiPartParser,)
+    queryset = Image.objects.all().order_by("-date", "time")
+    search_fields = ("number", "date", "time", "uid")
+    serializer_class = ImageSerializer
 
     def put(self, request, format=None):
         file_obj = request.data["file"]
@@ -193,4 +194,4 @@ class StudyViewSet(DefaultsMixin, viewsets.ModelViewSet):
     queryset = Study.objects.all().order_by("date", "time")
     serializer_class = StudySerializer
     filter_class = StudyFilter
-
+    pagination_class = StandardResultsSetPagination

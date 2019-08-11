@@ -1,4 +1,5 @@
 from django_dicom.models.patient import Patient
+from django_dicom.models.series import Series
 from django_dicom.reader.code_strings.sex import Sex
 from django_filters import rest_framework as filters
 
@@ -43,6 +44,7 @@ class PatientFilter(filters.FilterSet):
         ]
     )
     name_suffix = filters.AllValuesFilter("name_suffix")
+    study__id = filters.NumberFilter(method="filter_by_study")
 
     class Meta:
         model = Patient
@@ -57,3 +59,11 @@ class PatientFilter(filters.FilterSet):
             "family_name",
             "name_suffix",
         )
+
+    def filter_by_study(self, queryset, name, value):
+        if not value:
+            return queryset
+
+        series = Series.objects.filter(study__id=value)
+        patient_ids = set(series.values_list("patient", flat=True))
+        return queryset.filter(id__in=patient_ids)
