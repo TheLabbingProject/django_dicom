@@ -1,5 +1,7 @@
-from django_filters import rest_framework as filters
 from django_dicom.models.patient import Patient
+from django_dicom.models.series import Series
+from django_dicom.reader.code_strings.sex import Sex
+from django_filters import rest_framework as filters
 
 
 class PatientFilter(filters.FilterSet):
@@ -12,6 +14,14 @@ class PatientFilter(filters.FilterSet):
     born_after_date = filters.DateFilter("date_of_birth", lookup_expr="gte")
     born_before_date = filters.DateFilter("date_of_birth", lookup_expr="lte")
     name_prefix = filters.AllValuesFilter("name_prefix")
+    sex = filters.ChoiceFilter("sex", choices=Sex.choices())
+    uid = filters.LookupChoiceFilter(
+        lookup_choices=[
+            ("contains", "Contains (case-sensitive)"),
+            ("icontains", "Contains (case-insensitive)"),
+            ("exact", "Exact"),
+        ]
+    )
     given_name = filters.LookupChoiceFilter(
         lookup_choices=[
             ("contains", "Contains (case-sensitive)"),
@@ -34,6 +44,7 @@ class PatientFilter(filters.FilterSet):
         ]
     )
     name_suffix = filters.AllValuesFilter("name_suffix")
+    study__id = filters.NumberFilter(method="filter_by_study")
 
     class Meta:
         model = Patient
@@ -48,3 +59,11 @@ class PatientFilter(filters.FilterSet):
             "family_name",
             "name_suffix",
         )
+
+    def filter_by_study(self, queryset, name, value):
+        if not value:
+            return queryset
+
+        series = Series.objects.filter(study__id=value)
+        patient_ids = set(series.values_list("patient", flat=True))
+        return queryset.filter(id__in=patient_ids)

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django_dicom.reader.code_strings import Sex
@@ -15,7 +16,7 @@ class Patient(DicomEntity):
     
     """
 
-    uid = models.CharField(max_length=64, unique=True, verbose_name="Patient ID")
+    uid = models.CharField(max_length=64, unique=True, verbose_name="Patient UID")
     date_of_birth = models.DateField(blank=True, null=True)
     sex = models.CharField(max_length=1, choices=Sex.choices(), blank=True, null=True)
 
@@ -25,6 +26,15 @@ class Patient(DicomEntity):
     middle_name = models.CharField(max_length=64, blank=True, null=True)
     name_prefix = models.CharField(max_length=64, blank=True, null=True)
     name_suffix = models.CharField(max_length=64, blank=True, null=True)
+
+    if hasattr(settings, "SUBJECT_MODEL"):
+        subject = models.ForeignKey(
+            settings.SUBJECT_MODEL,
+            on_delete=models.PROTECT,
+            related_name="dicom_patient_set",
+            blank=True,
+            null=True,
+        )
 
     FIELD_TO_HEADER = {
         "uid": "PatientID",

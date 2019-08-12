@@ -26,3 +26,6 @@ PROTOCOL_NAME = (
     "User-defined description of the conditions under which the series was performed"
 )
 MR_ACQUISITION_TYPE = "Identification of data encoding scheme"
+SLICE_THICKNESS = "Nominal slice thickness, in millimeters."
+OPERATORS_NAME = "Name(s) of the operator(s) supporting the Series."
+ECHO_TRAIN_LENGTH = "Number of lines in k-space acquired per excitation per image."

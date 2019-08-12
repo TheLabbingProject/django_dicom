@@ -35,12 +35,7 @@ class SeriesFilter(filters.FilterSet):
     
     """
 
-    patient_uid = filters.CharFilter(
-        "patient__uid", lookup_expr="icontains", label="Patient ID contains"
-    )
-    study_uid = filters.CharFilter(
-        "study__uid", lookup_expr="contains", label="Study UID"
-    )
+    study_uid = filters.CharFilter("study__uid", lookup_expr="exact", label="Study UID")
     study_description = filters.CharFilter(
         "study__description", lookup_expr="contains", label="Study description contains"
     )
@@ -67,9 +62,10 @@ class SeriesFilter(filters.FilterSet):
     )
     flip_angle = filters.AllValuesFilter("flip_angle")
     created_after_date = filters.DateFilter("date", lookup_expr="gte")
+    date = filters.DateFilter("date")
     created_before_date = filters.DateFilter("date", lookup_expr="lte")
-    created_after_time = filters.DateFilter("time", lookup_expr="gte")
-    created_before_time = filters.DateFilter("time", lookup_expr="lte")
+    created_after_time = filters.TimeFilter("time", lookup_expr="gte")
+    created_before_time = filters.TimeFilter("time", lookup_expr="lte")
     manufacturer = filters.AllValuesFilter("manufacturer")
     manufacturer_model_name = filters.AllValuesFilter("manufacturer_model_name")
     magnetic_field_strength = filters.AllValuesFilter("magnetic_field_strength")
@@ -81,7 +77,7 @@ class SeriesFilter(filters.FilterSet):
         fields = (
             "id",
             "uid",
-            "patient_uid",
+            "patient_id",
             "study_uid",
             "study_description",
             "modality",
@@ -103,4 +99,5 @@ class SeriesFilter(filters.FilterSet):
             "magnetic_field_strength",
             "device_serial_number",
             "institution_name",
+            "patient__id",
         )

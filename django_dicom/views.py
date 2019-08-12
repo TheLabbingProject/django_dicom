@@ -1,5 +1,9 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, DetailView
+from os.path import join as opj
+
+from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django_dicom.data_import import ImportImage, LocalImport
 from django_dicom.filters import ImageFilter, SeriesFilter, StudyFilter, PatientFilter
 from django_dicom.models import Image, Series, Study, Patient
 from django_dicom.serializers import (
@@ -9,8 +13,13 @@ from django_dicom.serializers import (
     PatientSerializer,
 )
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import authentication, filters, permissions, status, viewsets
+from rest_framework import status, viewsets
+from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import MultiPartParser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 
@@ -20,19 +29,14 @@ class DefaultsMixin:
     
     """
 
-    authentication_classes = (
-        authentication.BasicAuthentication,
-        authentication.TokenAuthentication,
-    )
-    permission_classes = (permissions.IsAuthenticated,)
-    paginate_by = 25
-    paginate_by_param = "page_size"
-    max_paginate_by = 100
-    filter_backends = (
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    )
+    authentication_classes = (BasicAuthentication, TokenAuthentication)
+    permission_classes = (IsAuthenticated,)
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 25
+    page_size_query_param = "page_size"
 
 
 class ImageViewSet(DefaultsMixin, viewsets.ModelViewSet):
@@ -41,11 +45,33 @@ class ImageViewSet(DefaultsMixin, viewsets.ModelViewSet):
     
     """
 
-    queryset = Image.objects.all().order_by("-date", "time")
-    serializer_class = ImageSerializer
     filter_class = ImageFilter
-    search_fields = ("number", "date", "time", "uid")
     ordering_fields = ("series", "number", "date", "time")
+    pagination_class = StandardResultsSetPagination
+    parser_classes = (MultiPartParser,)
+    queryset = Image.objects.all().order_by("-date", "time")
+    search_fields = ("number", "date", "time", "uid")
+    serializer_class = ImageSerializer
+
+    def put(self, request, format=None):
+        file_obj = request.data["file"]
+        if file_obj.name.endswith(".dcm"):
+            image, created = ImportImage(file_obj).run()
+        elif file_obj.name.endswith(".zip"):
+            content = ContentFile(file_obj.read())
+            temp_file_name = default_storage.save("tmp.zip", content)
+            temp_file_path = opj(settings.MEDIA_ROOT, temp_file_name)
+            LocalImport.import_local_zip_archive(temp_file_path, verbose=False)
+            return Response(
+                {"message": "Successfully imported ZIP archive!"},
+                status=status.HTTP_201_CREATED,
+            )
+        if created:
+            return Response(
+                {"message": f"Success! [Image #{image.id}]"},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True)
     def pixel_data(self, request, pk: int = None):
@@ -79,6 +105,7 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
     queryset = Series.objects.all().order_by("-date", "time")
     serializer_class = SeriesSerializer
     filter_class = SeriesFilter
+    pagination_class = StandardResultsSetPagination
     search_fields = (
         "study",
         "patient",
@@ -145,17 +172,6 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
             return Response(series.get_data(as_json=True))
         return Response("Invalid series ID!", status=status.HTTP_404_NOT_FOUND)
 
-    @action(detail=True)
-    def tree_node(self, request, pk: int):
-        series = self.get_object()
-        return Response(
-            {
-                "id": f"dicom_series_{series.id}",
-                "name": series.description,
-                "file": "dcm",
-            }
-        )
-
 
 class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):
     """
@@ -166,6 +182,7 @@ class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):
     queryset = Patient.objects.all().order_by("family_name", "given_name")
     serializer_class = PatientSerializer
     filter_class = PatientFilter
+    pagination_class = StandardResultsSetPagination
 
 
 class StudyViewSet(DefaultsMixin, viewsets.ModelViewSet):
@@ -177,75 +194,4 @@ class StudyViewSet(DefaultsMixin, viewsets.ModelViewSet):
     queryset = Study.objects.all().order_by("date", "time")
     serializer_class = StudySerializer
     filter_class = StudyFilter
-
-
-class ImageListView(LoginRequiredMixin, ListView):
-    model = Image
-    template_name = "dicom/image/image_list.html"
-
-
-class ImageDetailView(LoginRequiredMixin, DetailView):
-    model = Image
-    template_name = "dicom/image/image_detail.html"
-
-
-class SeriesDetailView(LoginRequiredMixin, DetailView):
-    model = Series
-    template_name = "dicom/series/series_detail.html"
-
-
-class SeriesListView(LoginRequiredMixin, ListView):
-    model = Series
-    template_name = "dicom/series/series_list.html"
-
-
-class StudyDetailView(LoginRequiredMixin, DetailView):
-    model = Study
-    template_name = "dicom/study/study_detail.html"
-
-
-class StudyListView(LoginRequiredMixin, ListView):
-    model = Study
-    template_name = "dicom/study/study_list.html"
-
-
-class PatientDetailView(LoginRequiredMixin, DetailView):
-    model = Patient
-    template_name = "dicom/patient/patient_detail.html"
-
-
-class PatientListView(LoginRequiredMixin, ListView):
-    model = Patient
-    template_name = "dicom/patient/patient_list.html"
-
-
-# class ImagesCreateView(LoginRequiredMixin, FormView):
-#     form_class = CreateImagesForm
-#     template_name = "dicom/image/image_create.html"
-#     success_url = reverse_lazy("dicom:instance_list")
-#     temp_file_name = "tmp.dcm"
-#     temp_zip_name = "tmp.zip"
-
-#     def post(self, request, *args, **kwargs):
-#         form_class = self.get_form_class()
-#         form = self.get_form(form_class)
-#         if form.is_valid():
-#             files = request.FILES.getlist("dcm_files")
-#             for file in files:
-#                 if file.name.endswith(".dcm"):
-#                     Image.objects.from_dcm(file)
-#                 elif file.name.endswith(".zip"):
-#                     Image.objects.from_zip(file)
-#             return self.form_valid(form)
-#         else:
-#             return self.form_invalid(form)
-
-# class NewPatientsListView(LoginRequiredMixin, ListView):
-#     model = Patient
-#     template_name = "dicom/patients/patient_list.html"
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["patients"] = Patient.objects.filter(subject__isnull=True).all()
-#         context["chosen"] = Patient.objects.filter(subject__isnull=True).first()
-#         return context
+    pagination_class = StandardResultsSetPagination

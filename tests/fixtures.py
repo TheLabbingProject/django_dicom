@@ -48,6 +48,9 @@ TEST_SERIES_FIELDS = {
     "protocol_name": "localizer_3D_2 (9X5X5)",
     "flip_angle": 20.0,
     "mr_acquisition_type": "2D",
+    "slice_thickness": 6.0,
+    "echo_train_length": 1,
+    "operators_name": "Irina",
 }
 TEST_DWI_SERIES_FIELDS = {
     "uid": "1.3.12.2.1107.5.2.43.66024.2018050112551393877039165.0.0.0",
@@ -72,6 +75,9 @@ TEST_DWI_SERIES_FIELDS = {
     "protocol_name": "AxCaliber3D1_ep2d_advdiff_30dir_b3000_d11.3D60",
     "flip_angle": 180.0,
     "mr_acquisition_type": "2D",
+    "slice_thickness": 2.2000000476837,
+    "echo_train_length": 32,
+    "operators_name": "Irina",
 }
 
 

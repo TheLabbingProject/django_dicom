@@ -764,6 +764,34 @@ class SeriesTestCase(TestCase):
         field = self.series._meta.get_field("mr_acquisition_type")
         self.assertEqual(field.choices, choices)
 
+    # slice thickness
+    def test_slice_thickness_blank_and_null(self):
+        """
+        The `Slice Thickness`_ attribute may be empty (`type 2 data element`).
+
+        .. _Slice Thickness: https://dicom.innolitics.com/ciods/mr-image/image-plane/00180050
+        .. _type 2 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
+        
+        """
+
+        field = self.series._meta.get_field("slice_thickness")
+        self.assertTrue(field.blank)
+        self.assertTrue(field.null)
+
+    def test_slice_thickness_positive_float_validation(self):
+        """
+        The `Slice Thickness`_ attribute measures thickness in millimeters and therefore must
+        be positive.
+
+        .. _Slice Thickness: https://dicom.innolitics.com/ciods/mr-image/image-plane/00180050
+
+        """
+        value = self.series.slice_thickness
+        self.series.slice_thickness = -0.4
+        with self.assertRaises(ValidationError):
+            self.series.full_clean()
+        self.series.slice_thickness = value
+
     # study
     def test_study_blank_and_null(self):
         """
@@ -835,6 +863,9 @@ class SeriesTestCase(TestCase):
         values = {
             field.name: getattr(self.series, field.name) for field in header_fields
         }
+        for key, value in values.items():
+            if expected_values[key] != value:
+                print(f"{key} expected {expected_values[key]} but got {value}")
         self.assertDictEqual(values, expected_values)
 
     def test_get_data(self):
