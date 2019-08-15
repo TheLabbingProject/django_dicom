@@ -1,4 +1,0 @@
-begin
-	resetdefaults;
-	loadimage('FILE_PATH');
-end.
