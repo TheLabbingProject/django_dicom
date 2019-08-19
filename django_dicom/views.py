@@ -17,7 +17,6 @@ from rest_framework import status, viewsets
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -34,11 +33,6 @@ class DefaultsMixin:
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
 
 
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 25
-    page_size_query_param = "page_size"
-
-
 class ImageViewSet(DefaultsMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows images to be viewed or edited.
@@ -47,7 +41,6 @@ class ImageViewSet(DefaultsMixin, viewsets.ModelViewSet):
 
     filter_class = ImageFilter
     ordering_fields = ("series", "number", "date", "time")
-    pagination_class = StandardResultsSetPagination
     parser_classes = (MultiPartParser,)
     queryset = Image.objects.all().order_by("-date", "time")
     search_fields = ("number", "date", "time", "uid")
@@ -105,7 +98,6 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
     queryset = Series.objects.all().order_by("-date", "time")
     serializer_class = SeriesSerializer
     filter_class = SeriesFilter
-    pagination_class = StandardResultsSetPagination
     search_fields = (
         "study",
         "patient",
@@ -182,7 +174,6 @@ class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):
     queryset = Patient.objects.all().order_by("family_name", "given_name")
     serializer_class = PatientSerializer
     filter_class = PatientFilter
-    pagination_class = StandardResultsSetPagination
 
 
 class StudyViewSet(DefaultsMixin, viewsets.ModelViewSet):
@@ -194,4 +185,3 @@ class StudyViewSet(DefaultsMixin, viewsets.ModelViewSet):
     queryset = Study.objects.all().order_by("date", "time")
     serializer_class = StudySerializer
     filter_class = StudyFilter
-    pagination_class = StandardResultsSetPagination

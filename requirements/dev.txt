@@ -5,3 +5,4 @@ Faker==1.0.1
 flake8==3.6.0
 ipython==7.4.0
 pytest==4.0.2
+doc8==0.8.0

@@ -123,7 +123,17 @@ class DicomParser:
             Native python date object.
         """
 
-        return datetime.strptime(element.value, "%Y%m%d").date()
+        try:
+            return datetime.strptime(element.value, "%Y%m%d").date()
+        except ValueError:
+            # If the value is not empty, raise an error indicating the data is not valid
+            if element.value:
+                raise ValueError(
+                    f"Failed to parse {element.name} with value '{element.value}' into a valid date object"
+                )
+            # If the element is empty, return None
+            else:
+                return None
 
     def parse_time(self, element: DataElement) -> datetime.time:
         """
@@ -140,7 +150,21 @@ class DicomParser:
             Native python time object.
         """
 
-        return datetime.strptime(element.value, "%H%M%S.%f").time()
+        try:
+            # Try to parse according to the default time representation
+            return datetime.strptime(element.value, "%H%M%S.%f").time()
+        except ValueError:
+            # If the value is not empty, try to parse with the fractional part
+            if element.value:
+                try:
+                    return datetime.strptime(element.value, "%H%M%S").time()
+                except ValueError:
+                    return ValueError(
+                        f"Failed to parse {element.name} with value '{element.value}' into a valid time object!"
+                    )
+            # If the value is empty, simply return None
+            else:
+                return None
 
     def parse_datetime(self, element: DataElement) -> datetime:
         """
@@ -312,7 +336,8 @@ class DicomParser:
                 return method(element)
             except KeyError:
                 return element.value
-        except ValueError:
+        except ValueError as e:
+            print(e.args)
             raise NotImplementedError(
                 f"{element.VR} is not a supported value-representation!"
             )
