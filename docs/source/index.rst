@@ -14,7 +14,7 @@ Welcome to django_dicom's documentation!
    installation
    quickstart
    user_guide/user_guide
-   modules/documentation
+   modules/reference
 
 
 Indices and tables

@@ -40,14 +40,6 @@ django\_dicom.apps module
     :undoc-members:
     :show-inheritance:
 
-django\_dicom.forms module
---------------------------
-
-.. automodule:: django_dicom.forms
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 django\_dicom.urls module
 -------------------------
 
