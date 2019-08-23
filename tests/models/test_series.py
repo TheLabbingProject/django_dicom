@@ -885,22 +885,6 @@ class SeriesTestCase(TestCase):
         self.assertIsInstance(dwi_data, np.ndarray)
         self.assertTupleEqual(dwi_data.shape, (704, 704, 1))
 
-    def test_to_jstree_node(self):
-        """
-        Test the `jstree`_ node representation for a :class:`~django_dicom.models.series.Series`
-        instance.
-        
-        .. _jstree: https://www.jstree.com/
-        """
-        for sample_series in (self.series, self.dwi_series):
-            node = sample_series.to_jstree_node()
-            expected = {
-                "id": f"series_{sample_series.id}",
-                "icon": "fas fa-flushed",
-                "text": sample_series.description,
-            }
-            self.assertDictEqual(node, expected)
-
     def test_get_path(self):
         """
         Tests the :meth:`~django_dicom.models.series.Series.get_path` method

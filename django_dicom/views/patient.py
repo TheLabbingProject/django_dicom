@@ -14,3 +14,4 @@ class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):
     queryset = Patient.objects.all().order_by("family_name", "given_name")
     serializer_class = PatientSerializer
     filter_class = PatientFilter
+

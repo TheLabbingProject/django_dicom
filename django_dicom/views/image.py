@@ -1,5 +1,6 @@
 from os.path import join as opj
 
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -25,6 +26,14 @@ class ImageViewSet(DefaultsMixin, viewsets.ModelViewSet):
     queryset = Image.objects.all().order_by("-date", "time")
     search_fields = ("number", "date", "time", "uid")
     serializer_class = ImageSerializer
+
+    def get_queryset(self):
+        user = get_user_model().objects.get(username=self.request.user)
+        if user.is_staff:
+            return Image.objects.all()
+        return Image.objects.filter(
+            series__scan__study_groups__study__collaborators=user
+        )
 
     def put(self, request, format=None):
         file_obj = request.data["file"]

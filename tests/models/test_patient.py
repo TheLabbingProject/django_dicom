@@ -227,15 +227,3 @@ class PatientTestCase(TestCase):
             field.name: getattr(self.patient, field.name) for field in header_fields
         }
         self.assertDictEqual(values, expected_values)
-
-    def test_to_jstree(self):
-        """
-        Tests the creation of a list of dictionairies representing each of this
-        patient's series instances as `jstree`_ nodes.
-
-        .. _jstree: https://www.jstree.com/        
-        """
-
-        result = self.patient.to_jstree()
-        expected = [series.to_jstree_node() for series in self.patient.series_set.all()]
-        self.assertListEqual(result, expected)

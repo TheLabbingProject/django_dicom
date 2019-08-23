@@ -197,22 +197,6 @@ class Series(DicomEntity):
             return json.dumps({"data": data}, cls=NumpyEncoder)
         return data
 
-    def to_jstree_node(self) -> dict:
-        """
-        Create a jstree node representation of this instance.
-        
-        Returns
-        -------
-        dict
-            jstree node dictionary.
-        """
-
-        return {
-            "id": f"series_{self.id}",
-            "icon": "fas fa-flushed",
-            "text": self.description,
-        }
-
     def get_path(self) -> str:
         """
         Returns the base directory containing the images composing this series.
