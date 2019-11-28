@@ -12,13 +12,6 @@ Module contents
     :show-inheritance:
 
 
-Subpackages
------------
-
-.. toctree::
-
-    django_dicom.models.managers
-
 Submodules
 ----------
 
