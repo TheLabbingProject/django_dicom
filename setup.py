@@ -15,7 +15,7 @@ with open("requirements-dev.txt") as fh:
 
 setup(
     name="django_dicom",
-    version="0.0.2",
+    version="0.0.3",
     packages=find_packages(),
     include_package_data=True,
     license="AGPLv3",
@@ -26,7 +26,7 @@ setup(
     author="Zvi Baratz",
     author_email="baratzz@pm.me",
     keywords="django mri dicom dcm neuroimaging",
-    python_requires='>=3.6',
+    python_requires=">=3.6",
     install_requires=requirements,
     extras_require={"dev": dev_requirements},
     classifiers=[
