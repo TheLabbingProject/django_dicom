@@ -15,7 +15,7 @@ with open("requirements-dev.txt") as fh:
 
 setup(
     name="django_dicom",
-    version="0.0.3",
+    version="0.0.4",
     packages=find_packages(),
     include_package_data=True,
     license="AGPLv3",

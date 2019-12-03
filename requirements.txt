@@ -5,4 +5,5 @@ django-filter~=2.2
 numpy~=1.17
 pandas~=0.25
 pydicom~=1.3
+tqdm~=4.40
 xlrd~=1.2
