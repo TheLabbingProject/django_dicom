@@ -134,11 +134,8 @@ class ImportImage:
 
         relative_destination = self.get_image_destination()
         destination = os.path.join(settings.MEDIA_ROOT, relative_destination)
-        # Save a reference to the current path for renaming
         current_path = self.image.dcm.path
-        # Make sure the destination directory exists
         os.makedirs(os.path.dirname(destination), exist_ok=True)
-        # Move file
         os.rename(current_path, destination)
         return relative_destination
 

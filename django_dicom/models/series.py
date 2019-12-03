@@ -16,7 +16,6 @@ from django_dicom.reader.code_strings import (
 )
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.fields import ChoiceArrayField
-from django_dicom.models.managers import SeriesManager
 from django_dicom.models.validators import digits_and_dots_only
 from django_dicom.utils import NumpyEncoder
 
@@ -153,8 +152,6 @@ class Series(DicomEntity):
     patient = models.ForeignKey(
         "django_dicom.Patient", blank=True, null=True, on_delete=models.PROTECT
     )
-
-    objects = SeriesManager()
 
     FIELD_TO_HEADER = {
         "uid": "SeriesInstanceUID",
