@@ -8,8 +8,8 @@ does not depend on it. `django_dicom` creates `models <https://docs.djangoprojec
 that represent the various `DICOM <https://en.wikipedia.org/wiki/DICOM>`_
 entities: :class:`~django_dicom.models.image.Image`, :class:`~django_dicom.models.series.Series`,
 :class:`~django_dicom.models.study.Study`, and :class:`~django_dicom.models.patient.Patient`
-(see `here <http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html>`_
-and `here <http://dicomiseasy.blogspot.com/2011/12/chapter-4-dicom-objects-in-chapter-3.html>`_ for more information)
+(see `here <http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html>`__
+and `here <http://dicomiseasy.blogspot.com/2011/12/chapter-4-dicom-objects-in-chapter-3.html>`__ for more information)
 and provides utility methods to import data and easily maintain the DICOM entities and their relationship.
 Once data is imported, `Django's <https://www.fullstackpython.com/django-orm.html>`_
 `ORM <https://www.fullstackpython.com/object-relational-mappers-orms.html>`_ 
