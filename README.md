@@ -1,5 +1,9 @@
-# django-dicom
+[![Documentation Status](https://readthedocs.org/projects/django-dicom/badge/?version=latest)](http://django-dicom.readthedocs.io/?badge=latest)
+[![PyPI version](https://img.shields.io/pypi/v/django-dicom.svg)](https://pypi.python.org/pypi/django-dicom/)
+[![PyPI status](https://img.shields.io/pypi/status/django-dicom.svg)](https://pypi.python.org/pypi/django-dicom/)
 
+
+# django-dicom
 
 
 A django app to manage [DICOM][1] files.
@@ -9,8 +13,7 @@ The models are complemented with some utility methods to facilitate data access.
 
 
 
-Quick start
------------
+## Quick start
 
 1. Add "django_dicom" to your INSTALLED_APPS setting:
 
@@ -34,6 +37,10 @@ Quick start
 5. Visit http://127.0.0.1:8000/dicom/.
 
 
+
+## Documentation
+
+The full documentation can be found [here](http://django-dicom.readthedocs.io).
 
 
 [1]: https://www.dicomstandard.org/
