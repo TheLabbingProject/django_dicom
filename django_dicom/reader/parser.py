@@ -131,8 +131,12 @@ class DicomParser:
                 raise ValueError(
                     f"Failed to parse {element.name} with value '{element.value}' into a valid date object"
                 )
-            # If the element is empty, return None
-            else:
+            # # If the element is empty, return None
+            # else:
+            #     return None
+        except TypeError:
+            # If the value is empty, simply return None
+            if not element.value:
                 return None
 
     def parse_time(self, element: DataElement) -> datetime.time:
@@ -159,11 +163,15 @@ class DicomParser:
                 try:
                     return datetime.strptime(element.value, "%H%M%S").time()
                 except ValueError:
-                    return ValueError(
+                    raise ValueError(
                         f"Failed to parse {element.name} with value '{element.value}' into a valid time object!"
                     )
+            # # If the value is empty, simply return None
+            # else:
+            #     return None
+        except TypeError:
             # If the value is empty, simply return None
-            else:
+            if not element.value:
                 return None
 
     def parse_datetime(self, element: DataElement) -> datetime:

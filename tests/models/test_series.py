@@ -842,7 +842,7 @@ class SeriesTestCase(TestCase):
         """
         for sample_series in (self.series, self.dwi_series):
             url = sample_series.get_absolute_url()
-            expected = f"/series/{sample_series.id}/"
+            expected = f"/dicom/series/{sample_series.id}/"
             self.assertEqual(url, expected)
 
     def test_update_fields_from_header(self):
@@ -945,7 +945,7 @@ class SeriesTestCase(TestCase):
         self.assertIsNone(result)
         # Test DWI image
         result = self.dwi_series.get_gradient_directions()
-        expected = [[0.70710677], [-0.70710677], [0.0]]
+        expected = [[0.707_106_77], [-0.707_106_77], [0.0]]
         self.assertListEqual(result, expected)
 
         # Test unsupported manufacturer raises NotImplementedError

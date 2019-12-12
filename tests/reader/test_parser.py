@@ -48,6 +48,20 @@ class DicomParserTestCase(TestCase):
             expected = datetime.datetime.strptime(data_element.value, "%Y%m%d").date()
             self.assertEqual(result, expected)
 
+    def test_parse_empty_date(self):
+        names = {"InstanceCreationDate", "StudyDate", "SeriesDate"}
+        for name in names:
+            data_element = self.header.data_element(name)
+            data_element.value = None
+            self.assertIsNone(self.parser.parse_date(data_element))
+
+    def test_parse_bad_date(self):
+        names = {"InstanceCreationDate", "StudyDate", "SeriesDate"}
+        for name in names:
+            data_element = self.header.data_element(name)
+            data_element.value = "test"
+            self.assertRaises(ValueError, self.parser.parse_date, data_element)
+
     def test_parse_time(self):
         names = {"InstanceCreationTime", "StudyTime", "SeriesTime"}
         for name in names:
@@ -57,6 +71,20 @@ class DicomParserTestCase(TestCase):
                 data_element.value, "%H%M%S.%f"
             ).time()
             self.assertEqual(result, expected)
+
+    def test_parse_empty_time(self):
+        names = {"InstanceCreationTime", "StudyTime", "SeriesTime"}
+        for name in names:
+            data_element = self.header.data_element(name)
+            data_element.value = None
+            self.assertIsNone(self.parser.parse_time(data_element))
+
+    def test_parse_bad_time(self):
+        names = {"InstanceCreationTime", "StudyTime", "SeriesTime"}
+        for name in names:
+            data_element = self.header.data_element(name)
+            data_element.value = "test"
+            self.assertRaises(ValueError, self.parser.parse_time, data_element)
 
     def test_parse_datetime(self):
         # It turns out the current test DICOM file doesn't actually have any

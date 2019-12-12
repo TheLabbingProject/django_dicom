@@ -171,7 +171,7 @@ class Series(DicomEntity):
         return self.uid
 
     def get_absolute_url(self) -> str:
-        return reverse("dicom:series_detail", args=[str(self.id)])
+        return reverse("dicom:series-detail", args=[str(self.id)])
 
     def get_data(self, as_json: bool = False) -> np.ndarray:
         """
@@ -189,10 +189,11 @@ class Series(DicomEntity):
         """
 
         images = self.image_set.order_by("number")
-        data = np.stack([image.get_data() for image in images], axis=-1)
-        if as_json:
-            return json.dumps({"data": data}, cls=NumpyEncoder)
-        return data
+        # data = np.stack([image.get_data() for image in images], axis=-1)
+        # if as_json:
+        #     return json.dumps({"data": data}, cls=NumpyEncoder)
+        # return data
+        return np.stack([image.get_data() for image in images], axis=-1)
 
     def get_path(self) -> str:
         """

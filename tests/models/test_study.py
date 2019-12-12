@@ -207,7 +207,7 @@ class SeriesTestCase(TestCase):
         """
 
         url = self.study.get_absolute_url()
-        expected = f"/study/{self.study.id}/"
+        expected = f"/dicom/study/{self.study.id}/"
         self.assertEqual(url, expected)
 
     def test_update_fields_from_header(self):

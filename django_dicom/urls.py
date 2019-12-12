@@ -10,5 +10,4 @@ router.register(r"study", views.StudyViewSet)
 router.register(r"patient", views.PatientViewSet)
 
 
-urlpatterns = [path("dicom/", include(router.urls))]
-
+urlpatterns = [path("dicom/", include((router.urls, "dicom"), namespace="dicom"))]

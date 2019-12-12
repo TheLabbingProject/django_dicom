@@ -32,8 +32,8 @@ class Image(DicomEntity):
         verbose_name="Image UID",
     )
     number = models.IntegerField(verbose_name="Image Number")
-    date = models.DateField(blank=True, null=True)
-    time = models.TimeField(blank=True, null=True)
+    date = models.DateField(blank=False, null=False)
+    time = models.TimeField(blank=False, null=False)
 
     series = models.ForeignKey("django_dicom.Series", on_delete=models.PROTECT)
 
@@ -52,7 +52,7 @@ class Image(DicomEntity):
         return self.uid
 
     def get_absolute_url(self) -> str:
-        return reverse("dicom:image_detail", args=[str(self.id)])
+        return reverse("dicom:image-detail", args=[str(self.id)])
 
     def read_file(self, header_only: bool = False) -> pydicom.FileDataset:
         """
@@ -87,10 +87,11 @@ class Image(DicomEntity):
             Image's pixel array.
         """
 
-        data = self.read_file(header_only=False).pixel_array
-        if as_json:
-            return json.dumps({"data": data}, cls=NumpyEncoder)
-        return data
+        # data = self.read_file(header_only=False).pixel_array
+        # if as_json:
+        #     return json.dumps({"data": data}, cls=NumpyEncoder)
+        # return data
+        return self.read_file(header_only=False).pixel_array
 
     def read_header(self) -> HeaderInformation:
         """
