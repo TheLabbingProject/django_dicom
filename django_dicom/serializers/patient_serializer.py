@@ -11,7 +11,8 @@ if hasattr(settings, "SUBJECT_MODEL"):
 
 class PatientSerializer(serializers.HyperlinkedModelSerializer):
     """
-    A `serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_ class for the :class:`~django_dicom.models.patient.Patient` model.
+    A `serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_
+    class for the :class:`~django_dicom.models.patient.Patient` model.
     
     """
 

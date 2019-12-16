@@ -1,52 +1,87 @@
-# from accounts.tests.utils import LoggedInTestCase
-# from django.test import TestCase
-# from django.urls import reverse
-# from django_dicom.tests.factories import ImageFactory, get_test_file_path
+import sys
+from rest_framework import status
+from django.test import TestCase
+from django.urls import reverse
+from .fixtures import (
+    TEST_IMAGE_FIELDS,
+    TEST_SERIES_FIELDS,
+    TEST_STUDY_FIELDS,
+    TEST_PATIENT_FIELDS,
+)
+from django_dicom.models import Series, Study, Patient, Image
+
+sys.path.append("../pylabber/")
+from accounts.tests.utils import LoggedInTestCase
 
 
-# class LoggedOutImageViewTestCase(TestCase):
-#     def setUp(self):
-#         self.test_instance = ImageFactory(file__from_path=get_test_file_path("test"))
-#         self.test_instance.save()
+class LoggedOutImageViewTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        """
+        Creates instances to be used in the tests.
+        For more information see Django's :class:`~django.test.TestCase` documentation_.
 
-#     def test_instance_list_redirects_to_login(self):
-#         url = reverse("instance_list")
-#         response = self.client.get(url, follow=True)
-#         self.assertRedirects(response, f"/accounts/login/?next={url}")
+        .. _documentation: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
+        """
+        TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
+        TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
+        TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
+        Image.objects.create(**TEST_IMAGE_FIELDS)
 
-#     def test_instance_detail_redirects_to_login(self):
-#         url = self.test_instance.get_absolute_url()
-#         response = self.client.get(url, follow=True)
-#         self.assertRedirects(response, f"/accounts/login/?next={url}")
+    def setUp(self):
+        self.test_instance = Image.objects.get(uid=TEST_IMAGE_FIELDS["uid"])
 
-#     def test_instances_create_redirects_to_login(self):
-#         url = reverse("instances_create")
-#         response = self.client.get(url, follow=True)
-#         self.assertRedirects(response, f"/accounts/login/?next={url}")
+    def test_image_list_redirects_to_login(self):
+        url = reverse("dicom:image-list")
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_image_detail_redirects_to_login(self):
+        url = self.test_instance.get_absolute_url()
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    # def test_image_create_redirects_to_login(self):
+    #     url = reverse("image_create")
+    #     response = self.client.get(url, follow=True)
+    #     self.assertEqual(response.status_code, 401)
 
 
-# class LoggedInImageViewTestCase(LoggedInTestCase):
-#     def setUp(self):
-#         self.test_instance = ImageFactory(file__from_path=get_test_file_path("test"))
-#         self.test_instance.save()
-#         super(LoggedInImageViewTestCase, self).setUp()
+class LoggedInImageViewTestCase(LoggedInTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        """
+        Creates instances to be used in the tests.
+        For more information see Django's :class:`~django.test.TestCase` documentation_.
 
-#     def test_list_view(self):
-#         response = self.client.get(reverse("instance_list"))
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTemplateUsed(response, "dicom/instances/instance_list.html")
+        .. _documentation: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
+        """
+        TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
+        TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
+        TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
+        Image.objects.create(**TEST_IMAGE_FIELDS)
 
-#     def test_detail_view(self):
-#         url = self.test_instance.get_absolute_url()
-#         response = self.client.get(url)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTemplateUsed(response, "dicom/instances/instance_detail.html")
+    def setUp(self):
+        # self.test_instance = ImageFactory(file__from_path=get_test_file_path("test"))
+        self.test_instance = Image.objects.get(uid=TEST_IMAGE_FIELDS["uid"])
+        super(LoggedInImageViewTestCase, self).setUp()
 
-#     def test_create_view(self):
-#         url = reverse("instances_create")
-#         response = self.client.get(url)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTemplateUsed(response, "dicom/instances/instances_create.html")
+    def test_list_view(self):
+        response = self.client.get(reverse("dicom:image-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTemplateUsed(response, "dicom/instances/image_list.html")
+
+    def test_detail_view(self):
+        url = self.test_instance.get_absolute_url()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTemplateUsed(response, "dicom/instances/image_detail.html")
+
+    # def test_create_view(self):
+    #     url = reverse("instances_create")
+    #     response = self.client.get(url)
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertTemplateUsed(response, "dicom/instances/instances_create.html")
 
 
 # class LoggedOutSeriesViewTestCase(TestCase):

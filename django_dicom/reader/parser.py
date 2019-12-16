@@ -345,7 +345,7 @@ class DicomParser:
             except KeyError:
                 return element.value
         except ValueError as e:
-            print(e.args)
+            # print(e.args)
             raise NotImplementedError(
                 f"{element.VR} is not a supported value-representation!"
             )
