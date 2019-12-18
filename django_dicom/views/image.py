@@ -9,6 +9,7 @@ from django_dicom.filters import ImageFilter
 from django_dicom.models import Image
 from django_dicom.serializers import ImageSerializer
 from django_dicom.views.defaults import DefaultsMixin
+from django_dicom.views.pagination import StandardResultsSetPagination
 from rest_framework import status, viewsets
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -22,6 +23,7 @@ class ImageViewSet(DefaultsMixin, viewsets.ModelViewSet):
 
     filter_class = ImageFilter
     ordering_fields = ("series", "number", "date", "time")
+    pagination_class = StandardResultsSetPagination
     parser_classes = (MultiPartParser,)
     queryset = Image.objects.all().order_by("-date", "time")
     search_fields = ("number", "date", "time", "uid")
