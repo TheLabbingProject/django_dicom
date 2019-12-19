@@ -15,4 +15,4 @@ class ImageSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Image
-        fields = ("id", "series", "number", "date", "time", "uid")
+        fields = "id", "series", "number", "date", "time", "uid"
