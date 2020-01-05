@@ -1,4 +1,3 @@
-import json
 import numpy as np
 import pydicom
 
@@ -7,7 +6,6 @@ from django.urls import reverse
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.validators import digits_and_dots_only, validate_file_extension
 from django_dicom.reader import HeaderInformation
-from django_dicom.utils import NumpyEncoder
 
 
 class Image(DicomEntity):
@@ -46,6 +44,7 @@ class Image(DicomEntity):
     }
 
     class Meta:
+        ordering = ["-id"]
         indexes = [models.Index(fields=["uid"]), models.Index(fields=["date", "time"])]
 
     def __str__(self) -> str:
@@ -87,10 +86,6 @@ class Image(DicomEntity):
             Image's pixel array.
         """
 
-        # data = self.read_file(header_only=False).pixel_array
-        # if as_json:
-        #     return json.dumps({"data": data}, cls=NumpyEncoder)
-        # return data
         return self.read_file(header_only=False).pixel_array
 
     def read_header(self) -> HeaderInformation:

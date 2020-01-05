@@ -8,7 +8,9 @@ class StudySerializer(serializers.HyperlinkedModelSerializer):
     
     """
 
+    url = serializers.HyperlinkedIdentityField(view_name="dicom:study-detail")
+
     class Meta:
         model = Study
-        fields = ("id", "description", "date", "time", "uid")
+        fields = "id", "url", "description", "date", "time", "uid"
 
