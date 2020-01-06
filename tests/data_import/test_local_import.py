@@ -1,8 +1,5 @@
 import os
 import shutil
-import sys
-# from contextlib import redirect_stdout
-# from io import StringIO
 
 from django.test import TestCase
 from django_dicom.data_import.local_import import LocalImport
