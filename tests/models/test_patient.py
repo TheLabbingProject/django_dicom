@@ -177,7 +177,7 @@ class PatientTestCase(TestCase):
         """
 
         url = self.patient.get_absolute_url()
-        expected = f"/patient/{self.patient.id}/"
+        expected = f"/dicom/patient/{self.patient.id}/"
         self.assertEqual(url, expected)
 
     def test_get_full_name(self):

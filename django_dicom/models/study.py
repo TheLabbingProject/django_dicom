@@ -39,4 +39,4 @@ class Study(DicomEntity):
         return self.uid
 
     def get_absolute_url(self):
-        return reverse("dicom:study_detail", args=[str(self.id)])
+        return reverse("dicom:study-detail", args=[str(self.id)])
