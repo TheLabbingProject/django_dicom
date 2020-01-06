@@ -30,8 +30,8 @@ class Image(DicomEntity):
         verbose_name="Image UID",
     )
     number = models.IntegerField(verbose_name="Image Number")
-    date = models.DateField(blank=False, null=False)
-    time = models.TimeField(blank=False, null=False)
+    date = models.DateField(blank=True, null=True)
+    time = models.TimeField(blank=True, null=True)
 
     series = models.ForeignKey("django_dicom.Series", on_delete=models.PROTECT)
 

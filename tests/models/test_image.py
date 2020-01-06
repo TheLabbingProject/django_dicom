@@ -236,11 +236,11 @@ class ImageTestCase(TestCase):
         """
 
         for field in self.image._meta.get_fields():
-            if field.name in ["id", "created", "modified"]:
+            if field.name in ["id", "created", "modified", "date", "time"]:
                 self.assertTrue(field.blank, f"{field.name} should be blankable!")
             else:
                 self.assertFalse(field.blank, f"{field.name} should not be blankable!")
-            self.assertFalse(field.null, f"{field.name} should not be nullable!")
+                self.assertFalse(field.null, f"{field.name} should not be nullable!")
 
     ###########
     # Methods #
