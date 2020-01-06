@@ -1,5 +1,8 @@
 import os
 import shutil
+import sys
+# from contextlib import redirect_stdout
+# from io import StringIO
 
 from django.test import TestCase
 from django_dicom.data_import.local_import import LocalImport
@@ -73,18 +76,6 @@ class LocalImportTestCase(TestCase):
         # The ZIP archive contains 3 images
         self.assertEqual(Image.objects.count(), 3)
 
-    # def test_import_local_zip_archive_with_verbose(self):
-    #     """
-    #     Tests importing DICOM images from a single ZIP archive using
-    #     :meth:`~django_dicom.data_import.local_import.LocalImport.import_local_zip_archive` with verbose.
-
-    #     """
-
-    #     self.assertEqual(Image.objects.count(), 0)
-    #     LocalImport.import_local_zip_archive(TEST_ZIP_PATH)
-    #     # The ZIP archive contains 3 images
-    #     self.assertEqual(Image.objects.count(), 3)
-
     def test_path_generator_without_extension(self):
         """
         Tests the :meth:`~django_dicom.data_import.local_import.LocalImport.path_generator`
@@ -136,19 +127,6 @@ class LocalImportTestCase(TestCase):
         # There are 4 DICOM images in the test files directory.
         self.assertEqual(Image.objects.count(), 4)
 
-    # def test_import_dcm_files_with_verbose(self):
-    #     """
-    #     Tests importing multiple DICOM images at once using the
-    #     :meth:`~django_dicom.data_import.local_import.LocalImport.import_dcm_files` with verbose.
-    #     method.
-
-    #     """
-
-    #     self.assertEqual(Image.objects.count(), 0)
-    #     LocalImport(TEST_FILES_PATH).import_dcm_files()
-    #     # There are 4 DICOM images in the test files directory.
-    #     self.assertEqual(Image.objects.count(), 4)
-
     def test_import_zip_archives(self):
         """
         Tests importing DICOM images from multiple ZIP archives at once using the
@@ -161,19 +139,6 @@ class LocalImportTestCase(TestCase):
         LocalImport(TEST_FILES_PATH).import_zip_archives(verbose=False)
         # The ZIP archives contain a total of 4 (unique) DICOM images.
         self.assertEqual(Image.objects.count(), 4)
-
-    # def test_import_zip_archives_with_verbose(self):
-    #     """
-    #     Tests importing DICOM images from multiple ZIP archives at once using the
-    #     :meth:`~django_dicom.data_import.local_import.LocalImport.import_zip_archives`
-    #     method with verbose.
-
-    #     """
-
-    #     self.assertEqual(Image.objects.count(), 0)
-    #     LocalImport(TEST_FILES_PATH).import_zip_archives()
-    #     # The ZIP archives contain a total of 4 (unique) DICOM images.
-    #     self.assertEqual(Image.objects.count(), 4)
 
     def test_run_with_zip_archives(self):
         """
