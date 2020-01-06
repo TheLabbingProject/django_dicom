@@ -945,7 +945,7 @@ class SeriesTestCase(TestCase):
         self.assertIsNone(result)
         # Test DWI image
         result = self.dwi_series.get_gradient_directions()
-        expected = [[0.707_106_77], [-0.707_106_77], [0.0]]
+        expected = [[0.70710677], [-0.70710677], [0.0]]
         self.assertListEqual(result, expected)
 
         # Test unsupported manufacturer raises NotImplementedError
