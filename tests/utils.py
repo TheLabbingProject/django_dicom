@@ -6,10 +6,6 @@ TEST_PASSWORD = "Aa123456"
 User = get_user_model()
 
 
-class MockRequest:
-    pass
-
-
 class LoggedInTestCase(APITestCase):
     def setUp(self):
         user = User.objects.create_user(

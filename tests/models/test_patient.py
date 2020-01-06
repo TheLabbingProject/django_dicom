@@ -227,13 +227,3 @@ class PatientTestCase(TestCase):
             field.name: getattr(self.patient, field.name) for field in header_fields
         }
         self.assertDictEqual(values, expected_values)
-
-    ###########
-    # Filters #
-    ###########
-
-    def test_patient_filter_by_study(self):
-        pass
-        # print(Patient.objects.filter(study__id=self.study.uid))
-        # # self.assertIs(, Patient.objects.all())
-        # self.assertTrue(True)

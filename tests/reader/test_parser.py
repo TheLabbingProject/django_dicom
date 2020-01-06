@@ -112,13 +112,13 @@ class DicomParserTestCase(TestCase):
         for name in names:
             data_element = self.header.data_element(name)
             data_element.value = 34
-            self.assertRaises(TypeError, self.parser.parse_time, data_element)   
+            self.assertRaises(TypeError, self.parser.parse_time, data_element)
 
     def test_parse_datetime(self):
         # # It turns out the current test DICOM file doesn't actually have any
         # # Date Time (DT) data elements, so once we have one that does we should
         # # complete this test.
-        # TODO: no matching data elements found, we should add tests for this in the future
+
         # names = {}
         # for name in names:
         #     data_element = self.header.data_element(name)
