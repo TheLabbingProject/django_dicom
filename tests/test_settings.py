@@ -69,7 +69,7 @@ STATICFILES_DIRS = [
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "tests")
 MEDIA_URL = "/media/"
-ROOT_URLCONF = "django_dicom.urls"
+ROOT_URLCONF = "tests.urls"
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
