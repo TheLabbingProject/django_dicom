@@ -20,7 +20,7 @@ class Image(DicomEntity):
 
     # Stores a reference to the image file.
     dcm = models.FileField(
-        max_length=250, upload_to="dicom", validators=[validate_file_extension]
+        max_length=1000, upload_to="dicom", validators=[validate_file_extension]
     )
 
     uid = models.CharField(

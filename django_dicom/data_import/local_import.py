@@ -47,7 +47,11 @@ class LocalImport:
         """
 
         with open(path, "rb") as dcm_buffer:
-            return ImportImage(dcm_buffer).run()
+            try:
+                return ImportImage(dcm_buffer).run()
+            except Exception:
+                print(f"Failed to import {path}!")
+                raise
 
     @classmethod
     def import_local_zip_archive(cls, path: str, verbose: bool = True) -> None:
@@ -120,7 +124,7 @@ class LocalImport:
         dcm_generator = self.path_generator(extension="dcm")
         if verbose:
             print("\nImporting DICOM image files...")
-        for dcm_path in tqdm(dcm_generator, disable=not verbose):
+        for dcm_path in tqdm(dcm_generator, disable=not verbose, unit=" images"):
             _, created = self.import_local_dcm(dcm_path)
             if created:
                 counter["created"] += 1
@@ -176,4 +180,3 @@ class LocalImport:
         self.import_dcm_files(verbose=verbose)
         if import_zip:
             self.import_zip_archives(verbose=verbose)
-

@@ -1,6 +1,8 @@
 import numpy as np
 import os
+import pytz
 
+from datetime import datetime
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -75,16 +77,22 @@ class Series(DicomEntity):
         models.CharField(max_length=2, choices=ScanningSequence.choices()),
         size=5,
         help_text=help_text.SCANNING_SEQUENCE,
+        blank=True,
+        null=True,
     )
     sequence_variant = ChoiceArrayField(
         models.CharField(max_length=4, choices=SequenceVariant.choices()),
         size=6,
         help_text=help_text.SEQUENCE_VARIANT,
+        blank=True,
+        null=True,
     )
     pixel_spacing = ArrayField(
         models.FloatField(validators=[MinValueValidator(0)]),
         size=2,
         help_text=help_text.PIXEL_SPACING,
+        blank=True,
+        null=True,
     )
     slice_thickness = models.FloatField(
         validators=[MinValueValidator(0)],
@@ -257,3 +265,8 @@ class Series(DicomEntity):
                 f"{self.manufacturer} is not a supported manufacturer for gradient directions retrieval!"
             )
 
+    @property
+    def datetime(self) -> datetime:
+        time = self.time or datetime.min.time()
+        if self.date:
+            return datetime.combine(self.date, time, tzinfo=pytz.UTC)
