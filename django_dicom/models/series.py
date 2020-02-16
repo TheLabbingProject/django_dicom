@@ -7,7 +7,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
-
 from django_dicom.models import help_text
 from django_dicom.reader.code_strings import (
     Modality,
@@ -18,6 +17,7 @@ from django_dicom.reader.code_strings import (
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.fields import ChoiceArrayField
 from django_dicom.models.validators import digits_and_dots_only
+from django_dicom.utils import check_sequence_type
 
 
 class Series(DicomEntity):
@@ -270,3 +270,43 @@ class Series(DicomEntity):
         time = self.time or datetime.min.time()
         if self.date:
             return datetime.combine(self.date, time, tzinfo=pytz.UTC)
+
+    @property
+    def is_mprage(self) -> bool:
+        return check_sequence_type(self, "mprage")
+
+    @property
+    def is_spgr(self) -> bool:
+        return check_sequence_type(self, "spgr")
+
+    @property
+    def is_fspgr(self) -> bool:
+        return check_sequence_type(self, "fspgr")
+
+    @property
+    def is_flair(self) -> bool:
+        return check_sequence_type(self, "flair")
+
+    @property
+    def is_dti(self) -> bool:
+        return check_sequence_type(self, "dti")
+
+    @property
+    def is_fmri(self) -> bool:
+        return check_sequence_type(self, "fmri")
+
+    @property
+    def is_localizer(self) -> bool:
+        return check_sequence_type(self, "localizer")
+
+    @property
+    def is_ir_epi(self) -> bool:
+        return check_sequence_type(self, "ir-epi")
+
+    @property
+    def is_ep2d(self) -> bool:
+        return check_sequence_type(self, "ep2d")
+
+    @property
+    def is_fse(self) -> bool:
+        return check_sequence_type(self, "fse")
