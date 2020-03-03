@@ -11,7 +11,7 @@ from tests.fixtures import (
 class PatientTestCase(TestCase):
     """
     Tests for the :class:`~django_dicom.models.patient.Patient` model.
-    
+
     """
 
     @classmethod
@@ -52,7 +52,7 @@ class PatientTestCase(TestCase):
 
         .. _Patient ID: https://dicom.innolitics.com/ciods/mr-image/patient/00100020
         .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
-        
+
         """
 
         field = self.patient._meta.get_field("uid")
@@ -70,7 +70,7 @@ class PatientTestCase(TestCase):
     def test_uid_verbose_name(self):
         """
         Test the *UID* field vebose name.
-        
+
         """
 
         field = self.patient._meta.get_field("uid")
@@ -93,7 +93,7 @@ class PatientTestCase(TestCase):
 
         .. _Patient's Birth Date: https://dicom.innolitics.com/ciods/mr-image/patient/00100030
         .. _type 2 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
-        
+
         """
 
         field = self.patient._meta.get_field("date_of_birth")
@@ -104,7 +104,7 @@ class PatientTestCase(TestCase):
     def test_sex_max_length(self):
         """
         Tests that the sex field has the expected max_length.
-        
+
         """
 
         field = self.patient._meta.get_field("sex")
@@ -116,7 +116,7 @@ class PatientTestCase(TestCase):
 
         .. _Patient's Sex: https://dicom.innolitics.com/ciods/mr-image/patient/00100040
         .. _type 2 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
-        
+
         """
 
         field = self.patient._meta.get_field("sex")
@@ -131,7 +131,7 @@ class PatientTestCase(TestCase):
 
         .. _Patient's Name: https://dicom.innolitics.com/ciods/mr-image/patient/00100010
         .. _type 2 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
-        
+
         """
 
         for field_name in Patient.NAME_PARTS:
@@ -143,7 +143,7 @@ class PatientTestCase(TestCase):
         """
         Tests that the name fields has the expected max_length (see the Person
         Name (PN) `value-representation specification`_).
-        
+
         .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
         """
 
@@ -172,7 +172,7 @@ class PatientTestCase(TestCase):
         Tests the :meth:`~django_dicom.models.patient.Patient.get_absolute_url` method
         returns the expeted url.
         `More information`_
-        
+
         .. _More information: https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url
         """
 
@@ -197,7 +197,7 @@ class PatientTestCase(TestCase):
         data element fields.
 
         .. _Patient's Name (PN): http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
-        
+
         """
 
         self.image.header.raw.PatientName = "Baz^Foo^Bar^Sir^the 3rd"
@@ -216,12 +216,11 @@ class PatientTestCase(TestCase):
 
         """
 
-        header = self.image.read_header()
         header_fields = self.patient.get_header_fields()
         expected_values = {
             field.name: getattr(self.patient, field.name) for field in header_fields
         }
-        result = self.patient.update_fields_from_header(header)
+        result = self.patient.update_fields_from_header(self.image.header)
         self.assertIsNone(result)
         values = {
             field.name: getattr(self.patient, field.name) for field in header_fields

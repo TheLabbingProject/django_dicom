@@ -1,6 +1,6 @@
+from dicom_parser.header import Header
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
-from django_dicom.reader import HeaderInformation
 from django_dicom.utils import snake_case_to_camel_case
 
 
@@ -8,7 +8,7 @@ class DicomEntity(TimeStampedModel):
     """
     An abstract model to represent a `DICOM entity`_.
 
-    .. _DICOM entity: https://dcm4che.atlassian.net/wiki/spaces/d2/pages/1835038/A+Very+Basic+DICOM+Introduction    
+    .. _DICOM entity: https://dcm4che.atlassian.net/wiki/spaces/d2/pages/1835038/A+Very+Basic+DICOM+Introduction
     """
 
     # This dictionairy is used to identify fields that do not represent DICOM
@@ -55,12 +55,12 @@ class DicomEntity(TimeStampedModel):
         """
         Returns a boolean indicating whether this field represents DICOM header
         information or not.
-        
+
         Parameters
         ----------
         field : models.Field
             The field in question.
-        
+
         Returns
         -------
         bool
@@ -75,7 +75,7 @@ class DicomEntity(TimeStampedModel):
         """
         Returns a list of the derived model's fields which represent DICOM header
         information.
-        
+
         Returns
         -------
         list
@@ -85,15 +85,13 @@ class DicomEntity(TimeStampedModel):
         fields = self._meta.get_fields()
         return [field for field in fields if self.is_header_field(field)]
 
-    def update_fields_from_header(
-        self, header: HeaderInformation, exclude: list = []
-    ) -> None:
+    def update_fields_from_header(self, header: Header, exclude: list = []) -> None:
         """
-        Update model fields from header data. 
-        
+        Update model fields from header data.
+
         Parameters
         ----------
-        header : HeaderInformation
+        header : :class:`~dicom_parser.header.Header`
             DICOM header data.
         exclude : list, optional
             Field names to exclude (the default is [], which will not exclude any header fields).
@@ -103,5 +101,5 @@ class DicomEntity(TimeStampedModel):
         ]
         for field in fields:
             keyword = self.get_header_keyword(field.name)
-            value = header.get_value(keyword)
+            value = header.get(keyword)
             setattr(self, field.name, value)

@@ -1,7 +1,7 @@
 import os
 
 from django.conf import settings
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, transaction, ProgrammingError
 from django.db.models import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -20,12 +20,12 @@ class ImportImage:
         """
         Assigns the file data to the *dcm* attribute and declares the image attribute
         that will later be assigned the created :class:`django_dicom.Image` instance
-        
+
         Parameters
         ----------
         dcm : BufferedReader
             Raw buffered DICOM file (*.dcm*).
-        
+
         """
 
         self.dcm = dcm
@@ -33,9 +33,9 @@ class ImportImage:
 
     def store_file(self) -> str:
         """
-        Stores the DICOM file in a temporary location under `MEDIA_ROOT <https://docs.djangoproject.com/en/2.2/ref/settings/#media-root>`_ 
+        Stores the DICOM file in a temporary location under `MEDIA_ROOT <https://docs.djangoproject.com/en/2.2/ref/settings/#media-root>`_
         using Django's `default_storage <https://docs.djangoproject.com/en/2.2/topics/files/#file-storage>`_.
-        
+
         Returns
         -------
         str
@@ -49,7 +49,7 @@ class ImportImage:
         """
         Stores the DICOM file locally and creates an Image instance from it without
         saving it (allowing for the fields to be updated from the header beforehand).
-        
+
         Returns
         -------
         Image
@@ -62,12 +62,12 @@ class ImportImage:
     def get_entity_uid_from_header(self, Entity: DicomEntity) -> str:
         """
         Returns the UID of the given entity from the DICOM header information.
-        
+
         Parameters
         ----------
         Entity : DicomEntity
             One of the DICOM entities (Image, Series, Study, and Patient).
-        
+
         Returns
         -------
         str
@@ -75,21 +75,21 @@ class ImportImage:
         """
 
         keyword = Entity.get_header_keyword("uid")
-        return self.image.header.get_value(keyword)
+        return self.image.header.get(keyword)
 
     def get_or_create_entity(self, Entity: DicomEntity, save: bool = True) -> tuple:
         """
         Gets or creates an instance of the given :class:`django_dicom.DicomEntity`
-        using its UID. 
+        using its UID.
         The *save* parameter is mostly meant to help with testing.
-        
+
         Parameters
         ----------
         Entity : DicomEntity
             One of the DICOM entities (Image, Series, Study, and Patient).
         save : bool
             Whether to save the instance to the database if it is created (default to True, which will call the save() method).
-        
+
         Returns
         -------
         tuple
@@ -110,7 +110,7 @@ class ImportImage:
         """
         Returns the default relative path for this image under `MEDIA_ROOT <https://docs.djangoproject.com/en/2.2/ref/settings/#media-root>`_.
         TODO: Add a way for the user to configure this.
-        
+
         Returns
         -------
         str
@@ -125,7 +125,7 @@ class ImportImage:
     def move_image_to_destination(self) -> str:
         """
         Moves the created image to its default location under `MEDIA_ROOT <https://docs.djangoproject.com/en/2.2/ref/settings/#media-root>`_.
-        
+
         Returns
         -------
         str
@@ -157,7 +157,11 @@ class ImportImage:
             study, _ = self.get_or_create_entity(Study)
             series.patient = patient
             series.study = study
-            series.save()
+            try:
+                series.save()
+            except ProgrammingError:
+                print(f"Failed to import {patient.uid}'s series:\n{series.uid}")
+                return
 
         # Finally we can relate the Series instance to the created Image instance and save.
         self.image.series = series
@@ -169,7 +173,7 @@ class ImportImage:
         delete the temporary file.
         An InegrityError should indicate the image already exists in the database,
         so the method also tries to return the existing Image instance.
-        
+
         Returns
         -------
         tuple
@@ -184,7 +188,7 @@ class ImportImage:
         Adds the image to the database and generates its associated entities as
         an atomic transaction. If the transaction fails, calls :meth:`~django_dicom.data_import.import_image.ImportImage.handle_integrity_error`
         This assumes an existing image and tries to return it.
-        
+
         Returns
         -------
         tuple

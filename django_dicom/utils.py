@@ -45,12 +45,3 @@ def check_sequence_variant(scan_instance, string_id: str) -> bool:
     elif isinstance(expected_sequence_variant, (list, tuple)):
         return set(scan_instance.sequence_variant) in expected_sequence_variant
     return False
-
-
-def check_sequence_type(scan_instance, string_id: str) -> bool:
-    try:
-        matching_scanning_sequence = check_scanning_sequence(scan_instance, string_id)
-        matching_sequence_variant = check_sequence_variant(scan_instance, string_id)
-    except TypeError:
-        return False
-    return matching_scanning_sequence and matching_sequence_variant

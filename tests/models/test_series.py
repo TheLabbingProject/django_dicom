@@ -1,15 +1,15 @@
 import numpy as np
-import os
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_dicom.models import Series, Patient, Study, Image
-from django_dicom.reader.code_strings import (
+from dicom_parser.utils.code_strings import (
     Modality,
     PatientPosition,
     ScanningSequence,
     SequenceVariant,
 )
+from pathlib import Path
 from tests.fixtures import (
     TEST_IMAGE_PATH,
     TEST_DWI_IMAGE_PATH,
@@ -25,7 +25,7 @@ from tests.fixtures import (
 class SeriesTestCase(TestCase):
     """
     Tests for the :class:`~django_dicom.models.series.Series` model.
-    
+
     """
 
     @classmethod
@@ -68,7 +68,7 @@ class SeriesTestCase(TestCase):
         Validate the `verbose name plural`_ ("`Series`_") of the :class:`~django_dicom.models.series.Series` model.
 
         .. _verbose name plural: https://docs.djangoproject.com/en/2.2/ref/models/options/#verbose-name-plural
-        .. _Series: https://en.wiktionary.org/wiki/series        
+        .. _Series: https://en.wiktionary.org/wiki/series
         """
 
         self.assertEqual(Series._meta.verbose_name_plural, "Series")
@@ -78,7 +78,7 @@ class SeriesTestCase(TestCase):
         Validate the `ordering`_ of the :class:`~django_dicom.models.series.Series` model.
 
         .. _ordering: https://docs.djangoproject.com/en/2.2/ref/models/options/#ordering
-        .. _Series: https://en.wiktionary.org/wiki/series        
+        .. _Series: https://en.wiktionary.org/wiki/series
         """
 
         self.assertTupleEqual(Series._meta.ordering, ("number",))
@@ -97,7 +97,7 @@ class SeriesTestCase(TestCase):
 
         .. _SeriesInstanceUID: https://dicom.innolitics.com/ciods/mr-image/general-series/0020000e
         .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
-        
+
         """
 
         field = self.series._meta.get_field("uid")
@@ -116,7 +116,7 @@ class SeriesTestCase(TestCase):
         """
         An :class:`~django_dicom.models.series.Series` instance *UID* field may only
         be composed of dots and digits.
-        
+
         """
 
         non_digit_or_dot_chars = [
@@ -143,7 +143,7 @@ class SeriesTestCase(TestCase):
     def test_uid_verbose_name(self):
         """
         Test the *UID* field vebose name.
-        
+
         """
 
         field = self.series._meta.get_field("uid")
@@ -163,7 +163,7 @@ class SeriesTestCase(TestCase):
     def test_number_vebose_name(self):
         """
         Test the *number* field vebose name.
-        
+
         """
 
         field = self.series._meta.get_field("number")
@@ -175,7 +175,7 @@ class SeriesTestCase(TestCase):
 
         .. _Series Number: https://dicom.innolitics.com/ciods/mr-image/general-series/00200011
         .. _type 2 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
-        
+
         """
 
         field = self.series._meta.get_field("number")
@@ -190,7 +190,7 @@ class SeriesTestCase(TestCase):
 
         .. _Series Description: https://dicom.innolitics.com/ciods/mr-image/general-series/00200011
         .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
-        
+
         """
 
         field = self.series._meta.get_field("description")
@@ -202,7 +202,7 @@ class SeriesTestCase(TestCase):
 
         .. _Series Description: https://dicom.innolitics.com/ciods/mr-image/general-series/00200011
         .. _type 2 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
-        
+
         """
 
         field = self.series._meta.get_field("description")
@@ -212,7 +212,7 @@ class SeriesTestCase(TestCase):
     def test_description_vebose_name(self):
         """
         Test the *description* field vebose name.
-        
+
         """
 
         field = self.series._meta.get_field("description")
@@ -225,7 +225,7 @@ class SeriesTestCase(TestCase):
 
         .. _Series Date: https://dicom.innolitics.com/ciods/mr-image/general-series/00080021
         .. _type 3 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.5
-        
+
         """
 
         field = self.series._meta.get_field("date")
@@ -239,7 +239,7 @@ class SeriesTestCase(TestCase):
 
         .. _Series Time: https://dicom.innolitics.com/ciods/mr-image/general-series/00080031
         .. _type 3 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.5
-        
+
         """
 
         field = self.series._meta.get_field("time")
@@ -253,7 +253,7 @@ class SeriesTestCase(TestCase):
 
         .. _Echo Time: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180081
         .. _type 2 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
-        
+
         """
 
         field = self.series._meta.get_field("echo_time")
@@ -281,7 +281,7 @@ class SeriesTestCase(TestCase):
 
         .. _Inversion Time: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180082
         .. _type 2C data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.4
-        
+
         """
 
         field = self.series._meta.get_field("inversion_time")
@@ -293,7 +293,7 @@ class SeriesTestCase(TestCase):
         The `Inversion Time`_ attribute measures time in milliseconds and therefore must
         be positive.
 
-        .. _Inversion Time: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180082        
+        .. _Inversion Time: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180082
 
         """
         value = self.series.inversion_time
@@ -309,7 +309,7 @@ class SeriesTestCase(TestCase):
 
         .. _Repetition Time: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180080
         .. _type 2C data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.4
-        
+
         """
 
         field = self.series._meta.get_field("repetition_time")
@@ -321,7 +321,7 @@ class SeriesTestCase(TestCase):
         The `Repetition Time`_ attribute measures time in milliseconds and therefore must
         be positive.
 
-        .. _Repetition Time: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180080       
+        .. _Repetition Time: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180080
 
         """
         value = self.series.repetition_time
@@ -337,19 +337,19 @@ class SeriesTestCase(TestCase):
 
         .. _Scanning Sequence: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180020
         .. _type 1 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.1
-        
+
         """
 
         field = self.series._meta.get_field("scanning_sequence")
-        self.assertFalse(field.blank)
-        self.assertFalse(field.null)
+        self.assertTrue(field.blank)
+        self.assertTrue(field.null)
 
     def test_scanning_sequence_base_max_length(self):
         """
         `Scanning Sequence`_ definitions are 2 characters long.
 
         .. _Scanning Sequence: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180020
-        
+
         """
 
         field = self.series._meta.get_field("scanning_sequence")
@@ -357,11 +357,11 @@ class SeriesTestCase(TestCase):
 
     def test_scanning_sequence_size(self):
         """
-        The `Scanning Sequence`_ attribute has five possible values, with some of 
+        The `Scanning Sequence`_ attribute has five possible values, with some of
         them actually being mutually exclusive. We're limiting to five in any case.
 
         .. _Scanning Sequence: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180020
-        
+
         """
 
         field = self.series._meta.get_field("scanning_sequence")
@@ -374,7 +374,7 @@ class SeriesTestCase(TestCase):
 
         .. _Scanning Sequence: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180020
         .. _Code String (CS): http://northstar-www.dartmouth.edu/doc/idl/html_6.2/Value_Representations.html
-        
+
         """
 
         field = self.series._meta.get_field("scanning_sequence")
@@ -387,19 +387,19 @@ class SeriesTestCase(TestCase):
 
         .. _Sequence Variant: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180021
         .. _type 1 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.1
-        
+
         """
 
         field = self.series._meta.get_field("scanning_sequence")
-        self.assertFalse(field.blank)
-        self.assertFalse(field.null)
+        self.assertTrue(field.blank)
+        self.assertTrue(field.null)
 
     def test_sequence_variant_base_max_length(self):
         """
         `Sequence Variant`_ definitions can be 4 characters long.
 
         .. _Sequence Variant: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180021
-        
+
         """
 
         field = self.series._meta.get_field("sequence_variant")
@@ -407,12 +407,12 @@ class SeriesTestCase(TestCase):
 
     def test_sequence_variant_size(self):
         """
-        The `Sequence Variant`_ attribute has eight possible values, with some of 
-        them actually being mutually exclusive and also including NONE. We're 
+        The `Sequence Variant`_ attribute has eight possible values, with some of
+        them actually being mutually exclusive and also including NONE. We're
         limiting to six just in case.
 
         .. _Sequence Variant: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180021
-        
+
         """
 
         field = self.series._meta.get_field("sequence_variant")
@@ -425,7 +425,7 @@ class SeriesTestCase(TestCase):
 
         .. _Sequence Variant: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180021
         .. _Code String (CS): http://northstar-www.dartmouth.edu/doc/idl/html_6.2/Value_Representations.html
-        
+
         """
 
         field = self.series._meta.get_field("sequence_variant")
@@ -438,12 +438,12 @@ class SeriesTestCase(TestCase):
 
         .. _Pixel Spacing: https://dicom.innolitics.com/ciods/mr-image/image-plane/00280030
         .. _type 1 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.1
-        
+
         """
 
         field = self.series._meta.get_field("pixel_spacing")
-        self.assertFalse(field.blank)
-        self.assertFalse(field.null)
+        self.assertTrue(field.blank)
+        self.assertTrue(field.null)
 
     def test_pixel_spacing_size(self):
         """
@@ -479,7 +479,7 @@ class SeriesTestCase(TestCase):
 
         .. _Manufacturer: https://dicom.innolitics.com/ciods/mr-image/general-equipment/00080070
         .. _type 2 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
-        
+
         """
 
         field = self.series._meta.get_field("manufacturer")
@@ -493,7 +493,7 @@ class SeriesTestCase(TestCase):
 
         .. _Manufacturer: https://dicom.innolitics.com/ciods/mr-image/general-equipment/00080070
         .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
-        
+
         """
 
         field = self.series._meta.get_field("manufacturer")
@@ -506,7 +506,7 @@ class SeriesTestCase(TestCase):
 
         .. _Manufacturer's Model Name: https://dicom.innolitics.com/ciods/mr-image/general-series/00080021
         .. _type 3 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.5
-        
+
         """
 
         field = self.series._meta.get_field("manufacturer_model_name")
@@ -520,7 +520,7 @@ class SeriesTestCase(TestCase):
 
         .. _Manufacturer's Model Name: https://dicom.innolitics.com/ciods/mr-image/general-series/00080021
         .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
-        
+
         """
         field = self.series._meta.get_field("manufacturer_model_name")
         self.assertEqual(field.max_length, 64)
@@ -532,7 +532,7 @@ class SeriesTestCase(TestCase):
 
         .. _Magnetic Field Strength: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180087
         .. _type 3 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.5
-        
+
         """
 
         field = self.series._meta.get_field("magnetic_field_strength")
@@ -543,7 +543,7 @@ class SeriesTestCase(TestCase):
         """
         The `Magnetic Field Strength`_ attribute measures field strength in `Tesla (T)`_
         and therefore must be positive.
-        
+
         .. _Magnetic Field Strength: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180087
         .. _Tesla (T): https://en.wikipedia.org/wiki/Tesla_(unit)
 
@@ -561,7 +561,7 @@ class SeriesTestCase(TestCase):
 
         .. _Device Serial Number: https://dicom.innolitics.com/ciods/mr-image/general-equipment/00181000
         .. _type 3 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.5
-        
+
         """
 
         field = self.series._meta.get_field("device_serial_number")
@@ -575,7 +575,7 @@ class SeriesTestCase(TestCase):
 
         .. _Device Serial Number: https://dicom.innolitics.com/ciods/mr-image/general-equipment/00181000
         .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
-        
+
         """
         field = self.series._meta.get_field("device_serial_number")
         self.assertEqual(field.max_length, 64)
@@ -587,7 +587,7 @@ class SeriesTestCase(TestCase):
 
         .. _Body Part Examined: https://dicom.innolitics.com/ciods/mr-image/general-series/00180015
         .. _type 3 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.5
-        
+
         """
 
         field = self.series._meta.get_field("body_part_examined")
@@ -601,7 +601,7 @@ class SeriesTestCase(TestCase):
 
         .. _Body Part Examined: https://dicom.innolitics.com/ciods/mr-image/general-series/00180015
         .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
-        
+
         """
         field = self.series._meta.get_field("body_part_examined")
         self.assertEqual(field.max_length, 16)
@@ -613,7 +613,7 @@ class SeriesTestCase(TestCase):
 
         .. _Patient Position: https://dicom.innolitics.com/ciods/mr-image/general-series/00185100
         .. _type 2C data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.4
-        
+
         """
 
         field = self.series._meta.get_field("patient_position")
@@ -636,7 +636,7 @@ class SeriesTestCase(TestCase):
 
         .. _Patient Position: https://dicom.innolitics.com/ciods/mr-image/general-series/00185100
         .. _Code String (CS): http://northstar-www.dartmouth.edu/doc/idl/html_6.2/Value_Representations.html
-        
+
         """
 
         field = self.series._meta.get_field("patient_position")
@@ -649,7 +649,7 @@ class SeriesTestCase(TestCase):
 
         .. _Modality: https://dicom.innolitics.com/ciods/mr-image/general-series/00080060
         .. _type 1 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.1
-        
+
         """
 
         field = self.series._meta.get_field("modality")
@@ -721,7 +721,7 @@ class SeriesTestCase(TestCase):
         see the Long String (LO) `value-representation specification`).
 
         .. _Protocol Name: https://dicom.innolitics.com/ciods/mr-image/general-series/00181030
-        .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html        
+        .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
         """
 
         field = self.series._meta.get_field("protocol_name")
@@ -757,7 +757,7 @@ class SeriesTestCase(TestCase):
         has a limited number of possible values.
 
         .. _MR Acquisition Type: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180023
-        .. _Code String (CS): http://northstar-www.dartmouth.edu/doc/idl/html_6.2/Value_Representations.html\        
+        .. _Code String (CS): http://northstar-www.dartmouth.edu/doc/idl/html_6.2/Value_Representations.html\
         """
 
         choices = (("2D", "2D"), ("3D", "3D"))
@@ -771,7 +771,7 @@ class SeriesTestCase(TestCase):
 
         .. _Slice Thickness: https://dicom.innolitics.com/ciods/mr-image/image-plane/00180050
         .. _type 2 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
-        
+
         """
 
         field = self.series._meta.get_field("slice_thickness")
@@ -799,7 +799,7 @@ class SeriesTestCase(TestCase):
         and therefore every series must have a study.
 
         .. _Study Instance UID: https://dicom.innolitics.com/ciods/mr-image/general-study/0020000d
-        .. _type 1 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.1     
+        .. _type 1 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.1
         """
 
         field = self.series._meta.get_field("study")
@@ -811,7 +811,7 @@ class SeriesTestCase(TestCase):
         """
         DICOM's Patient attributes are all either conditionally required or nullable,
         and therefore it is possible for the patient relationship to be unused.
-        
+
         """
 
         field = self.series._meta.get_field("patient")
@@ -837,7 +837,7 @@ class SeriesTestCase(TestCase):
         """
         Tests the :class:`~django_dicom.models.series.Series` model's `get_absolute_url`_
         method.
-        
+
         .. _get_absolute_url: https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url
         """
         for sample_series in (self.series, self.dwi_series):
@@ -853,12 +853,11 @@ class SeriesTestCase(TestCase):
 
         """
 
-        header = self.image.read_header()
         header_fields = self.series.get_header_fields()
         expected_values = {
             field.name: getattr(self.series, field.name) for field in header_fields
         }
-        result = self.series.update_fields_from_header(header)
+        result = self.series.update_fields_from_header(self.image.header)
         self.assertIsNone(result)
         values = {
             field.name: getattr(self.series, field.name) for field in header_fields
@@ -868,88 +867,18 @@ class SeriesTestCase(TestCase):
                 print(f"{key} expected {expected_values[key]} but got {value}")
         self.assertDictEqual(values, expected_values)
 
-    def test_get_data(self):
-        """
-        Tests retrieving the series data from the model. 
-        In this case we only have one instance for each series so the third dimension's
-        size will be 1.
-        
-        """
-
-        # Test localizer series
-        data = self.series.get_data()
-        self.assertIsInstance(data, np.ndarray)
-        self.assertTupleEqual(data.shape, (512, 512, 1))
-        # Test DWI series
-        dwi_data = self.dwi_series.get_data()
-        self.assertIsInstance(dwi_data, np.ndarray)
-        self.assertTupleEqual(dwi_data.shape, (704, 704, 1))
-
     def test_get_path(self):
         """
         Tests the :meth:`~django_dicom.models.series.Series.get_path` method
         returns the series base directory.
-        
+
         """
 
         # Test localizer series
-        expected = os.path.dirname(TEST_IMAGE_PATH)
+        expected = Path(TEST_IMAGE_PATH).parent
         result = self.series.get_path()
         self.assertEqual(result, expected)
         # Test DWI series
-        expected = os.path.dirname(TEST_DWI_IMAGE_PATH)
+        expected = Path(TEST_DWI_IMAGE_PATH).parent
         result = self.dwi_series.get_path()
         self.assertEqual(result, expected)
-
-    def test_get_scanning_sequence_display(self):
-        """
-        Tests the :meth:`~django_dicom.models.series.Series.get_scanning_sequence_display`
-        method returns the expected value for the given series.
-        
-        """
-
-        # Test localizer series
-        result = self.series.get_scanning_sequence_display()
-        expected = ["Gradient Recalled"]
-        self.assertListEqual(result, expected)
-        # Test DWI series
-        result = self.dwi_series.get_scanning_sequence_display()
-        expected = ["Echo Planar"]
-        self.assertListEqual(result, expected)
-
-    def test_get_sequence_variant_display(self):
-        """
-        Tests the :meth:`~django_dicom.models.series.Series.get_sequence_variant_display`
-        method returns the expected value for the given series.
-        
-        """
-
-        # Test localizer series
-        result = self.series.get_sequence_variant_display()
-        expected = ["Spoiled", "Oversampling Phase"]
-        self.assertListEqual(result, expected)
-        # Test DWI series
-        result = self.dwi_series.get_sequence_variant_display()
-        expected = ["Segmented k-Space", "Spoiled"]
-        self.assertListEqual(result, expected)
-
-    def test_get_gradient_directions(self):
-        """
-        Tests the :meth:`~django_dicom.models.series.Series.get_gradient_directions`
-        method returns the expected value for the given series.
-        
-        """
-
-        # Test localizer series (no gradient directions, should return None)
-        result = self.series.get_gradient_directions()
-        self.assertIsNone(result)
-        # Test DWI image
-        result = self.dwi_series.get_gradient_directions()
-        expected = [[0.70710677], [-0.70710677], [0.0]]
-        self.assertListEqual(result, expected)
-
-        # Test unsupported manufacturer raises NotImplementedError
-        self.series.manufacturer = "MAGNETO"
-        with self.assertRaises(NotImplementedError):
-            self.series.get_gradient_directions()
-

@@ -39,7 +39,7 @@ class ImportImageTestCase(TestCase):
         For more information see Django's :class:`~django.test.TestCase` documentation_.
 
         .. _documentation: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
-        
+
         """
 
         TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
@@ -88,9 +88,9 @@ class ImportImageTestCase(TestCase):
             instance = ImportImage(dcm)
             instance.image = instance.create_image()
         # Get the expected values
-        series_uid = instance.image.header.get_value("SeriesInstanceUID")
-        study_uid = instance.image.header.get_value("StudyInstanceUID")
-        patient_uid = instance.image.header.get_value("PatientID")
+        series_uid = instance.image.header.get("SeriesInstanceUID")
+        study_uid = instance.image.header.get("StudyInstanceUID")
+        patient_uid = instance.image.header.get("PatientID")
         # Get the returned values
         series_result = instance.get_entity_uid_from_header(Series)
         study_result = instance.get_entity_uid_from_header(Study)

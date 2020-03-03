@@ -1,23 +1,23 @@
 import numpy as np
-import os
 import pytz
 
 from datetime import datetime
-from django.contrib.postgres.fields import ArrayField
-from django.core.validators import MinValueValidator
-from django.db import models
-from django.urls import reverse
-from django_dicom.models import help_text
-from django_dicom.reader.code_strings import (
+from dicom_parser.series import Series as DicomSeries
+from dicom_parser.utils.code_strings import (
     Modality,
     ScanningSequence,
     SequenceVariant,
     PatientPosition,
 )
+from django.contrib.postgres.fields import ArrayField
+from django.core.validators import MinValueValidator
+from django.db import models
+from django.urls import reverse
+from django_dicom.models import help_text
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.fields import ChoiceArrayField
 from django_dicom.models.validators import digits_and_dots_only
-from django_dicom.utils import check_sequence_type
+from pathlib import Path
 
 
 class Series(DicomEntity):
@@ -27,7 +27,7 @@ class Series(DicomEntity):
 
     .. _DICOM: https://www.dicomstandard.org/
     .. _series entity: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
-    
+
     """
 
     uid = models.CharField(
@@ -167,6 +167,7 @@ class Series(DicomEntity):
         "number": "SeriesNumber",
         "mr_acquisition_type": "MRAcquisitionType",
     }
+    _instance = None
 
     class Meta:
         ordering = ("number",)
@@ -179,134 +180,44 @@ class Series(DicomEntity):
     def get_absolute_url(self) -> str:
         return reverse("dicom:series-detail", args=[str(self.id)])
 
-    def get_data(self, as_json: bool = False) -> np.ndarray:
-        """
-        Returns a NumPy array with the series data.
-
-        Parameters
-        ----------
-        as_json : bool
-            Return the pixel array as a JSON formatted string.        
-        
-        Returns
-        -------
-        np.ndarray
-            Series pixel array.
-        """
-
-        images = self.image_set.order_by("number")
-        return np.stack([image.get_data() for image in images], axis=-1)
-
-    def get_path(self) -> str:
+    def get_path(self) -> Path:
         """
         Returns the base directory containing the images composing this series.
-        
+
         Returns
         -------
         str
             This series's base directory path.
         """
 
-        return os.path.dirname(self.image_set.first().dcm.path)
+        return Path(self.image_set.first().dcm.path).parent
 
-    def get_scanning_sequence_display(self) -> list:
-        """
-        Returns the :class:`~django_dicom.reader.code_strings.scanning_sequence.ScanningSequence`
-        Enum values corresponding to the *scanning_sequence* field's value.
-        
-        Returns
-        -------
-        list
-            :class:`~django_dicom.reader.code_strings.scanning_sequence.ScanningSequence` Enum values.
-        """
+    @property
+    def path(self) -> Path:
+        return self.get_path()
 
-        return [ScanningSequence[name].value for name in self.scanning_sequence]
-
-    def get_sequence_variant_display(self) -> list:
+    @property
+    def instance(self) -> DicomSeries:
         """
-        Returns the :class:`~django_dicom.reader.code_strings.sequence_variant.SequenceVariant`
-        Enum values corresponding to the *sequence_variant* field's value.
-        
-        Returns
-        -------
-        list
-            :class:`~django_dicom.reader.code_strings.sequence_variant.SequenceVariant` Enum values.
-        """
-
-        return [SequenceVariant[name].value for name in self.sequence_variant]
-
-    def get_gradient_directions(self) -> list:
-        """
-        Returns the `gradient directions (B-vectors)`_ for `SIEMENS originated DWI`_ DICOM data.
-        
-        .. _gradient directions (B-vectors): https://na-mic.org/wiki/NAMIC_Wiki:DTI:DICOM_for_DWI_and_DTI#DICOM_for_DWI
-        .. _SIEMENS originated DWI: https://na-mic.org/wiki/NAMIC_Wiki:DTI:DICOM_for_DWI_and_DTI#Private_vendor:_Siemens        
+        Caches the created :class:`dicom_parser.series.Series`
+        instance to prevent multiple reades.
 
         Returns
         -------
-        list
-            B-vectors for the three dimensions.
+        :class:`dicom_parser.series.Series`
+            The series' information.
         """
-        if self.manufacturer == "SIEMENS":
-            try:
-                return [
-                    list(vector)
-                    for vector in zip(
-                        *[
-                            image.gradient_direction
-                            for image in self.image_set.order_by("number").all()
-                        ]
-                    )
-                ]
-            except TypeError:
-                return None
-        else:
-            raise NotImplementedError(
-                f"{self.manufacturer} is not a supported manufacturer for gradient directions retrieval!"
-            )
+
+        if not isinstance(self._instance, DicomSeries):
+            self._instance = DicomSeries(self.path)
+        return self._instance
+
+    @property
+    def data(self) -> np.ndarray:
+        return self.instance.data
 
     @property
     def datetime(self) -> datetime:
         time = self.time or datetime.min.time()
         if self.date:
             return datetime.combine(self.date, time, tzinfo=pytz.UTC)
-
-    @property
-    def is_mprage(self) -> bool:
-        return check_sequence_type(self, "mprage")
-
-    @property
-    def is_spgr(self) -> bool:
-        return check_sequence_type(self, "spgr")
-
-    @property
-    def is_fspgr(self) -> bool:
-        return check_sequence_type(self, "fspgr")
-
-    @property
-    def is_flair(self) -> bool:
-        return check_sequence_type(self, "flair")
-
-    @property
-    def is_dti(self) -> bool:
-        return check_sequence_type(self, "dti")
-
-    @property
-    def is_fmri(self) -> bool:
-        return check_sequence_type(self, "fmri")
-
-    @property
-    def is_localizer(self) -> bool:
-        return check_sequence_type(self, "localizer")
-
-    @property
-    def is_ir_epi(self) -> bool:
-        return check_sequence_type(self, "ir-epi")
-
-    @property
-    def is_ep2d(self) -> bool:
-        return check_sequence_type(self, "ep2d")
-
-    @property
-    def is_fse(self) -> bool:
-        return check_sequence_type(self, "fse")

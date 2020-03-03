@@ -1,6 +1,6 @@
+from dicom_parser.utils.code_strings.sex import Sex
 from django_dicom.models.patient import Patient
 from django_dicom.models.series import Series
-from django_dicom.reader.code_strings.sex import Sex
 from django_filters import rest_framework as filters
 
 
@@ -8,7 +8,7 @@ class PatientFilter(filters.FilterSet):
     """
     Provides useful filtering options for the :class:`~django_dicom.models.patient.Patient`
     class.
-    
+
     """
 
     born_after_date = filters.DateFilter("date_of_birth", lookup_expr="gte")
