@@ -1,4 +1,10 @@
-from dicom_parser.header import Header
+"""
+Definition of the :class:`~django_dicom.models.patient.Patient` class.
+
+"""
+
+import logging
+
 from dicom_parser.utils.code_strings import Sex
 from django.db import models
 from django.urls import reverse
@@ -39,6 +45,8 @@ class Patient(DicomEntity):
         "name_suffix",
     ]
 
+    logger = logging.getLogger("data.dicom.patient")
+
     class Meta:
         indexes = [models.Index(fields=["uid"]), models.Index(fields=["date_of_birth"])]
 
@@ -60,7 +68,7 @@ class Patient(DicomEntity):
 
         return f"{self.given_name} {self.family_name}"
 
-    def update_patient_name(self, header: Header) -> None:
+    def update_patient_name(self, header) -> None:
         """
         Parses the patient's name from the DICOM header and updates the instance's
         fields.
@@ -71,13 +79,11 @@ class Patient(DicomEntity):
             A DICOM image's :class:`~dicom_parser.header.Header` instance.
         """
 
-        value = header.get("PatientName", parsed=False)
-        for part in self.NAME_PARTS:
-            part_value = getattr(value, part, None)
-            if part_value:
-                setattr(self, part, part_value)
+        patient_name = header.get_value_by_keyword("PatientName")
+        for part, value in patient_name.items():
+            setattr(self, part, value)
 
-    def update_fields_from_header(self, header: Header, exclude: list = []) -> None:
+    def update_fields_from_header(self, header, exclude: list = None) -> None:
         """
         Override :class:`django_dicom.DicomEntity`'s :meth:`django_dicom.DicomEntity.update_fields_from_header`
         in order to handle setting the name parts seperately.
@@ -90,6 +96,11 @@ class Patient(DicomEntity):
             Field names to exclude (the default is [], which will not exclude any header fields).
         """
 
-        exclude += self.NAME_PARTS
+        # Exclude PatientName fields
+        if isinstance(exclude, list):
+            exclude += self.NAME_PARTS
+        else:
+            exclude = self.NAME_PARTS
         super().update_fields_from_header(header, exclude=exclude)
+        # Handle PatientName fields
         self.update_patient_name(header)

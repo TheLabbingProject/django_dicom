@@ -7,7 +7,7 @@ from django.test import TestCase
 from django_dicom.apps import DjangoDicomConfig
 from django_dicom.models import Image, Series, Patient, Study
 from django_dicom.models.dicom_entity import DicomEntity
-from django_dicom.utils import snake_case_to_camel_case
+from django_dicom.models.utils import snake_case_to_camel_case
 from tests.fixtures import (
     # TEST_IMAGE_PATH,
     # TEST_DWI_IMAGE_PATH,

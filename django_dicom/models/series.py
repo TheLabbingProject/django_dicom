@@ -1,3 +1,10 @@
+"""
+Definition of the :class:`~django_dicom.models.series.Series` class.
+
+"""
+
+
+import logging
 import numpy as np
 import pytz
 
@@ -9,7 +16,7 @@ from dicom_parser.utils.code_strings import (
     SequenceVariant,
     PatientPosition,
 )
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
@@ -134,8 +141,8 @@ class Series(DicomEntity):
     institution_name = models.CharField(
         max_length=64, blank=True, null=True, help_text=help_text.INSTITUTE_NAME
     )
-    operators_name = models.CharField(
-        max_length=64, blank=True, null=True, help_text=help_text.OPERATORS_NAME
+    operators_name = JSONField(
+        blank=True, null=True, help_text=help_text.OPERATORS_NAME
     )
     protocol_name = models.CharField(
         max_length=64, blank=True, null=True, help_text=help_text.PROTOCOL_NAME
@@ -154,9 +161,11 @@ class Series(DicomEntity):
         help_text=help_text.MR_ACQUISITION_TYPE,
     )
 
-    study = models.ForeignKey("django_dicom.Study", on_delete=models.PROTECT)
+    study = models.ForeignKey(
+        "django_dicom.Study", on_delete=models.PROTECT, blank=True, null=True
+    )
     patient = models.ForeignKey(
-        "django_dicom.Patient", blank=True, null=True, on_delete=models.PROTECT
+        "django_dicom.Patient", on_delete=models.PROTECT, blank=True, null=True
     )
 
     FIELD_TO_HEADER = {
@@ -167,10 +176,15 @@ class Series(DicomEntity):
         "number": "SeriesNumber",
         "mr_acquisition_type": "MRAcquisitionType",
     }
+    logger = logging.getLogger("data.dicom.series")
     _instance = None
 
     class Meta:
-        ordering = ("number",)
+        ordering = (
+            "-date",
+            "time",
+            "number",
+        )
         verbose_name_plural = "Series"
         indexes = [models.Index(fields=["uid"]), models.Index(fields=["date", "time"])]
 
@@ -179,6 +193,15 @@ class Series(DicomEntity):
 
     def get_absolute_url(self) -> str:
         return reverse("dicom:series-detail", args=[str(self.id)])
+
+    def save(self, *args, **kwargs) -> None:
+        header = kwargs.get("header")
+        if header and self.missing_relation:
+            if not self.patient:
+                self.patient, _ = header.get_or_create_patient()
+            if not self.study:
+                self.study, _ = header.get_or_create_study()
+        super().save(*args, **kwargs)
 
     def get_path(self) -> Path:
         """
@@ -191,6 +214,24 @@ class Series(DicomEntity):
         """
 
         return Path(self.image_set.first().dcm.path).parent
+
+    def get_scanning_sequence_display(self) -> list:
+        if self.scanning_sequence:
+            return [
+                ScanningSequence[sequence].value
+                if getattr(ScanningSequence, sequence, False)
+                else sequence
+                for sequence in self.scanning_sequence
+            ]
+
+    def get_sequence_variant_display(self) -> list:
+        if self.sequence_variant:
+            return [
+                SequenceVariant[variant].value
+                if getattr(SequenceVariant, variant, False)
+                else variant
+                for variant in self.sequence_variant
+            ]
 
     @property
     def path(self) -> Path:
@@ -221,3 +262,14 @@ class Series(DicomEntity):
         time = self.time or datetime.min.time()
         if self.date:
             return datetime.combine(self.date, time, tzinfo=pytz.UTC)
+
+    @property
+    def missing_relation(self) -> bool:
+        return not (self.patient and self.study)
+
+    @property
+    def spatial_resolution(self) -> tuple:
+        if self.pixel_spacing and self.slice_thickness:
+            return tuple(self.pixel_spacing + [self.slice_thickness])
+        elif self.pixel_spacing:
+            return tuple(self.pixel_spacing)

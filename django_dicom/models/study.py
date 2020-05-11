@@ -1,3 +1,11 @@
+"""
+Definition of the :class:`~django_dicom.models.study.Study` class.
+
+"""
+
+import logging
+
+
 from django.db import models
 from django.urls import reverse
 from django_dicom.models.dicom_entity import DicomEntity
@@ -11,7 +19,7 @@ class Study(DicomEntity):
 
     .. _DICOM: https://www.dicomstandard.org/
     .. _study entity: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
-    
+
     """
 
     uid = models.CharField(
@@ -30,6 +38,7 @@ class Study(DicomEntity):
         "time": "StudyTime",
         "description": "StudyDescription",
     }
+    logger = logging.getLogger("data.dicom.study")
 
     class Meta:
         verbose_name_plural = "Studies"
