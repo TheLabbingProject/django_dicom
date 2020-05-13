@@ -14,9 +14,6 @@ build/
 *.egg-info
 *.spec
 
-# Static files collected with "manage.py collectstatic"
-static/
-
 # JS modules
 node_modules/
 
