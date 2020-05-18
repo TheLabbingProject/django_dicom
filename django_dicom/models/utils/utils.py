@@ -13,7 +13,16 @@ PIXEL_ARRAY_TAG = "7fe0", "0010"
 
 IMPORT_MODE_CONFIGURATION = {
     ImportMode.MINIMAL: {"tags": [], "vrs": [ValueRepresentation.SQ]},
-    ImportMode.NORMAL: {"tags": [], "vrs": [ValueRepresentation.SQ]},
+    ImportMode.NORMAL: {
+        "tags": [
+            # Siemens private tags
+            ("0019", "0010"),
+            ("0029", "0010"),
+            ("0029", "0011"),
+            ("0051", "0010"),
+        ],
+        "vrs": [ValueRepresentation.SQ, ValueRepresentation.UN],
+    },
     ImportMode.FULL: {"tags": [], "vrs": []},
 }
 
