@@ -10,4 +10,8 @@ router.register(r"study", views.StudyViewSet)
 router.register(r"patient", views.PatientViewSet)
 
 
-urlpatterns = [path("dicom/", include(router.urls))]
+urlpatterns = [
+    path("dicom/", include(router.urls)),
+    path("dicom/patient/download/<str:uid>/", views.PatientViewSet.as_view(
+        {"get": "download_series_set"}), name="download_series_set"),
+]
