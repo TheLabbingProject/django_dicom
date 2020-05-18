@@ -1,7 +1,7 @@
 from dicom_parser.header import Header as DicomHeader
 from django.db import models, transaction
 from django_dicom.models.data_element import DataElement
-from django_dicom.models.utils.utils import PIXEL_ARRAY_TAG
+from django_dicom.models.utils.utils import check_element_inclusion
 
 
 class HeaderManager(models.Manager):
@@ -9,7 +9,8 @@ class HeaderManager(models.Manager):
         with transaction.atomic():
             new_instance = self.create(**kwargs)
             for data_element in header.data_elements:
-                if data_element.tag != PIXEL_ARRAY_TAG:
+                included_element = check_element_inclusion(data_element)
+                if included_element:
                     try:
                         DataElement.objects.from_dicom_parser(
                             new_instance, data_element
