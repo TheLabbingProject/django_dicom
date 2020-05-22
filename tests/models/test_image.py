@@ -9,8 +9,8 @@ from django_dicom.models import Image, Series, Patient, Study
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.utils import snake_case_to_camel_case
 from tests.fixtures import (
-    # TEST_IMAGE_PATH,
-    # TEST_DWI_IMAGE_PATH,
+    TEST_IMAGE_PATH,
+    TEST_DWI_IMAGE_PATH,
     TEST_IMAGE_FIELDS,
     TEST_DWI_IMAGE_FIELDS,
     TEST_SERIES_FIELDS,
@@ -18,6 +18,7 @@ from tests.fixtures import (
     TEST_STUDY_FIELDS,
     TEST_PATIENT_FIELDS,
 )
+from tests.utils import restore_path
 
 
 class ImageTestCase(TestCase):
@@ -49,6 +50,13 @@ class ImageTestCase(TestCase):
         )
         Image.objects.create(**TEST_IMAGE_FIELDS)
         Image.objects.create(**TEST_DWI_IMAGE_FIELDS)
+
+    @classmethod
+    def tearDownClass(cls):
+        restore_path(TEST_IMAGE_FIELDS, TEST_IMAGE_PATH)
+        restore_path(TEST_DWI_IMAGE_FIELDS, TEST_DWI_IMAGE_PATH)
+        super().tearDownClass()
+
 
     def setUp(self):
         """
@@ -237,6 +245,8 @@ class ImageTestCase(TestCase):
         for field in self.image._meta.get_fields():
             if field.name in ["id", "created", "modified", "date", "time"]:
                 self.assertTrue(field.blank, f"{field.name} should be blankable!")
+            elif field.name in ["number", "date", "time", "warnings", "series"]:
+                self.assertTrue(field.null, f"{field.name} should not be nullable!")
             else:
                 self.assertFalse(field.blank, f"{field.name} should not be blankable!")
                 self.assertFalse(field.null, f"{field.name} should not be nullable!")

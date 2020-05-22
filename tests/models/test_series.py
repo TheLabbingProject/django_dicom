@@ -20,6 +20,7 @@ from tests.fixtures import (
     TEST_STUDY_FIELDS,
     TEST_PATIENT_FIELDS,
 )
+from tests.utils import restore_path
 
 
 class SeriesTestCase(TestCase):
@@ -46,6 +47,12 @@ class SeriesTestCase(TestCase):
         )
         Image.objects.create(**TEST_IMAGE_FIELDS)
         Image.objects.create(**TEST_DWI_IMAGE_FIELDS)
+
+    @classmethod
+    def tearDownClass(cls):
+        restore_path(TEST_IMAGE_FIELDS, TEST_IMAGE_PATH)
+        restore_path(TEST_DWI_IMAGE_FIELDS, TEST_DWI_IMAGE_PATH)
+        super().tearDownClass()
 
     def setUp(self):
         """

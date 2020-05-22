@@ -2,6 +2,7 @@ from rest_framework import status
 from django.test import TestCase
 from django.urls import reverse
 from .fixtures import (
+    TEST_IMAGE_PATH,
     TEST_IMAGE_FIELDS,
     TEST_SERIES_FIELDS,
     TEST_STUDY_FIELDS,
@@ -9,6 +10,7 @@ from .fixtures import (
 )
 from django_dicom.models import Series, Study, Patient, Image
 from .utils import LoggedInTestCase
+from .utils import restore_path
 
 
 class LoggedOutImageViewTestCase(TestCase):
@@ -24,6 +26,11 @@ class LoggedOutImageViewTestCase(TestCase):
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
         Image.objects.create(**TEST_IMAGE_FIELDS)
+
+    @classmethod
+    def tearDownClass(cls):
+        restore_path(TEST_IMAGE_FIELDS, TEST_IMAGE_PATH)
+        super().tearDownClass()
 
     def setUp(self):
         self.test_instance = Image.objects.get(uid=TEST_IMAGE_FIELDS["uid"])
@@ -72,6 +79,7 @@ class LoggedInImageViewTestCase(LoggedInTestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # self.assertTemplateUsed(response, "dicom/images/image_detail.html")
+
 
 #     def test_create_view(self):
 #         url = reverse("instances_create")
