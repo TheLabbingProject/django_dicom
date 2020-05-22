@@ -94,4 +94,3 @@ TEST_PATIENT_FIELDS = {
     "given_name": "Zvi",
     "family_name": "Baratz",
 }
-

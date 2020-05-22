@@ -1,11 +1,26 @@
-import numpy as np
-import pydicom
+"""
+Definition of the :class:`~django_dicom.models.image.Image` class.
 
+"""
+
+import dicom_parser
+import logging
+import numpy as np
+import warnings
+
+from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.urls import reverse
 from django_dicom.models.dicom_entity import DicomEntity
+from django_dicom.models.header import Header
+from django_dicom.models.managers.image import ImageManager
+from django_dicom.models.series import Series
 from django_dicom.models.validators import digits_and_dots_only, validate_file_extension
-from django_dicom.reader import HeaderInformation
+from django_mri.utils import get_dicom_root
+from pathlib import Path
+
+DICOM_ROOT = get_dicom_root()
 
 
 class Image(DicomEntity):
@@ -15,12 +30,18 @@ class Image(DicomEntity):
     updated automatically by inspection of the file's header information.
 
     .. _DICOM: https://www.dicomstandard.org/
-    
+
     """
 
     # Stores a reference to the image file.
     dcm = models.FileField(
-        max_length=1000, upload_to="dicom", validators=[validate_file_extension]
+        max_length=1000,
+        upload_to="dicom",
+        validators=[validate_file_extension],
+        verbose_name="File Path",
+    )
+    header = models.OneToOneField(
+        "django_dicom.Header", on_delete=models.CASCADE, related_name="image"
     )
 
     uid = models.CharField(
@@ -29,13 +50,18 @@ class Image(DicomEntity):
         validators=[digits_and_dots_only],
         verbose_name="Image UID",
     )
-    number = models.IntegerField(verbose_name="Image Number")
+    number = models.IntegerField(verbose_name="Image Number", null=True)
     date = models.DateField(blank=True, null=True)
     time = models.TimeField(blank=True, null=True)
+    warnings = ArrayField(models.TextField(), blank=True, null=True, default=list)
 
-    series = models.ForeignKey("django_dicom.Series", on_delete=models.PROTECT)
+    series = models.ForeignKey(
+        "django_dicom.Series", on_delete=models.PROTECT, blank=True, null=True
+    )
 
-    _header = None
+    objects = ImageManager()
+
+    _instance = None
     FIELD_TO_HEADER = {
         "uid": "SOPInstanceUID",
         "number": "InstanceNumber",
@@ -43,8 +69,10 @@ class Image(DicomEntity):
         "time": "InstanceCreationTime",
     }
 
+    logger = logging.getLogger("data.dicom.image")
+
     class Meta:
-        ordering = ["-id"]
+        ordering = ("series", "number")
         indexes = [models.Index(fields=["uid"]), models.Index(fields=["date", "time"])]
 
     def __str__(self) -> str:
@@ -53,115 +81,73 @@ class Image(DicomEntity):
     def get_absolute_url(self) -> str:
         return reverse("dicom:image-detail", args=[str(self.id)])
 
-    def read_file(self, header_only: bool = False) -> pydicom.FileDataset:
-        """
-        Reads the DICOM image file to memory.
-        
-        Parameters
-        ----------
-        header_only : bool, optional
-            Exclude pixel data or not, by default False which will include pixel data.
-        
-        Returns
-        -------
-        :class:`pydicom.dataset.FileDataset`
-            DICOM image file as object.
-        """
-        return pydicom.read_file(self.dcm.path, stop_before_pixels=header_only)
+    def create_header_instance(self) -> Header:
+        return Header.objects.from_dicom_parser(self.instance.header)
 
-    def get_data(self, as_json: bool = False) -> np.ndarray:
-        """
-        Returns the image's pixel array as a `NumPy`_ array or as a JSON-like string if *as_json* is True.
-        
-        .. _NumPy: http://www.numpy.org/
+    def save(self, *args, rename: bool = True, **kwargs):
+        if self.dcm and not hasattr(self, "header"):
+            # Add the create Header instance to the passed kwargs
+            # so that it may be used to update the new image instance's
+            # fields in DicomEntity's `save()` execution.
+            self.header = self.create_header_instance()
+            kwargs["header"] = self.header
 
-        Parameters
-        ----------
-        as_json : bool
-            Return the pixel array as a JSON formatted string.
+        if not self.series and "header" in kwargs:
+            self.series, _ = Series.objects.from_header(kwargs["header"])
+        if self.dcm and rename:
+            # Move to default destination.
+            self.rename(self.default_path)
+        super().save(*args, **kwargs)
 
-        Returns
-        -------
-        :class:`numpy.ndarray`
-            Image's pixel array.
-        """
+    def get_default_path(self) -> Path:
+        relative_path = self.instance.default_relative_path
+        return DICOM_ROOT / relative_path
 
-        return self.read_file(header_only=False).pixel_array
-
-    def read_header(self) -> HeaderInformation:
-        """
-        Reads the header information from the associated DICOM file.
-        
-        Returns
-        -------
-        :class:`~django_dicom.reader.header_information.HeaderInformation`
-            Image's header information.
-        """
-
-        raw_header = self.read_file(header_only=True)
-        return HeaderInformation(raw_header)
-
-    def get_b_value(self) -> int:
-        """
-        Returns the `b-value`_ for diffusion weighted images (`DWI`_). 
-        Currently only SIEMENS tags are supported.
-
-        .. _b-value: https://radiopaedia.org/articles/b-values-1
-        .. _DWI: https://en.wikipedia.org/wiki/Diffusion_MRI#Diffusion_imaging
-
-        Returns
-        -------
-        int
-            Degree of diffusion weighting applied.
-        """
-
-        manufacturer = self.header.get_value("Manufacturer")
-        if manufacturer == "SIEMENS":
-            return self.header.get_value(("0019", "100c"))
+    def rename(self, target: Path) -> Path:
+        target = Path(settings.MEDIA_ROOT, target)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        p = Path(self.dcm.path)
+        p.rename(target)
+        self.dcm = str(target)
 
     @property
-    def header(self) -> HeaderInformation:
+    def instance(self) -> dicom_parser.Image:
         """
-        Caches the created :class:`~django_dicom.reader.header_information.HeaderInformation`
+        Caches the created :class:`dicom_parser.image.Image`
         instance to prevent multiple reades.
-        
+
         Returns
         -------
-        :class:`~django_dicom.reader.header_information.HeaderInformation`
-            The image's header information.
+        :class:`~dicom_parser.image.Image`
+            The image's information.
         """
 
-        if not isinstance(self._header, HeaderInformation):
-            self._header = self.read_header()
-        return self._header
+        if not isinstance(self._instance, dicom_parser.Image):
+            with warnings.catch_warnings():
+                warnings.filterwarnings("error")
+                try:
+                    self._instance = dicom_parser.Image(self.dcm.path)
+                except Warning as warning:
+                    if str(warning) not in self.warnings:
+                        self.warnings += [str(warning)]
+                    warnings.filterwarnings("ignore")
+                    self._instance = dicom_parser.Image(self.dcm.path)
+        return self._instance
 
     @property
-    def slice_timing(self) -> list:
+    def data(self) -> np.ndarray:
         """
-        Returns the slice timing vector for this image. 
-        Currently only SIEMENS tags are supported.
-        
+        Facilitates access to the :class:`~dicom_parser.image.Image` instance's
+        data.
+
         Returns
         -------
-        list
-            This image's slice times.
+        np.ndarray
+            The image's pixel data.
         """
-        manufacturer = self.header.get_value("Manufacturer")
-        if manufacturer == "SIEMENS":
-            return self.header.get_value(("0019", "1029"))
+
+        return self.instance.data
 
     @property
-    def gradient_direction(self) -> list:
-        """
-        Returns the gradient direction vector for this image. 
-        Currently only SIEMENS tags are supported.
-        
-        Returns
-        -------
-        list
-            This image's gradient direction.
-        """
-        manufacturer = self.header.get_value("Manufacturer")
-        if manufacturer == "SIEMENS":
-            return self.header.get_value(("0019", "100e"))
-
+    def default_path(self) -> Path:
+        return self.get_default_path()

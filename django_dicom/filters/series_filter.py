@@ -1,7 +1,7 @@
+from dicom_parser.utils.code_strings import Modality, ScanningSequence, SequenceVariant
 from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 from django_dicom.models.series import Series
-from django_dicom.reader.code_strings import Modality, ScanningSequence, SequenceVariant
 
 
 def filter_array(queryset: QuerySet, field_name: str, value: list):
@@ -9,7 +9,7 @@ def filter_array(queryset: QuerySet, field_name: str, value: list):
     Returns an exact lookup for a PostgreSQL ArrayField_.
 
     .. _ArrayField: https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#arrayfield
-    
+
     Parameters
     ----------
     queryset : :class:`~django.db.models.QuerySet`
@@ -32,7 +32,7 @@ class SeriesFilter(filters.FilterSet):
     """
     Provides useful filtering options for the :class:`~django_dicom.models.series.Series`
     class.
-    
+
     """
 
     study_uid = filters.CharFilter("study__uid", lookup_expr="exact", label="Study UID")

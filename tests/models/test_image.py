@@ -1,16 +1,16 @@
 import numpy as np
-import pydicom
 
+from dicom_parser.header import Header
+from dicom_parser.image import Image as DicomImage
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_dicom.apps import DjangoDicomConfig
 from django_dicom.models import Image, Series, Patient, Study
 from django_dicom.models.dicom_entity import DicomEntity
-from django_dicom.reader import HeaderInformation
-from django_dicom.utils import snake_case_to_camel_case
+from django_dicom.models.utils import snake_case_to_camel_case
 from tests.fixtures import (
-    # TEST_IMAGE_PATH,
-    # TEST_DWI_IMAGE_PATH,
+    TEST_IMAGE_PATH,
+    TEST_DWI_IMAGE_PATH,
     TEST_IMAGE_FIELDS,
     TEST_DWI_IMAGE_FIELDS,
     TEST_SERIES_FIELDS,
@@ -18,11 +18,12 @@ from tests.fixtures import (
     TEST_STUDY_FIELDS,
     TEST_PATIENT_FIELDS,
 )
+from tests.utils import restore_path
 
 
 class ImageTestCase(TestCase):
     """
-    Tests for the :class:`~django_dicom.models.image.Image` model.    
+    Tests for the :class:`~django_dicom.models.image.Image` model.
 
     """
 
@@ -49,6 +50,13 @@ class ImageTestCase(TestCase):
         )
         Image.objects.create(**TEST_IMAGE_FIELDS)
         Image.objects.create(**TEST_DWI_IMAGE_FIELDS)
+
+    @classmethod
+    def tearDownClass(cls):
+        restore_path(TEST_IMAGE_FIELDS, TEST_IMAGE_PATH)
+        restore_path(TEST_DWI_IMAGE_FIELDS, TEST_DWI_IMAGE_PATH)
+        super().tearDownClass()
+
 
     def setUp(self):
         """
@@ -127,12 +135,11 @@ class ImageTestCase(TestCase):
 
         """
 
-        header = self.image.read_header()
         header_fields = self.image.get_header_fields()
         expected_values = {
             field.name: getattr(self.image, field.name) for field in header_fields
         }
-        result = self.image.update_fields_from_header(header)
+        result = self.image.update_fields_from_header(self.image.header)
         self.assertIsNone(result)
         values = {
             field.name: getattr(self.image, field.name) for field in header_fields
@@ -148,7 +155,7 @@ class ImageTestCase(TestCase):
         """
         Tests that only *.dcm* files may be used to instantiate an
         :class:`~django_dicom.models.image.Image` instance.
-        
+
         """
 
         file_name = self.image.dcm.name
@@ -165,7 +172,7 @@ class ImageTestCase(TestCase):
 
         .. _SOPInstanceUID: https://dicom.innolitics.com/ciods/mr-image/sop-common/00080018
         .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
-        
+
         """
 
         field = self.image._meta.get_field("uid")
@@ -184,7 +191,7 @@ class ImageTestCase(TestCase):
         """
         An :class:`~django_dicom.models.image.Image` instance UID field may only
         be composed of dots and digits.
-        
+
         """
 
         non_digit_or_dot_chars = [
@@ -211,7 +218,7 @@ class ImageTestCase(TestCase):
     def test_uid_vebose_name(self):
         """
         Test the UID field vebose name.
-        
+
         """
 
         field = self.image._meta.get_field("uid")
@@ -221,7 +228,7 @@ class ImageTestCase(TestCase):
     def test_number_vebose_name(self):
         """
         Test the *number* field vebose name.
-        
+
         """
 
         field = self.image._meta.get_field("number")
@@ -232,12 +239,14 @@ class ImageTestCase(TestCase):
         """
         Every :class:`~django_dicom.models.image.Image` instance must have all of
         their fields set. *id*, *created*, and *modified* my be blank in forms.
-        
+
         """
 
         for field in self.image._meta.get_fields():
             if field.name in ["id", "created", "modified", "date", "time"]:
                 self.assertTrue(field.blank, f"{field.name} should be blankable!")
+            elif field.name in ["number", "date", "time", "warnings", "series"]:
+                self.assertTrue(field.null, f"{field.name} should not be nullable!")
             else:
                 self.assertFalse(field.blank, f"{field.name} should not be blankable!")
                 self.assertFalse(field.null, f"{field.name} should not be nullable!")
@@ -251,7 +260,7 @@ class ImageTestCase(TestCase):
         Tests that the instance's :meth:`~django_dicom.models.image.Image.__str__`
         method returns its UID.
         For more information see `Django's str method documentation`_.
-        
+
         """
 
         self.assertEqual(str(self.image), self.image.uid)
@@ -260,7 +269,7 @@ class ImageTestCase(TestCase):
         """
         Tests the :class:`~django_dicom.models.image.Image` model's `get_absolute_url`_
         method.
-        
+
         .. _get_absolute_url: https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url
         """
 
@@ -268,173 +277,34 @@ class ImageTestCase(TestCase):
         expected = f"/dicom/image/{self.image.id}/"
         self.assertEqual(url, expected)
 
-    def test_read_file_method_return_type(self):
-        """
-        Tests that the :meth:`~django_dicom.models.image.Image.read_file` method
-        return a :class:`~pydicom.dataset.FileDataset` instance.
-
-        """
-
-        dcm = self.image.read_file()
-        self.assertIsInstance(dcm, pydicom.FileDataset)
-
-    def test_read_file_configuration(self):
-        """
-        By default, the :meth:`django_dicom.models.image.Image.read_file` method
-        is supposed to read the entire image (including the pixel array).
-
-        """
-
-        dcm = self.image.read_file()
-        try:
-            _ = dcm.pixel_array
-        except AttributeError:
-            self.fail("read_file() is supposed to load the image's pixel array!")
-
-    def test_read_file_with_only_headers(self):
-        """
-        Tests the :meth:`django_dicom.models.image.Image.read_file` method
-        *header_only* setting.
-        
-        """
-
-        dcm = self.image.read_file(header_only=True)
-        self.assertIsInstance(dcm, pydicom.FileDataset)
-        with self.assertRaises(AttributeError):
-            _ = dcm.pixel_array
-
-    def test_get_data(self):
-        """
-        Tests the :meth:`django_dicom.models.image.Image.get_data` method returns
-        the expected NumPy array.
-
-        """
-
-        data = self.image.get_data()
-        self.assertIsInstance(data, np.ndarray)
-        self.assertTupleEqual(data.shape, (512, 512))
-
-    def test_read_header(self):
-        """
-        Tests that the :meth:`~django_dicom.models.image.Image.read_header` method
-        returns the expected :class:`~django_dicom.reader.HeaderInformation` instance.
-
-        """
-
-        header = self.image.read_header()
-        self.assertIsInstance(header, HeaderInformation)
-
-    def test_get_b_value(self):
-        """
-        Tests the :meth:`~django_dicom.models.image.Image.get_b_value` method.
-        Should return the B-value for DWI images and None for non-DWI images.
-        TODO: Figure out why B-value seems to always be set to 0 for the DWI images.
-
-        """
-
-        self.assertIsNone(self.image.get_b_value())
-        self.assertEqual(self.dwi_image.get_b_value(), 0)
-
     ##############
     # Properties #
     ##############
 
+    def test_instance(self):
+        """
+        Tests that the `instance` property returns the appropriate
+        :class:`~dicom_parser.image.Image` instance.
+
+        """
+
+        self.assertIsInstance(self.image.instance, DicomImage)
+
     def test_header(self):
         """
-        Tests that the *_header* class attribute is properly updated by the
-        :attr:`~django_dicom.models.image.Image.header` property.
+        Tests that the `header` property returns the
+        :class:`~dicom_parser.image.Image` instance's
+        associated :class:`~dicom_parser.header.Header` instance.
 
         """
 
-        self.assertIsNone(self.image._header)
-        self.assertIsInstance(self.image.header, HeaderInformation)
-        self.assertIsInstance(self.image._header, HeaderInformation)
-        self.assertIs(self.image._header, self.image.header)
+        self.assertIsInstance(self.image.header, Header)
 
-    def test_slice_timing(self):
+    def test_data(self):
         """
-        Tests that the slice timing can be read for SIEMENS DICOM images.
-        For more information see: https://en.wikibooks.org/wiki/SPM/Slice_Timing#Siemens_scanners.
-
-        TODO: Extend to other vendors.
+        Tests that the `data` property returns the
+        :class:`~dicom_parser.image.Image` instance's data.
 
         """
 
-        expected = DWI_SLICE_TIMING
-        self.assertEqual(self.dwi_image.slice_timing, expected)
-
-    def test_gradient_diretion(self):
-        """
-        Tests that the gradient direction can be read for SIEMENS DICOM images.
-        For more information see: https://na-mic.org/wiki/NAMIC_Wiki:DTI:DICOM_for_DWI_and_DTI#Private_vendor:_Siemens.
-
-        TODO: Extend to other vendors.
-
-        """
-
-        expected = [0.70710677, -0.70710677, 0.0]
-        self.assertEqual(self.dwi_image.gradient_direction, expected)
-
-
-DWI_SLICE_TIMING = [
-    2460.0,
-    0.0,
-    1640.0,
-    165.0,
-    1805.0,
-    327.5,
-    1967.5,
-    492.5,
-    2132.5,
-    655.0,
-    2295.0,
-    985.0,
-    2625.0,
-    1147.5,
-    2787.5,
-    1312.5,
-    2952.5,
-    1475.0,
-    3115.0,
-    820.0,
-    2460.0,
-    0.0,
-    1640.0,
-    165.0,
-    1805.0,
-    327.5,
-    1967.5,
-    492.5,
-    2132.5,
-    655.0,
-    2295.0,
-    985.0,
-    2625.0,
-    1147.5,
-    2787.5,
-    1312.5,
-    2952.5,
-    1475.0,
-    3115.0,
-    820.0,
-    2460.0,
-    0.0,
-    1640.0,
-    165.0,
-    1805.0,
-    327.5,
-    1967.5,
-    492.5,
-    2132.5,
-    655.0,
-    2295.0,
-    985.0,
-    2625.0,
-    1147.5,
-    2787.5,
-    1312.5,
-    2952.5,
-    1475.0,
-    3115.0,
-    820.0,
-]
+        self.assertIsInstance(self.image.data, np.ndarray)

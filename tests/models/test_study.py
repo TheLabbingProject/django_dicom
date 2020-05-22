@@ -2,17 +2,19 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_dicom.models import Series, Patient, Study, Image
 from tests.fixtures import (
+    TEST_IMAGE_PATH,
     TEST_IMAGE_FIELDS,
     TEST_SERIES_FIELDS,
     TEST_STUDY_FIELDS,
     TEST_PATIENT_FIELDS,
 )
+from tests.utils import restore_path
 
 
 class SeriesTestCase(TestCase):
     """
     Tests for the :class:`~django_dicom.models.study.Study` model.
-    
+
     """
 
     @classmethod
@@ -29,6 +31,12 @@ class SeriesTestCase(TestCase):
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
         Image.objects.create(**TEST_IMAGE_FIELDS)
+
+    @classmethod
+    def tearDownClass(cls):
+        restore_path(TEST_IMAGE_FIELDS, TEST_IMAGE_PATH)
+        super().tearDownClass()
+
 
     def setUp(self):
         """
@@ -49,7 +57,7 @@ class SeriesTestCase(TestCase):
         """
         Validate the `verbose name plural`_ ("Studies") of the :class:`~django_dicom.models.study.Study` model.
 
-        .. _verbose name plural: https://docs.djangoproject.com/en/2.2/ref/models/options/#verbose-name-plural       
+        .. _verbose name plural: https://docs.djangoproject.com/en/2.2/ref/models/options/#verbose-name-plural
         """
 
         self.assertEqual(Study._meta.verbose_name_plural, "Studies")
@@ -66,7 +74,7 @@ class SeriesTestCase(TestCase):
 
         .. _Study Instance UID: https://dicom.innolitics.com/ciods/mr-image/general-study/0020000d
         .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
-        
+
         """
 
         field = self.study._meta.get_field("uid")
@@ -85,7 +93,7 @@ class SeriesTestCase(TestCase):
         """
         An :class:`~django_dicom.models.study.Study` instance *UID* field may only
         be composed of dots and digits.
-        
+
         """
 
         non_digit_or_dot_chars = [
@@ -112,7 +120,7 @@ class SeriesTestCase(TestCase):
     def test_uid_vebose_name(self):
         """
         Test the *UID* field vebose name.
-        
+
         """
 
         field = self.study._meta.get_field("uid")
@@ -136,7 +144,7 @@ class SeriesTestCase(TestCase):
 
         .. _Study Description: https://dicom.innolitics.com/ciods/mr-image/general-study/00081030
         .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
-        
+
         """
 
         field = self.study._meta.get_field("description")
@@ -148,7 +156,7 @@ class SeriesTestCase(TestCase):
 
         .. _Study Description: https://dicom.innolitics.com/ciods/mr-image/general-study/00081030
         .. _type 3 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.5
-        
+
         """
 
         field = self.study._meta.get_field("description")
@@ -162,7 +170,7 @@ class SeriesTestCase(TestCase):
 
         .. _Study Date: https://dicom.innolitics.com/ciods/mr-image/general-study/00080020
         .. _type 2 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
-        
+
         """
 
         field = self.study._meta.get_field("date")
@@ -176,7 +184,7 @@ class SeriesTestCase(TestCase):
 
         .. _Study Time: https://dicom.innolitics.com/ciods/mr-image/general-study/00080030
         .. _type 2 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
-        
+
         """
 
         field = self.study._meta.get_field("time")
@@ -202,7 +210,7 @@ class SeriesTestCase(TestCase):
         Tests the :meth:`~django_dicom.models.study.Study.get_absolute_url` method
         returns the expeted url.
         For more information regarding `get_absolute_url` see `the Django documentation`_.
-        
+
         .. _the Django documentation: https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url
         """
 
@@ -218,12 +226,11 @@ class SeriesTestCase(TestCase):
 
         """
 
-        header = self.image.read_header()
         header_fields = self.study.get_header_fields()
         expected_values = {
             field.name: getattr(self.study, field.name) for field in header_fields
         }
-        result = self.study.update_fields_from_header(header)
+        result = self.study.update_fields_from_header(self.image.header)
         self.assertIsNone(result)
         values = {
             field.name: getattr(self.study, field.name) for field in header_fields
