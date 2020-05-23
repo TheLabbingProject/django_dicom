@@ -14,4 +14,9 @@ def data_element_to_definition(data_element: DicomDataElement) -> dict:
 class DataElementDefinitionManager(models.Manager):
     def from_dicom_parser(self, data_element: DicomDataElement) -> tuple:
         definition = data_element_to_definition(data_element)
-        return self.get_or_create(**definition)
+        try:
+            existing = self.get(tag=definition["tag"], keyword=definition["keyword"])
+            return existing, False
+        except self.model.DoesNotExist:
+            new = self.create(**definition)
+            return new, True
