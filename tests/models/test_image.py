@@ -1,11 +1,10 @@
 import numpy as np
 
-from dicom_parser.header import Header
 from dicom_parser.image import Image as DicomImage
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_dicom.apps import DjangoDicomConfig
-from django_dicom.models import Image, Series, Patient, Study
+from django_dicom.models import Image, Series, Patient, Study, Header
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.utils import snake_case_to_camel_case
 from tests.fixtures import (
@@ -27,7 +26,15 @@ class ImageTestCase(TestCase):
 
     """
 
-    NON_HEADER_FIELDS = ["id", "dcm", "created", "modified", "series"]
+    NON_HEADER_FIELDS = [
+        "id",
+        "dcm",
+        "created",
+        "modified",
+        "series",
+        "header",
+        "warnings",
+    ]
     HEADER_FIELDS = ["uid", "number", "date", "time"]
 
     @classmethod
@@ -56,7 +63,6 @@ class ImageTestCase(TestCase):
         restore_path(TEST_IMAGE_FIELDS, TEST_IMAGE_PATH)
         restore_path(TEST_DWI_IMAGE_FIELDS, TEST_DWI_IMAGE_PATH)
         super().tearDownClass()
-
 
     def setUp(self):
         """
@@ -114,7 +120,9 @@ class ImageTestCase(TestCase):
             if field.name in self.NON_HEADER_FIELDS:
                 self.assertFalse(self.image.is_header_field(field))
             else:
-                self.assertTrue(self.image.is_header_field(field))
+                self.assertTrue(
+                    self.image.is_header_field(field), f"The field asserted is {field}"
+                )
 
     def test_get_header_fields(self):
         """
