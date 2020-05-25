@@ -9,8 +9,7 @@ from .fixtures import (
     TEST_PATIENT_FIELDS,
 )
 from django_dicom.models import Series, Study, Patient, Image
-from .utils import LoggedInTestCase
-from .utils import restore_path
+from .utils import LoggedInTestCase, restore_path
 
 
 class LoggedOutImageViewTestCase(TestCase):
@@ -64,6 +63,11 @@ class LoggedInImageViewTestCase(LoggedInTestCase):
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
         Image.objects.create(**TEST_IMAGE_FIELDS)
+
+    @classmethod
+    def tearDownClass(cls):
+        restore_path(TEST_IMAGE_FIELDS, TEST_IMAGE_PATH)
+        super().tearDownClass()
 
     def setUp(self):
         self.test_instance = Image.objects.get(uid=TEST_IMAGE_FIELDS["uid"])

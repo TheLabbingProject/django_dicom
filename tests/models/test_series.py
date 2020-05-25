@@ -20,7 +20,8 @@ from tests.fixtures import (
     TEST_STUDY_FIELDS,
     TEST_PATIENT_FIELDS,
 )
-from tests.utils import restore_path
+from tests.utils import restore_path, seperate_raw_name
+from django.conf import settings
 
 
 class SeriesTestCase(TestCase):
@@ -88,7 +89,7 @@ class SeriesTestCase(TestCase):
         .. _Series: https://en.wiktionary.org/wiki/series
         """
 
-        self.assertTupleEqual(Series._meta.ordering, ("number",))
+        self.assertTupleEqual(Series._meta.ordering, ("-date", "time", "number",))
 
     # TODO: Test for indexes
 
@@ -803,15 +804,16 @@ class SeriesTestCase(TestCase):
     def test_study_blank_and_null(self):
         """
         The `Study Instance UID`_ attribute may not be empty (`type 1 data element`)
-        and therefore every series must have a study.
+        and therefore every series must have a study. Formally, dicom images are required to have a `Study Instance UID`_ data element,
+        however, this is not enforced in the database, and therfore this field is nullable.
 
         .. _Study Instance UID: https://dicom.innolitics.com/ciods/mr-image/general-study/0020000d
         .. _type 1 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.1
         """
 
         field = self.series._meta.get_field("study")
-        self.assertFalse(field.blank)
-        self.assertFalse(field.null)
+        self.assertTrue(field.blank)
+        self.assertTrue(field.null)
 
     # patient
     def test_patient_blank_and_null(self):
@@ -861,17 +863,25 @@ class SeriesTestCase(TestCase):
         """
 
         header_fields = self.series.get_header_fields()
+        fields = [
+            "family_name",
+            "given_name",
+            "middle_name",
+            "name_prefix",
+            "name_suffix",
+            "operators_name",
+        ]
         expected_values = {
-            field.name: getattr(self.series, field.name) for field in header_fields
+            field.name: seperate_raw_name(getattr(self.series, field.name), fields[:-1])
+            if field.name in fields
+            else getattr(self.series, field.name)
+            for field in header_fields
         }
         result = self.series.update_fields_from_header(self.image.header)
         self.assertIsNone(result)
         values = {
             field.name: getattr(self.series, field.name) for field in header_fields
         }
-        for key, value in values.items():
-            if expected_values[key] != value:
-                print(f"{key} expected {expected_values[key]} but got {value}")
         self.assertDictEqual(values, expected_values)
 
     def test_get_path(self):
@@ -882,10 +892,20 @@ class SeriesTestCase(TestCase):
         """
 
         # Test localizer series
-        expected = Path(TEST_IMAGE_PATH).parent
+        # expected = Path(TEST_IMAGE_PATH).parent
+        expected = (
+            Path(settings.MEDIA_ROOT, "MRI/DICOM")
+            / TEST_PATIENT_FIELDS["uid"]
+            / TEST_SERIES_FIELDS["uid"]
+        )
         result = self.series.get_path()
         self.assertEqual(result, expected)
         # Test DWI series
-        expected = Path(TEST_DWI_IMAGE_PATH).parent
+        # expected = Path(TEST_DWI_IMAGE_PATH).parent
+        expected = (
+            Path(settings.MEDIA_ROOT, "MRI/DICOM")
+            / TEST_PATIENT_FIELDS["uid"]
+            / TEST_DWI_SERIES_FIELDS["uid"]
+        )
         result = self.dwi_series.get_path()
         self.assertEqual(result, expected)

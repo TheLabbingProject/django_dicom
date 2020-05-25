@@ -1,5 +1,6 @@
 from django.test import TestCase
-from django_dicom.models import Series, Patient, Study, Image
+from django_dicom.models import Series, Patient, Study, Image, Header, DataElement
+from django_dicom.models.values import PersonName
 from tests.fixtures import (
     TEST_IMAGE_PATH,
     TEST_IMAGE_FIELDS,
@@ -207,17 +208,45 @@ class PatientTestCase(TestCase):
 
         """
 
-        # self.image.header.raw.PatientName = "Baz^Foo^Bar^Sir^the 3rd"
-        print(self.image.header.get_or_create_patient())
-        # .PatientName = (
-        # "Baz^Foo^Bar^Sir^the 3rd"
+        # definition = self.image.header.data_element_set.get(
+        #     definition__keyword="PatientName"
+        # ).definition
+        new_names = {
+            "family_name": "Baz",
+            "given_name": "Foo",
+            "middle_name": "Bar",
+            "name_prefix": "Sir",
+            "name_suffix": "the 3rd",
+        }
+        # value = PersonName.objects.create(
+        #     raw="Baz^Foo^Bar^Sir^the 3rd", value=new_names
         # )
-        # self.patient.update_patient_name(self.image.header)
-        # self.assertEqual(self.patient.name_prefix, "Sir")
-        # self.assertEqual(self.patient.given_name, "Foo")
-        # self.assertEqual(self.patient.middle_name, "Bar")
-        # self.assertEqual(self.patient.family_name, "Baz")
-        # self.assertEqual(self.patient.name_suffix, "the 3rd")
+        # new_header = Header.objects.create()
+        # element = DataElement.objects.create(header=new_header, definition=definition)
+        # element._values.add(value)
+
+        name_value = self.image.header.data_element_set.get(
+            definition__keyword="PatientName"
+        )._values.select_subclasses().first()
+        old_name = name_value.value
+        name_value.value = new_names
+        name_value.save()
+
+
+        self.patient.update_patient_name(self.image.header)
+        # self.patient.update_patient_name(new_header)
+        self.assertEqual(self.patient.family_name, "Baz")
+        self.assertEqual(self.patient.given_name, "Foo")
+        self.assertEqual(self.patient.middle_name, "Bar")
+        self.assertEqual(self.patient.name_prefix, "Sir")
+        self.assertEqual(self.patient.name_suffix, "the 3rd")
+
+        # PersonName.objects.last().delete()
+        # Header.objects.last().delete()
+        # DataElement.objects.last().delete()
+        name_value.value = old_name
+        name_value.save()
+        self.patient.update_patient_name(self.image.header)
 
     def test_update_fields_from_header(self):
         """
@@ -236,4 +265,12 @@ class PatientTestCase(TestCase):
         values = {
             field.name: getattr(self.patient, field.name) for field in header_fields
         }
-        self.assertDictEqual(values, expected_values)
+        for key, value in values.items():
+            try:
+                self.assertEqual(value, expected_values[key])
+            except:
+                if expected_values[key] is None:
+                    self.assertEqual(value, "")
+                else:
+                    self.fail(f"expected {expected_values[key]} but got {value}")
+        # self.assertDictEqual(values, expected_values)

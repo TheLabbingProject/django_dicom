@@ -37,7 +37,6 @@ class SeriesTestCase(TestCase):
         restore_path(TEST_IMAGE_FIELDS, TEST_IMAGE_PATH)
         super().tearDownClass()
 
-
     def setUp(self):
         """
         Adds the created instances to the tests' contexts.
