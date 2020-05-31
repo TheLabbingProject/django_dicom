@@ -64,12 +64,20 @@ class DataElementTestCase(TestCase):
         self.assertEqual(result, expected)
 
     def test_to_html(self):
-        pass
-        # print("\nTEST_TO_HTML\n", self.element.to_html())
+        expected = "SIEMENS CSA NON-IMAGE"
+        result = self.element.to_html()
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, expected)
 
-    def test_dict_key_to_series(self):
+    def test_dict_key_to_series_two_keywords(self):
         expected = "Value Representation"
         result = self.element.dict_key_to_series("value_representation")
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, expected)
+
+    def test_dict_key_to_series_one_keyword(self):
+        expected = "Tag"
+        result = self.element.dict_key_to_series("tag")
         self.assertIsInstance(result, str)
         self.assertEqual(result, expected)
 
@@ -87,27 +95,33 @@ class DataElementTestCase(TestCase):
         self.assertIsInstance(result, dict)
         self.assertDictEqual(result, expected)
 
-    def test_value(self):
+    def test_value_single(self):
         expected = TEST_DATA_ELEMENT_VALUE_LONG_STRING["value"]
         result = self.element.value
         self.assertEqual(result, expected)
+
+    def test_value_multiple(self):
         expected = [TEST_PERSON_NAME["value"], TEST_PERSON_NAME2["value"]]
         result = self.element2.value
+        self.assertEqual(result, expected)
         self.assertListEqual(result, expected)
 
-    def test_value_multiplicity(self):
+    def test_value_multiplicity_single(self):
         expected = 1
         result = self.element.value_multiplicity
         self.assertIsInstance(result, int)
         self.assertEqual(result, expected)
+
+    def test_value_multiplicity_multiple(self):
         expected = 2
         result = self.element2.value_multiplicity
+        self.assertIsInstance(result, int)
         self.assertEqual(result, expected)
 
     def test_admin_link(self):
-        # url = reverse("admin:django_dicom_dataelement_change", args=(self.element.id,))
-        # html = f'<a href="{url}">{self.element.id}</a>'
-        # expected = mark_safe(html)
-        result = self.element.admin_link()
-        # self.assertIsInstance(result, str)
-        # self.assertEqual(result, expected)
+        url = reverse("admin:django_dicom_dataelement_change", args=(self.element.id,))
+        html = f'<a href="{url}">{self.element.id}</a>'
+        expected = mark_safe(html)
+        result = self.element.admin_link
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, expected)

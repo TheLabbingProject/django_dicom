@@ -1,7 +1,9 @@
 from django.test import TestCase
-from tests.fixtures import TEST_PERSON_NAME
-from django_dicom.models.values.person_name import PersonName
+from tests.fixtures import TEST_PERSON_NAME  # , TEST_DATETIME
+from django_dicom.models.values import PersonName
 from django_dicom.utils.html import Html
+
+# from django_dicom.models import DateTime
 
 
 class PersonNameTestCase(TestCase):
@@ -31,7 +33,8 @@ class PersonNameTestCase(TestCase):
         """
         person_json = TEST_PERSON_NAME["value"]
         expected = f'{person_json["name_prefix"]} {person_json["given_name"]} {person_json["middle_name"]} {person_json["family_name"]} {person_json["name_suffix"]}'
-        self.assertEqual(str(self.person), expected)
+        result = str(self.person)
+        self.assertEqual(result, expected)
 
     def test_to_html(self):
         """
@@ -40,4 +43,45 @@ class PersonNameTestCase(TestCase):
 
         """
         expected = Html.json(TEST_PERSON_NAME["value"])
-        self.assertEqual(self.person.to_html(), expected)
+        result = self.person.to_html()
+        self.assertEqual(result, expected)
+
+
+# class DateTimeTestCase(TestCase):
+#     """
+#     Tests for the :class:`~django_dicom.models.datetime.DateTime` model.
+
+#     """
+
+#     @classmethod
+#     def setUpTestData(cls):
+#         DateTime.objects.create(**TEST_DATETIME)
+
+#     def setUp(self):
+#         """
+#         Adds the created instances to the tests' contexts.
+#         For more information see unittest's :meth:`~unittest.TestCase.setUp` method.
+
+#         """
+#         self.datetime = DateTime.objects.last()
+
+#     def test_string(self):
+#         """
+#         Tests that the instance's :meth:`~django_dicom.models.datetime.DateTime.__str__`
+#         method returns the required pattern.
+#         For more information see `Django's str method documentation`_.
+
+#         """
+#         expected = TEST_DATETIME["value"]
+#         result = str(self.datetime)
+#         self.assertEqual(result, expected)
+
+#     def test_to_html(self):
+#         """
+#         Tests that the instance's :meth:`~django_dicom.models.values.PersonName.to_html`
+#         method returns the required pattern.
+
+#         """
+#         expected = Html.json(TEST_DATETIME["value"])
+#         result = self.datetime.to_html()
+#         self.assertEqual(result, expected)

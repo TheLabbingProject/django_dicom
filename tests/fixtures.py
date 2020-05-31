@@ -146,3 +146,20 @@ TEST_PERSON_NAME2 = {
         "name_suffix": "A",
     },
 }
+
+now_time = datetime.now()
+TEST_DATETIME = {"value": now_time.strftime("%Y%m%d%H%M%S.%f&%Z%x"), "raw": now_time}
+
+TEST_DEFINITION_TO_SERIES = {
+    "Tag": ("7fe1", "0010"),
+    "Keyword": None,
+    "Value Representation": "LO",
+    "Description": "Private Creator",
+}
+
+TEST_DEFINITION2_TO_SERIES = {
+    "Tag": ("0010", "0010"),
+    "Keyword": "SomeName",
+    "Value Representation": "PN",
+    "Description": "A Test Name",
+}
