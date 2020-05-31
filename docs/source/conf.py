@@ -22,7 +22,7 @@ django.setup()
 # -- Project information -----------------------------------------------------
 
 project = "django_dicom"
-copyright = "2019, Zvi Baratz"
+copyright = "2020, Zvi Baratz"
 author = "Zvi Baratz"
 
 # The full version, including alpha/beta/rc tags
@@ -43,7 +43,20 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.coverage",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.autosectionlabel",
 ]
+
+EXLUDED_MEMBERS = (
+    "get_next_by_created",
+    "get_next_by_modified",
+    "get_previous_by_created",
+    "get_previous_by_modified",
+)
+autodoc_default_options = {"exclude-members": ", ".join(EXLUDED_MEMBERS)}
+
+# Allow safely referencing sections between documents.
+# See: https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html#confval-autosectionlabel_prefix_document
+autosectionlabel_prefix_document = True
 
 # Intersphinx
 intersphinx_mapping = {
