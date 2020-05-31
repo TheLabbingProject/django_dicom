@@ -7,7 +7,6 @@ Welcome to django_dicom's documentation!
 
    overview
    installation
-   quickstart
    user_guide/user_guide
    modules/reference
    resources
