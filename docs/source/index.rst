@@ -1,8 +1,3 @@
-.. django_dicom documentation master file, created by
-   sphinx-quickstart on Sat Apr 20 12:19:51 2019.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to django_dicom's documentation!
 ========================================
 
@@ -15,6 +10,7 @@ Welcome to django_dicom's documentation!
    quickstart
    user_guide/user_guide
    modules/reference
+   resources
 
 
 Indices and tables
