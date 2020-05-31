@@ -3,8 +3,8 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, SuspiciousFileOperation
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django_dicom.data_import.utils.progressbar import create_progressbar
 from django_dicom.models.managers.dicom_entity import DicomEntityManager
+from django_dicom.models.utils.progressbar import create_progressbar
 from io import BufferedReader
 from pathlib import Path
 
