@@ -6,6 +6,7 @@ General
 
     - Wikipedia_
     - `The official DICOM standard website`_
+    - NiBabel_'s `introduction to DICOM`_.
     - `DICOM is Easy`_ - wonderful blog dedicated to the DICOM file format and
       software programming for medical applications.
     - `DICOM Library`_ - free online medical images, signals or video files
@@ -16,6 +17,8 @@ General
 
 .. _Wikipedia: https://en.wikipedia.org/wiki/DICOM
 .. _The official DICOM standard website: https://www.dicomstandard.org/
+.. _NiBabel: https://nipy.org/nibabel/
+.. _introduction to DICOM: https://nipy.org/nibabel/dicom/dicom_intro.html
 .. _DICOM is Easy: http://dicomiseasy.blogspot.com/
 .. _DICOM Library: https://www.dicomlibrary.com/dicom/
 .. _introduction to the DICOM standard: https://www.dicomlibrary.com/dicom/
