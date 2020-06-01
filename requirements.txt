@@ -3,9 +3,12 @@ djangorestframework~=3.11
 django-environ~=0.4
 django-extensions~=2.2
 django-filter~=2.2
+django-model-utils==4.*
 numpy~=1.17
 pandas~=0.25
 psycopg2-binary~=2.8
 pydicom~=1.3
+pygments~=2.6
 tqdm~=4.40
 xlrd~=1.2
+git+https://github.com/ZviBaratz/dicom_parser.git@dev#egg=dicom_parser
