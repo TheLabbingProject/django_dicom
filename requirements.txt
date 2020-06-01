@@ -11,4 +11,4 @@ pydicom~=2.0
 pygments~=2.6
 tqdm~=4.40
 xlrd~=1.2
-git+https://github.com/ZviBaratz/dicom_parser.git@dev#egg=dicom_parser
+git+https://github.com/ZviBaratz/dicom_parser.git@master#egg=dicom_parser
