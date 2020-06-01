@@ -12,6 +12,7 @@ root directory and with your
 .. toctree::
     :maxdepth: 2
 
+    import_modes
     importing_data
     reading_header
     reading_data
