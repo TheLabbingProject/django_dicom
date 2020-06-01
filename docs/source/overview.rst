@@ -12,13 +12,13 @@ entities: :class:`~django_dicom.models.image.Image`, :class:`~django_dicom.model
 and `here <http://dicomiseasy.blogspot.com/2011/12/chapter-4-dicom-objects-in-chapter-3.html>`__ for more information)
 and provides utility methods to import data and easily maintain the DICOM entities and their relationship.
 Once data is imported, `Django's <https://www.fullstackpython.com/django-orm.html>`_
-`ORM <https://www.fullstackpython.com/object-relational-mappers-orms.html>`_ 
+`ORM <https://www.fullstackpython.com/object-relational-mappers-orms.html>`_
 provides us with powerful `querying <https://docs.djangoproject.com/en/2.1/topics/db/queries/>`_
 abilities.
 
 The purposed of this `reusable Django application <https://docs.djangoproject.com/en/2.2/intro/reusable-apps/>`_
 is to create a centralized solution for DICOM data management in the context of of academic
-research. It is being written as a local solution for `Tel Aviv University <https://english.tau.ac.il/>`_'s
+research. It is being built as a databasing solution for `Tel Aviv University <https://english.tau.ac.il/>`_'s
 `neuroimaging lab <http://neuroimaging.tau.ac.il/>`_.
 
 

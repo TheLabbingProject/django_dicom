@@ -51,13 +51,33 @@ class ImageManager(DicomEntityManager):
         dcm_path = kwargs.get("dcm")
         if dcm_path:
             return self.get_or_create_from_dcm(Path(dcm_path))
-        super().get_or_create(*args, **kwargs)
+        return super().get_or_create(*args, **kwargs)
 
-    def import_path(self, path: Path, progressbar: bool = True) -> tuple:
+    def report_import_path_results(self, path: Path, counter: dict) -> None:
+        n_created, n_existing = counter.get("created"), counter.get("existing")
+        if n_created or n_existing:
+            print(f"\nSuccessfully imported DICOM data from {path}!")
+            if n_created:
+                print(f'Created:\t{counter["created"]}')
+            if n_existing:
+                print(f'Existing:\t{counter["existing"]}')
+        else:
+            print("\nNo .dcm files found!")
+
+    def import_path(
+        self, path: Path, progressbar: bool = True, report: bool = True
+    ) -> dict:
         iterator = Path(path).rglob("*.dcm")
+        # Create a progressbar wrapped iterator using tqdm
         if progressbar:
             iterator = create_progressbar(iterator, unit="image")
-        return [
-            self.get_or_create_from_dcm(dcm_path, autoremove=True)
-            for dcm_path in iterator
-        ]
+        if report:
+            counter = {"created": 0, "existing": 0}
+        for dcm_path in iterator:
+            image, created = self.get_or_create_from_dcm(dcm_path, autoremove=True)
+            if report:
+                counter_key = "created" if created else "existing"
+                counter[counter_key] += 1
+        if report:
+            self.report_import_path_results(path, counter)
+        return counter
