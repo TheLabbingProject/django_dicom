@@ -95,3 +95,71 @@ TEST_PATIENT_FIELDS = {
     "family_name": "Baratz",
 }
 
+TEST_PERSON_NAME = {
+    "raw": "Aharony^Noam^Abraham^No^am",
+    "value": {
+        "family_name": "Aharony",
+        "given_name": "Noam",
+        "middle_name": "Abraham",
+        "name_prefix": "No",
+        "name_suffix": "am",
+    },
+}
+
+TEST_DATA_ELEMENT = {"header": None}
+
+TEST_DATA_ELEMENT_DEFINITION = {
+    "tag": ("7fe1", "0010"),
+    "keyword": None,
+    "value_representation": "LO",
+    "description": "Private Creator",
+}
+
+TEST_DATA_ELEMENT_VALUE_LONG_STRING = {
+    "raw": "SIEMENS CSA NON-IMAGE",
+    "value": "SIEMENS CSA NON-IMAGE",
+}
+
+TEST_DATA_ELEMENT_SERIES = {
+    "Tag": ("7fe1", "0010"),
+    "Keyword": None,
+    "Value Representation": "LO",
+    "Value": None,
+}
+
+TEST_DATA_ELEMENT2 = {"header": None}
+
+TEST_DATA_ELEMENT_DEFINITION2 = {
+    "tag": ("0010", "0010"),
+    "keyword": "SomeName",
+    "value_representation": "PN",
+    "description": "A Test Name",
+}
+
+TEST_PERSON_NAME2 = {
+    "raw": "BBB^AAA^CCC^A^A",
+    "value": {
+        "family_name": "BBB",
+        "given_name": "AAA",
+        "middle_name": "CCC",
+        "name_prefix": "A",
+        "name_suffix": "A",
+    },
+}
+
+now_time = datetime.now()
+TEST_DATETIME = {"value": now_time.strftime("%Y%m%d%H%M%S.%f&%Z%x"), "raw": now_time}
+
+TEST_DEFINITION_TO_SERIES = {
+    "Tag": ("7fe1", "0010"),
+    "Keyword": None,
+    "Value Representation": "LO",
+    "Description": "Private Creator",
+}
+
+TEST_DEFINITION2_TO_SERIES = {
+    "Tag": ("0010", "0010"),
+    "Keyword": "SomeName",
+    "Value Representation": "PN",
+    "Description": "A Test Name",
+}
