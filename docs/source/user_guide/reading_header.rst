@@ -73,7 +73,7 @@ These attributes associate the
 :class:`~django_dicom.models.data_element.DataElement` instance with reusable
 :class:`~django_dicom.models.data_element_definition.DataElementDefinition`
 and :class:`~django_dicom.models.values.data_element_value.DataElementValue` instances,
-theryby preventing data duplication simplifying queries.
+thereby preventing data duplication simplifying queries.
 
 To better understand the way header information is serialized in the database,
 let's query all the :class:`~django_dicom.models.series.Series` instances in
@@ -124,9 +124,28 @@ Two important things to note here:
       :class:`~django_dicom.models.data_element.DataElement` and its associated
       :class:`~django_dicom.models.values.data_element_value.DataElementValue`\s.
     * We used *__in* to query this `ManyToMany relationship`_ and retrieve data
-      elements for which any of their values (as DICOM data elements may have
-      multiple values, for more information see `value multiplicity`_) are
-      contained in our filtered list of values.
+      elements containing any of the desired values. This is necessary because
+      DICOM elements may have multiple values (for more information see
+      `value multiplicity`_).
+
+Now, if we would like to query all the images to which these data elements belong:
+
+.. code:: python
+
+    >>> image_ids = data_elements.values_list('header__image', flat=True)
+    >>> images = Image.objects.filter(id__in=image_ids)
+
+or the series:
+
+.. code:: python
+
+    >>> from django_dicom.models import Series
+    >>> series_ids = images.values_list('series', flat=True)
+    >>> series = Series.objects.filter(id__in=series_ids)
+    >>> series.count()
+    409
+    >>> series.first().description
+    'IR-DTI_30dir_3iso'
 
 .. _dicom_parser: https://github.com/ZviBaratz/dicom_parser/
 .. _ManyToMany relationship: https://docs.djangoproject.com/en/3.0/topics/db/examples/many_to_many/
