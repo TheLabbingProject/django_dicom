@@ -1,14 +1,13 @@
 from django.test import TestCase
-from django_dicom.models import Series, Patient, Study, Image, Header, DataElement
-from django_dicom.models.values import PersonName
+from django_dicom.models import Series, Patient, Study, Image  # , Header, DataElement
+
+# from django_dicom.models.values import PersonName
 from tests.fixtures import (
-    TEST_IMAGE_PATH,
     TEST_IMAGE_FIELDS,
     TEST_SERIES_FIELDS,
     TEST_STUDY_FIELDS,
     TEST_PATIENT_FIELDS,
 )
-from tests.utils import restore_path
 
 
 class PatientTestCase(TestCase):
@@ -30,11 +29,6 @@ class PatientTestCase(TestCase):
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
         Image.objects.create(**TEST_IMAGE_FIELDS)
-
-    @classmethod
-    def tearDownClass(cls):
-        restore_path(TEST_IMAGE_FIELDS, TEST_IMAGE_PATH)
-        super().tearDownClass()
 
     def setUp(self):
         """
@@ -225,13 +219,14 @@ class PatientTestCase(TestCase):
         # element = DataElement.objects.create(header=new_header, definition=definition)
         # element._values.add(value)
 
-        name_value = self.image.header.data_element_set.get(
-            definition__keyword="PatientName"
-        )._values.select_subclasses().first()
+        name_value = (
+            self.image.header.data_element_set.get(definition__keyword="PatientName")
+            ._values.select_subclasses()
+            .first()
+        )
         old_name = name_value.value
         name_value.value = new_names
         name_value.save()
-
 
         self.patient.update_patient_name(self.image.header)
         # self.patient.update_patient_name(new_header)
@@ -268,9 +263,8 @@ class PatientTestCase(TestCase):
         for key, value in values.items():
             try:
                 self.assertEqual(value, expected_values[key])
-            except:
+            except AssertionError:
                 if expected_values[key] is None:
                     self.assertEqual(value, "")
                 else:
                     self.fail(f"expected {expected_values[key]} but got {value}")
-        # self.assertDictEqual(values, expected_values)
