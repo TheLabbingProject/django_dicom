@@ -7,6 +7,7 @@ import dicom_parser
 import logging
 import numpy as np
 import warnings
+import shutil
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -107,7 +108,10 @@ class Image(DicomEntity):
         target = Path(settings.MEDIA_ROOT, target)
         target.parent.mkdir(parents=True, exist_ok=True)
         p = Path(self.dcm.path)
-        p.rename(target)
+        if settings.KEEP_ORIGINAL_DICOM:
+            shutil.copy(str(p), str(target))
+        else:
+            p.rename(target)
         self.dcm = str(target)
 
     @property

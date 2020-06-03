@@ -2,13 +2,11 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_dicom.models import Series, Patient, Study, Image
 from tests.fixtures import (
-    TEST_IMAGE_PATH,
     TEST_IMAGE_FIELDS,
     TEST_SERIES_FIELDS,
     TEST_STUDY_FIELDS,
     TEST_PATIENT_FIELDS,
 )
-from tests.utils import restore_path
 
 
 class SeriesTestCase(TestCase):
@@ -31,11 +29,6 @@ class SeriesTestCase(TestCase):
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
         Image.objects.create(**TEST_IMAGE_FIELDS)
-
-    @classmethod
-    def tearDownClass(cls):
-        restore_path(TEST_IMAGE_FIELDS, TEST_IMAGE_PATH)
-        super().tearDownClass()
 
     def setUp(self):
         """

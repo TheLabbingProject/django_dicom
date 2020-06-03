@@ -83,3 +83,6 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
 }
+
+KEEP_ORIGINAL_DICOM = True
+IMPORTED_PATH = os.path.join(MEDIA_ROOT, "MRI")

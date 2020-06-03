@@ -2,14 +2,13 @@ from rest_framework import status
 from django.test import TestCase
 from django.urls import reverse
 from .fixtures import (
-    TEST_IMAGE_PATH,
     TEST_IMAGE_FIELDS,
     TEST_SERIES_FIELDS,
     TEST_STUDY_FIELDS,
     TEST_PATIENT_FIELDS,
 )
 from django_dicom.models import Series, Study, Patient, Image
-from .utils import LoggedInTestCase, restore_path
+from .utils import LoggedInTestCase
 
 
 class LoggedOutImageViewTestCase(TestCase):
@@ -25,11 +24,6 @@ class LoggedOutImageViewTestCase(TestCase):
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
         Image.objects.create(**TEST_IMAGE_FIELDS)
-
-    @classmethod
-    def tearDownClass(cls):
-        restore_path(TEST_IMAGE_FIELDS, TEST_IMAGE_PATH)
-        super().tearDownClass()
 
     def setUp(self):
         self.test_instance = Image.objects.get(uid=TEST_IMAGE_FIELDS["uid"])
@@ -63,11 +57,6 @@ class LoggedInImageViewTestCase(LoggedInTestCase):
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
         Image.objects.create(**TEST_IMAGE_FIELDS)
-
-    @classmethod
-    def tearDownClass(cls):
-        restore_path(TEST_IMAGE_FIELDS, TEST_IMAGE_PATH)
-        super().tearDownClass()
 
     def setUp(self):
         self.test_instance = Image.objects.get(uid=TEST_IMAGE_FIELDS["uid"])

@@ -1,35 +1,20 @@
 import os
 import sys
-from pathlib import Path
-from tests.fixtures import (
-    TEST_SERIES_FIELDS,
-    TEST_DWI_SERIES_FIELDS,
-    TEST_PATIENT_FIELDS,
-)
-
 import django
+import shutil
 from django.conf import settings
 from django.test.utils import get_runner
+from django.core.exceptions import ImproperlyConfigured
 
 
 def clean_media():
-    media = (
-        Path(settings.MEDIA_ROOT)
-        / "MRI/DICOM"
-        / TEST_PATIENT_FIELDS["uid"]
-        / TEST_SERIES_FIELDS["uid"]
-    )
-    media_dwi = (
-        Path(settings.MEDIA_ROOT)
-        / "MRI/DICOM"
-        / TEST_PATIENT_FIELDS["uid"]
-        / TEST_DWI_SERIES_FIELDS["uid"]
-    )
-    media.rmdir()
-
-    while str(media_dwi) != settings.MEDIA_ROOT:
-        media_dwi.rmdir()
-        media_dwi = media_dwi.parent
+    media = settings.IMPORTED_PATH
+    if "tests" in media:
+        shutil.rmtree(media)
+    else:
+        raise ImproperlyConfigured(
+            "Deleting media directory outside of tests environment is forbidden."
+        )
 
 
 if __name__ == "__main__":

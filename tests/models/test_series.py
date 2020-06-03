@@ -1,5 +1,3 @@
-import numpy as np
-
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_dicom.models import Series, Patient, Study, Image
@@ -11,8 +9,6 @@ from dicom_parser.utils.code_strings import (
 )
 from pathlib import Path
 from tests.fixtures import (
-    TEST_IMAGE_PATH,
-    TEST_DWI_IMAGE_PATH,
     TEST_IMAGE_FIELDS,
     TEST_DWI_IMAGE_FIELDS,
     TEST_SERIES_FIELDS,
@@ -20,7 +16,7 @@ from tests.fixtures import (
     TEST_STUDY_FIELDS,
     TEST_PATIENT_FIELDS,
 )
-from tests.utils import restore_path, seperate_raw_name
+from tests.utils import seperate_raw_name
 from django.conf import settings
 
 
@@ -48,12 +44,6 @@ class SeriesTestCase(TestCase):
         )
         Image.objects.create(**TEST_IMAGE_FIELDS)
         Image.objects.create(**TEST_DWI_IMAGE_FIELDS)
-
-    @classmethod
-    def tearDownClass(cls):
-        restore_path(TEST_IMAGE_FIELDS, TEST_IMAGE_PATH)
-        restore_path(TEST_DWI_IMAGE_FIELDS, TEST_DWI_IMAGE_PATH)
-        super().tearDownClass()
 
     def setUp(self):
         """
@@ -892,7 +882,6 @@ class SeriesTestCase(TestCase):
         """
 
         # Test localizer series
-        # expected = Path(TEST_IMAGE_PATH).parent
         expected = (
             Path(settings.MEDIA_ROOT, "MRI/DICOM")
             / TEST_PATIENT_FIELDS["uid"]
@@ -901,7 +890,6 @@ class SeriesTestCase(TestCase):
         result = self.series.get_path()
         self.assertEqual(result, expected)
         # Test DWI series
-        # expected = Path(TEST_DWI_IMAGE_PATH).parent
         expected = (
             Path(settings.MEDIA_ROOT, "MRI/DICOM")
             / TEST_PATIENT_FIELDS["uid"]
