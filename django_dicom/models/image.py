@@ -87,7 +87,7 @@ class Image(DicomEntity):
 
     def save(self, *args, rename: bool = True, **kwargs):
         if self.dcm and not hasattr(self, "header"):
-            # Add the create Header instance to the passed kwargs
+            # Add the created Header instance to the passed kwargs
             # so that it may be used to update the new image instance's
             # fields in DicomEntity's `save()` execution.
             self.header = self.create_header_instance()
@@ -108,7 +108,7 @@ class Image(DicomEntity):
         target = Path(settings.MEDIA_ROOT, target)
         target.parent.mkdir(parents=True, exist_ok=True)
         p = Path(self.dcm.path)
-        if settings.KEEP_ORIGINAL_DICOM:
+        if getattr(settings, "KEEP_ORIGINAL_DICOM", False):
             shutil.copy(str(p), str(target))
         else:
             p.rename(target)

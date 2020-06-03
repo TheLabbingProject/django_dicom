@@ -3,6 +3,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, SuspiciousFileOperation
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.db import transaction
 from django_dicom.models.managers.dicom_entity import DicomEntityManager
 from django_dicom.models.utils.progressbar import create_progressbar
 from io import BufferedReader
@@ -74,7 +75,8 @@ class ImageManager(DicomEntityManager):
         if report:
             counter = {"created": 0, "existing": 0}
         for dcm_path in iterator:
-            image, created = self.get_or_create_from_dcm(dcm_path, autoremove=True)
+            with transaction.atomic():
+                image, created = self.get_or_create_from_dcm(dcm_path, autoremove=True)
             if report:
                 counter_key = "created" if created else "existing"
                 counter[counter_key] += 1

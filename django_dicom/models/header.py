@@ -42,7 +42,7 @@ class Header(TimeStampedModel):
 
     def get_entity_uid(self, entity: DicomEntity) -> str:
         keyword = entity.get_header_keyword("uid")
-        return self.get_value_by_keyword(keyword)
+        return self.instance.get(keyword)
 
     def get_or_create_entity(self, entity: DicomEntity) -> tuple:
         return entity.objects.from_header(self)
