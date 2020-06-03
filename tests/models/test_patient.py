@@ -1,7 +1,6 @@
 from django.test import TestCase
-from django_dicom.models import Series, Patient, Study, Image  # , Header, DataElement
+from django_dicom.models import Series, Patient, Study, Image
 
-# from django_dicom.models.values import PersonName
 from tests.fixtures import (
     TEST_IMAGE_FIELDS,
     TEST_SERIES_FIELDS,
