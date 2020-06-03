@@ -79,7 +79,7 @@ class Patient(DicomEntity):
             A DICOM image's :class:`~dicom_parser.header.Header` instance.
         """
 
-        patient_name = header.get_value_by_keyword("PatientName")
+        patient_name = header.instance.get("PatientName")
         for part, value in patient_name.items():
             setattr(self, part, value)
 

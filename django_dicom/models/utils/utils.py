@@ -4,6 +4,7 @@ from django.conf import settings
 from enum import Enum
 from pathlib import Path
 
+
 # Import Management
 ###################
 
@@ -16,8 +17,8 @@ class ImportMode(Enum):
 
 PIXEL_ARRAY_TAG = "7fe0", "0010"
 
-IMPORT_MODE_CONFIGURATION = {
-    ImportMode.MINIMAL: {"tags": [], "vrs": [ValueRepresentation.SQ]},
+IMPORT_CONFIGURATIONS = {
+    ImportMode.MINIMAL: None,
     ImportMode.NORMAL: {
         "tags": [
             # Siemens private tags
@@ -44,17 +45,24 @@ IMPORT_MODE_CONFIGURATION = {
 }
 
 
-def get_import_configuration() -> dict:
+def get_import_mode() -> ImportMode:
+    setting = getattr(settings, "DICOM_IMPORT_MODE", "NORMAL")
     try:
-        definition = settings.DICOM_IMPORT_MODE
-        import_mode = ImportMode[definition.upper()]
-    except AttributeError:
-        import_mode = ImportMode.NORMAL
-    return IMPORT_MODE_CONFIGURATION.get(import_mode, ImportMode.NORMAL)
+        return ImportMode[setting.upper()]
+    except KeyError:
+        return ImportMode.NORMAL
+
+
+def get_import_configuration() -> dict:
+    import_mode = get_import_mode()
+    default = IMPORT_CONFIGURATIONS[ImportMode.NORMAL]
+    return IMPORT_CONFIGURATIONS.get(import_mode, default)
 
 
 def check_element_inclusion(data_element) -> bool:
     import_configuration = get_import_configuration()
+    if import_configuration is None:
+        return False
     tags = import_configuration["tags"]
     vrs = import_configuration["vrs"]
     excluded_tag = any([data_element.tag in (tag, PIXEL_ARRAY_TAG) for tag in tags])

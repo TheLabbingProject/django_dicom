@@ -201,46 +201,14 @@ class PatientTestCase(TestCase):
 
         """
 
-        # definition = self.image.header.data_element_set.get(
-        #     definition__keyword="PatientName"
-        # ).definition
-        new_names = {
-            "family_name": "Baz",
-            "given_name": "Foo",
-            "middle_name": "Bar",
-            "name_prefix": "Sir",
-            "name_suffix": "the 3rd",
-        }
-        # value = PersonName.objects.create(
-        #     raw="Baz^Foo^Bar^Sir^the 3rd", value=new_names
-        # )
-        # new_header = Header.objects.create()
-        # element = DataElement.objects.create(header=new_header, definition=definition)
-        # element._values.add(value)
-
-        name_value = (
-            self.image.header.data_element_set.get(definition__keyword="PatientName")
-            ._values.select_subclasses()
-            .first()
-        )
-        old_name = name_value.value
-        name_value.value = new_names
-        name_value.save()
-
+        self.patient.given_name = None
+        self.patient.family_name = None
         self.patient.update_patient_name(self.image.header)
-        # self.patient.update_patient_name(new_header)
-        self.assertEqual(self.patient.family_name, "Baz")
-        self.assertEqual(self.patient.given_name, "Foo")
-        self.assertEqual(self.patient.middle_name, "Bar")
-        self.assertEqual(self.patient.name_prefix, "Sir")
-        self.assertEqual(self.patient.name_suffix, "the 3rd")
-
-        # PersonName.objects.last().delete()
-        # Header.objects.last().delete()
-        # DataElement.objects.last().delete()
-        name_value.value = old_name
-        name_value.save()
-        self.patient.update_patient_name(self.image.header)
+        self.assertEqual(self.patient.family_name, "Baratz")
+        self.assertEqual(self.patient.given_name, "Zvi")
+        self.assertEqual(self.patient.middle_name, "")
+        self.assertEqual(self.patient.name_prefix, "")
+        self.assertEqual(self.patient.name_suffix, "")
 
     def test_update_fields_from_header(self):
         """
