@@ -3,6 +3,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, SuspiciousFileOperation
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.db.models import QuerySet
 from django.db import transaction
 from django_dicom.models.managers.dicom_entity import DicomEntityManager
 from django_dicom.models.utils.progressbar import create_progressbar
@@ -67,8 +68,9 @@ class ImageManager(DicomEntityManager):
 
     def import_path(
         self, path: Path, progressbar: bool = True, report: bool = True
-    ) -> dict:
+    ) -> QuerySet:
         iterator = Path(path).rglob("*.dcm")
+        created_ids = []
         # Create a progressbar wrapped iterator using tqdm
         if progressbar:
             iterator = create_progressbar(iterator, unit="image")
@@ -80,6 +82,8 @@ class ImageManager(DicomEntityManager):
             if report:
                 counter_key = "created" if created else "existing"
                 counter[counter_key] += 1
+            if created:
+                created_ids.append(image.id)
         if report:
             self.report_import_path_results(path, counter)
-        return counter
+        return self.filter(id__in=created_ids)
