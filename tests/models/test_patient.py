@@ -135,7 +135,7 @@ class PatientTestCase(TestCase):
 
         """
 
-        for field_name in Patient.NAME_PARTS:
+        for field_name in Patient._NAME_PARTS:
             field = self.patient._meta.get_field(field_name)
             self.assertTrue(field.blank)
             self.assertTrue(field.null)
@@ -148,7 +148,7 @@ class PatientTestCase(TestCase):
         .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
         """
 
-        for field_name in Patient.NAME_PARTS:
+        for field_name in Patient._NAME_PARTS:
             field = self.patient._meta.get_field(field_name)
             self.assertEqual(field.max_length, 64)
 
