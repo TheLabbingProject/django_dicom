@@ -221,7 +221,7 @@ class ImageTestCase(TestCase):
         """
 
         field = self.image._meta.get_field("uid")
-        self.assertEqual(field.verbose_name, "Image UID")
+        self.assertEqual(field.verbose_name, "SOP Instance UID")
 
     # number
     def test_number_vebose_name(self):
@@ -231,7 +231,7 @@ class ImageTestCase(TestCase):
         """
 
         field = self.image._meta.get_field("number")
-        self.assertEqual(field.verbose_name, "Image Number")
+        self.assertEqual(field.verbose_name, "Instance Number")
 
     # Others
     def test_fields_blank_and_null_configuration(self):
