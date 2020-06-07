@@ -14,22 +14,35 @@ from django_dicom.models.validators import digits_and_dots_only
 
 class Study(DicomEntity):
     """
-    A model to represent DICOM_'s `study entity`_. Holds the corresponding
-    attributes as discovered in created :class:`django_dicom.Image` instances.
+    A model to represent a single instance of the Study_ entity.
 
-    .. _DICOM: https://www.dicomstandard.org/
-    .. _study entity: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
+    .. _Study: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
 
     """
 
+    #: `Study Instance UID
+    #: <https://dicom.innolitics.com/ciods/mr-image/general-study/0020000d>`_
+    #: value.
     uid = models.CharField(
         max_length=64,
         unique=True,
         validators=[digits_and_dots_only],
-        verbose_name="Study UID",
+        verbose_name="Study Instance UID",
     )
+
+    #: `Study Description
+    #: <https://dicom.innolitics.com/ciods/mr-image/general-study/00081030>`_
+    #: value.
     description = models.CharField(max_length=64, blank=True, null=True)
+
+    #: `Study Date
+    #: <https://dicom.innolitics.com/ciods/mr-image/general-study/00080020>`_
+    #: value.
     date = models.DateField(blank=True, null=True)
+
+    #: `Study Time
+    #: <https://dicom.innolitics.com/ciods/mr-image/general-study/00080030>`_
+    #: value.
     time = models.TimeField(blank=True, null=True)
 
     #: A dictionary of DICOM data element keywords to be used to populate
@@ -40,6 +53,7 @@ class Study(DicomEntity):
         "time": "StudyTime",
         "description": "StudyDescription",
     }
+
     logger = logging.getLogger("data.dicom.study")
 
     class Meta:

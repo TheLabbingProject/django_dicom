@@ -26,11 +26,12 @@ DICOM_ROOT = get_dicom_root()
 
 class Image(DicomEntity):
     """
-    A model to represent a single DICOM_ image. This model is normally
-    instantiated with the :attr:`~django_dicom.models.image.Image.dcm` field
-    set to some *.dcm* file from which the header information is read.
+    A model to represent a single instance of the Image_ entity.
+    This model is normally instantiated with the
+    :attr:`~django_dicom.models.image.Image.dcm` field set to some *.dcm* file
+    from which the header information is read.
 
-    .. _DICOM: https://www.dicomstandard.org/
+    .. _Image: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
 
     """
 
@@ -48,8 +49,9 @@ class Image(DicomEntity):
         "django_dicom.Header", on_delete=models.CASCADE, related_name="image"
     )
 
-    #: SOP Instance UID (see `here
-    #: <https://dicom.innolitics.com/ciods/mr-image/sop-common/00080018>`_)
+    #: `SOP Instance UID
+    #: <https://dicom.innolitics.com/ciods/mr-image/sop-common/00080018>`_
+    #: value.
     uid = models.CharField(
         max_length=64,
         unique=True,

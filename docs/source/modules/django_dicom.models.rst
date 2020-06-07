@@ -1,6 +1,14 @@
 django\_dicom.models package
 ============================
 
+Module contents
+---------------
+
+.. automodule:: django_dicom.models
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Subpackages
 -----------
 
@@ -122,15 +130,6 @@ django\_dicom.models.validators module
 --------------------------------------
 
 .. automodule:: django_dicom.models.validators
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: django_dicom.models
    :members:
    :undoc-members:
    :show-inheritance:
