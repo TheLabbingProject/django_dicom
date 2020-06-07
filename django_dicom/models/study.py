@@ -14,11 +14,9 @@ from django_dicom.models.validators import digits_and_dots_only
 
 class Study(DicomEntity):
     """
-    A model to represent DICOM_'s `study entity`_. Holds the corresponding
-    attributes as discovered in created :class:`django_dicom.Image` instances.
+    A model to represent a single instance of the Study_ entity.
 
-    .. _DICOM: https://www.dicomstandard.org/
-    .. _study entity: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
+    .. _Study: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
 
     """
 
