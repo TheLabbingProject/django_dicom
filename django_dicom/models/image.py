@@ -92,8 +92,8 @@ class Image(DicomEntity):
     # Cached :class:`~dicom_parser.image.Image` instance.
     _instance = None
 
-    # A dictionary of DICOM data element keywords to be used to populate
-    # a created instance's fields.
+    #: A dictionary of DICOM data element keywords to be used to populate
+    #: a created instance's fields.
     FIELD_TO_HEADER = {
         "uid": "SOPInstanceUID",
         "number": "InstanceNumber",

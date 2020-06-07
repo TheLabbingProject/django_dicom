@@ -32,6 +32,8 @@ class Patient(DicomEntity):
     name_prefix = models.CharField(max_length=64, blank=True, null=True)
     name_suffix = models.CharField(max_length=64, blank=True, null=True)
 
+    #: A dictionary of DICOM data element keywords to be used to populate
+    #: a created instance's fields.
     FIELD_TO_HEADER = {
         "uid": "PatientID",
         "date_of_birth": "PatientBirthDate",
@@ -51,9 +53,30 @@ class Patient(DicomEntity):
         indexes = [models.Index(fields=["uid"]), models.Index(fields=["date_of_birth"])]
 
     def __str__(self) -> str:
+        """
+        Returns the :obj:`str` representation of this instance.
+
+        Returns
+        -------
+        :obj:`str`
+            This instance's string representation
+        """
+
         return self.uid
 
     def get_absolute_url(self) -> str:
+        """
+        Returns the absolute URL for this instance.
+        For more information see the `Django documentation`_.
+
+        .. _Django documentation:
+           https://docs.djangoproject.com/en/3.0/ref/models/instances/#get-absolute-url
+
+        Returns
+        -------
+        :obj:`str`
+            This instance's absolute URL path
+        """
         return reverse("dicom:patient-detail", args=[str(self.id)])
 
     def get_full_name(self) -> str:

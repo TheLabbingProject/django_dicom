@@ -32,6 +32,8 @@ class Study(DicomEntity):
     date = models.DateField(blank=True, null=True)
     time = models.TimeField(blank=True, null=True)
 
+    #: A dictionary of DICOM data element keywords to be used to populate
+    #: a created instance's fields.
     FIELD_TO_HEADER = {
         "uid": "StudyInstanceUID",
         "date": "StudyDate",
@@ -45,7 +47,29 @@ class Study(DicomEntity):
         indexes = [models.Index(fields=["uid"])]
 
     def __str__(self) -> str:
+        """
+        Returns the :obj:`str` representation of this instance.
+
+        Returns
+        -------
+        :obj:`str`
+            This instance's string representation
+        """
+
         return self.uid
 
     def get_absolute_url(self):
+        """
+        Returns the absolute URL for this instance.
+        For more information see the `Django documentation`_.
+
+        .. _Django documentation:
+           https://docs.djangoproject.com/en/3.0/ref/models/instances/#get-absolute-url
+
+        Returns
+        -------
+        :obj:`str`
+            This instance's absolute URL path
+        """
+
         return reverse("dicom:study-detail", args=[str(self.id)])
