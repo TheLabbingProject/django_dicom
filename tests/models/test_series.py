@@ -145,7 +145,7 @@ class SeriesTestCase(TestCase):
         """
 
         field = self.series._meta.get_field("uid")
-        self.assertEqual(field.verbose_name, "Series UID")
+        self.assertEqual(field.verbose_name, "Series Instance UID")
 
     def test_uid_blank_and_null(self):
         """
