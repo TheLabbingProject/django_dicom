@@ -13,23 +13,46 @@ from django_dicom.models.dicom_entity import DicomEntity
 
 class Patient(DicomEntity):
     """
-    A model to represent DICOM_'s `patient entity`_. Holds the corresponding
-    attributes as discovered in created :class:`django_dicom.Image` instances.
+    A model to represent a single instance of the Patient_ entity.
 
-    .. _DICOM: https://www.dicomstandard.org/
-    .. _patient entity: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
+    .. _Patient: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
 
     """
 
+    #: `Patient ID
+    #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100020>`_
+    #: value.
     uid = models.CharField(max_length=64, unique=True, verbose_name="Patient UID")
+
+    #: `Patient Birth Date
+    #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100030>`_
+    #: value.
     date_of_birth = models.DateField(blank=True, null=True)
+
+    #: `Patient's Sex
+    #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100040>`_
+    #: value.
     sex = models.CharField(max_length=1, choices=Sex.choices(), blank=True, null=True)
 
-    # Name parts as they are called in DICOM headers
+    #: `Patient's Name
+    #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100010>`_
+    #: value.
     given_name = models.CharField(max_length=64, blank=True, null=True)
+    #: `Patient's Name
+    #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100010>`_
+    #: value.
     family_name = models.CharField(max_length=64, blank=True, null=True)
+    #: `Patient's Name
+    #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100010>`_
+    #: value.
     middle_name = models.CharField(max_length=64, blank=True, null=True)
+    #: `Patient's Name
+    #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100010>`_
+    #: value.
     name_prefix = models.CharField(max_length=64, blank=True, null=True)
+    #: `Patient's Name
+    #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100010>`_
+    #: value.
     name_suffix = models.CharField(max_length=64, blank=True, null=True)
 
     #: A dictionary of DICOM data element keywords to be used to populate
@@ -39,7 +62,9 @@ class Patient(DicomEntity):
         "date_of_birth": "PatientBirthDate",
         "sex": "PatientSex",
     }
-    NAME_PARTS = [
+
+    # A list of the different name parts that make a Patient Name data element
+    _NAME_PARTS = [
         "given_name",
         "family_name",
         "middle_name",
@@ -85,7 +110,7 @@ class Patient(DicomEntity):
 
         Returns
         -------
-        str
+        :obj:`str`
             Patient's first and last names.
         """
 
@@ -93,8 +118,8 @@ class Patient(DicomEntity):
 
     def update_patient_name(self, header) -> None:
         """
-        Parses the patient's name from the DICOM header and updates the instance's
-        fields.
+        Parses the patient's name from the DICOM header and updates the
+        instance's fields.
 
         Parameters
         ----------
@@ -108,22 +133,24 @@ class Patient(DicomEntity):
 
     def update_fields_from_header(self, header, exclude: list = None) -> None:
         """
-        Override :class:`django_dicom.DicomEntity`'s :meth:`django_dicom.DicomEntity.update_fields_from_header`
-        in order to handle setting the name parts seperately.
+        Overrides
+        :meth:`django_dicom.model.dicom_entity.DicomEntity.update_fields_from_header`
+        to handle setting the name parts.
 
         Parameters
         ----------
         header : :class:`~dicom_parser.header.Header`
             DICOM header information.
-        exclude : list, optional
-            Field names to exclude (the default is [], which will not exclude any header fields).
+        exclude : :obj:`list`, optional
+            Field names to exclude (the default is [], which will not exclude
+            any header fields).
         """
 
         # Exclude PatientName fields
         if isinstance(exclude, list):
-            exclude += self.NAME_PARTS
+            exclude += self._NAME_PARTS
         else:
-            exclude = self.NAME_PARTS
+            exclude = self._NAME_PARTS
         super().update_fields_from_header(header, exclude=exclude)
         # Handle PatientName fields
         self.update_patient_name(header)
