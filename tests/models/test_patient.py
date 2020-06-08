@@ -235,3 +235,33 @@ class PatientTestCase(TestCase):
                     self.assertEqual(value, "")
                 else:
                     self.fail(f"expected {expected_values[key]} but got {value}")
+
+    def test_get_admin_link(self):
+        """
+        Tests that the
+        :meth:`~django_dicom.models.dicom_entity.DicomEntity.get_admin_link`
+        method returns the expected value.
+        """
+
+        namespace = "/admin/django_dicom/patient"
+        url = f"{namespace}/{self.patient.id}/change/"
+        expected = f'<a href="{url}">{self.patient.id}</a>'
+        result = self.patient.get_admin_link()
+        self.assertEqual(result, expected)
+
+    ##############
+    # Properties #
+    ##############
+
+    def test_admin_link(self):
+        """
+        Tests that the
+        :attr:`~django_dicom.models.dicom_entity.DicomEntity.admin_link`
+        property returns the expected value.
+        """
+
+        namespace = "/admin/django_dicom/patient"
+        url = f"{namespace}/{self.patient.id}/change/"
+        expected = f'<a href="{url}">{self.patient.id}</a>'
+        result = self.patient.admin_link
+        self.assertEqual(result, expected)

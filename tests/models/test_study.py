@@ -212,10 +212,10 @@ class SeriesTestCase(TestCase):
 
     def test_update_fields_from_header(self):
         """
-        Tests that :meth:`~django_dicom.models.dicom_entity.DicomEntity.update_fields_from_header`
-        method returns the expected values. This test relies on the created instance's
-        fields containing the expected values beforehand.
-
+        Tests that the
+        :meth:`~django_dicom.models.dicom_entity.DicomEntity.update_fields_from_header`
+        method returns the expected values. This test relies on the created
+        instance's fields containing the expected values beforehand.
         """
 
         header_fields = self.study.get_header_fields()
@@ -228,3 +228,33 @@ class SeriesTestCase(TestCase):
             field.name: getattr(self.study, field.name) for field in header_fields
         }
         self.assertDictEqual(values, expected_values)
+
+    def test_get_admin_link(self):
+        """
+        Tests that the
+        :meth:`~django_dicom.models.dicom_entity.DicomEntity.get_admin_link`
+        method returns the expected value.
+        """
+
+        namespace = "/admin/django_dicom/study"
+        url = f"{namespace}/{self.study.id}/change/"
+        expected = f'<a href="{url}">{self.study.id}</a>'
+        result = self.study.get_admin_link()
+        self.assertEqual(result, expected)
+
+    ##############
+    # Properties #
+    ##############
+
+    def test_admin_link(self):
+        """
+        Tests that the
+        :attr:`~django_dicom.models.dicom_entity.DicomEntity.admin_link`
+        property returns the expected value.
+        """
+
+        namespace = "/admin/django_dicom/study"
+        url = f"{namespace}/{self.study.id}/change/"
+        expected = f'<a href="{url}">{self.study.id}</a>'
+        result = self.study.admin_link
+        self.assertEqual(result, expected)

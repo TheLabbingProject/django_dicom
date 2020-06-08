@@ -307,3 +307,33 @@ class ImageTestCase(TestCase):
         """
 
         self.assertIsInstance(self.image.data, np.ndarray)
+
+    def test_get_admin_link(self):
+        """
+        Tests that the
+        :meth:`~django_dicom.models.dicom_entity.DicomEntity.get_admin_link`
+        method returns the expected value.
+        """
+
+        namespace = "/admin/django_dicom/image"
+        url = f"{namespace}/{self.image.id}/change/"
+        expected = f'<a href="{url}">{self.image.id}</a>'
+        result = self.image.get_admin_link()
+        self.assertEqual(result, expected)
+
+    ##############
+    # Properties #
+    ##############
+
+    def test_admin_link(self):
+        """
+        Tests that the
+        :attr:`~django_dicom.models.dicom_entity.DicomEntity.admin_link`
+        property returns the expected value.
+        """
+
+        namespace = "/admin/django_dicom/image"
+        url = f"{namespace}/{self.image.id}/change/"
+        expected = f'<a href="{url}">{self.image.id}</a>'
+        result = self.image.admin_link
+        self.assertEqual(result, expected)

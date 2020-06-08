@@ -897,3 +897,33 @@ class SeriesTestCase(TestCase):
         )
         result = self.dwi_series.get_path()
         self.assertEqual(result, expected)
+
+    def test_get_admin_link(self):
+        """
+        Tests that the
+        :meth:`~django_dicom.models.dicom_entity.DicomEntity.get_admin_link`
+        method returns the expected value.
+        """
+
+        namespace = "/admin/django_dicom/series"
+        url = f"{namespace}/{self.series.id}/change/"
+        expected = f'<a href="{url}">{self.series.id}</a>'
+        result = self.series.get_admin_link()
+        self.assertEqual(result, expected)
+
+    ##############
+    # Properties #
+    ##############
+
+    def test_admin_link(self):
+        """
+        Tests that the
+        :attr:`~django_dicom.models.dicom_entity.DicomEntity.admin_link`
+        property returns the expected value.
+        """
+
+        namespace = "/admin/django_dicom/series"
+        url = f"{namespace}/{self.series.id}/change/"
+        expected = f'<a href="{url}">{self.series.id}</a>'
+        result = self.series.admin_link
+        self.assertEqual(result, expected)
