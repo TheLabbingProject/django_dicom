@@ -1,7 +1,7 @@
 from django.db import models
 
 from django.core.exceptions import ObjectDoesNotExist
-from django_dicom.exceptions import ImportError
+from django_dicom.exceptions import DicomImportError
 from django_dicom.models.data_element_definition import DataElementDefinition
 from django_dicom.models.values.data_element_value import DataElementValue
 from dicom_parser.data_element import DataElement as DicomDataElement
@@ -24,6 +24,6 @@ class DataElementManager(models.Manager):
             try:
                 return self.create_from_dicom_parser(header, definition, data_element)
             except TypeError as e:
-                raise ImportError(
+                raise DicomImportError(
                     f"Failed to create DataElement instance for:\n{data_element}\n{e}"
                 )

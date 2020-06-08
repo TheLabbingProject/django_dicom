@@ -1,7 +1,10 @@
 """
-Manages `DICOM <https://en.wikipedia.org/wiki/DICOM>`__ files by creating
-`Django models <https://docs.djangoproject.com/en/2.2/topics/db/models/>`__ to
-represent the various `DICOM <https://en.wikipedia.org/wiki/DICOM>`__ entities.
+This application manages DICOM_ files by defining `Django models`_ that
+represent the various DICOM entities.
+
+.. _DICOM: https://www.dicomstandard.org/
+.. _Django models:
+   https://docs.djangoproject.com/en/3.0/topics/db/models/
 """
 
 default_app_config = "django_dicom.apps.DjangoDicomConfig"

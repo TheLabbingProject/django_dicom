@@ -1,12 +1,28 @@
+"""
+Definition of the :class:`FilterSet` sub-class that will be assigned to the
+:class:`~django_dicom.views.image.ImageViewSet`\'s
+:attr:`~django_dicom.views.image.ImageViewSet.filter_class` attribute value.
+"""
+
 from django_filters import rest_framework as filters
 from django_dicom.models.image import Image
 
 
 class ImageFilter(filters.FilterSet):
     """
-    Provides useful filtering options for the :class:`~django_dicom.models.image.Image`
-    class.
-    
+    Provides filtering functionality for the
+    :class:`~django_dicom.views.image.ImageViewSet`.
+
+    Available filters are:
+
+        * *id*: Primary key
+        * *series_uid*: Series instance UID (contains)
+        * *series_description*: Series description (contains)
+        * *number*: Series number (exact)
+        * *created_after_date*: Create after date
+        * *created_before_date*: Create before date
+        * *created_after_time*: Create after time
+        * *created_before_time*: Create before time
     """
 
     series_uid = filters.CharFilter(

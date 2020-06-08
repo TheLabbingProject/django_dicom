@@ -1,5 +1,13 @@
-django\_dicom.exceptions package
-================================
+Exceptions
+==========
+
+Module contents
+---------------
+
+.. automodule:: django_dicom.exceptions
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -7,16 +15,7 @@ Submodules
 django\_dicom.exceptions.import\_error module
 ---------------------------------------------
 
-.. automodule:: django_dicom.exceptions.import_error
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: django_dicom.exceptions
+.. automodule:: django_dicom.exceptions.dicom_import_error
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,5 +1,5 @@
-django\_dicom.utils package
-===========================
+Utils
+=====
 
 Module contents
 ---------------

@@ -15,7 +15,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    django_dicom.exceptions
    django_dicom.filters

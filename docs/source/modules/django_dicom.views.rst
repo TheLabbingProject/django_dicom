@@ -1,5 +1,13 @@
-django\_dicom.views package
-===========================
+Views
+=====
+
+Module contents
+---------------
+
+.. automodule:: django_dicom.views
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -48,15 +56,6 @@ django\_dicom.views.study module
 --------------------------------
 
 .. automodule:: django_dicom.views.study
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: django_dicom.views
    :members:
    :undoc-members:
    :show-inheritance:

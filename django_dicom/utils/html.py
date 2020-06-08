@@ -15,6 +15,7 @@ ADMIN_VIEW_NAMES = {
     "Image": "admin:django_dicom_image_change",
     "Series": "admin:django_dicom_series_change",
     "Patient": "admin:django_dicom_patient_change",
+    "Study": "admin:django_dicom_study_change",
 }
 
 

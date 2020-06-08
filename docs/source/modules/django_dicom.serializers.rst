@@ -1,5 +1,13 @@
-django\_dicom.serializers package
-=================================
+Serializers
+===========
+
+Module contents
+---------------
+
+.. automodule:: django_dicom.serializers
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -32,15 +40,6 @@ django\_dicom.serializers.study\_serializer module
 --------------------------------------------------
 
 .. automodule:: django_dicom.serializers.study_serializer
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: django_dicom.serializers
    :members:
    :undoc-members:
    :show-inheritance:
