@@ -1,6 +1,6 @@
 """
 Definition of the :class:`FilterSet` sub-class that will be assigned to the
-:class:`~django_dicom.views.patient.PatientViewSet`\s
+:class:`~django_dicom.views.patient.PatientViewSet`\'s
 :attr:`~django_dicom.views.patient.PatientViewSet.filter_class` attribute value.
 """
 
@@ -14,7 +14,7 @@ from django_filters import rest_framework as filters
 class PatientFilter(filters.FilterSet):
     """
     Provides filtering functionality for the
-    :class:`~django_dicom.views.image.ImageViewSet`.
+    :class:`~django_dicom.views.patient.PatientViewSet`.
 
     Available filters are:
 
