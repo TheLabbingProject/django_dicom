@@ -1,1 +1,3 @@
-from django_dicom.exceptions.import_error import ImportError
+
+
+from django_dicom.exceptions.dicom_import_error import DicomImportError
