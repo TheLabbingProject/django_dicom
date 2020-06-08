@@ -1,7 +1,12 @@
 """
-Provides filter classes for the REST API endpoints (`more information <https://www.django-rest-framework.org/api-guide/filtering/#generic-filtering>`_).
+Provides filter classes for the `REST API`_ endpoints (for more information see
+the `DRF docs`__ and `django-filter`_\'s `integration with DRF`_ docs).
 
-
+__ https://www.django-rest-framework.org/api-guide/filtering/#generic-filtering
+.. _django-filter: https://github.com/carltongibson/django-filter
+.. _integration with DRF:
+   https://django-filter.readthedocs.io/en/stable/guide/rest_framework.html
+.. _REST API: https://en.wikipedia.org/wiki/Representational_state_transfer
 """
 
 
