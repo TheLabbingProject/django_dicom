@@ -1,12 +1,28 @@
+"""
+Definition of the :class:`FilterSet` sub-class that will be assigned to the
+:class:`~django_dicom.views.study.StudyViewSet`\'s
+:attr:`~django_dicom.views.study.StudyViewSet.filter_class` attribute value.
+"""
+
+
 from django_filters import rest_framework as filters
 from django_dicom.models.study import Study
 
 
 class StudyFilter(filters.FilterSet):
     """
-    Provides useful filtering options for the :class:`~django_dicom.models.study.Study`
-    class.
-    
+    Provides filtering functionality for the
+    :class:`~django_dicom.views.study.StudyViewSet`.
+
+    Available filters are:
+
+        * *id*: Primary key
+        * *uid*: Study instance UID
+        * *description*: Study description (contains, icontains, or exact)
+        * *created_after_date*: Create after date
+        * *created_before_date*: Create before date
+        * *created_after_time*: Create after time
+        * *created_before_time*: Create before time
     """
 
     description = filters.LookupChoiceFilter(

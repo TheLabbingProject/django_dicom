@@ -1,5 +1,5 @@
-django\_dicom.exceptions package
-================================
+Exceptions
+==========
 
 Module contents
 ---------------

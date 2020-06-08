@@ -1,5 +1,5 @@
-django\_dicom.models package
-============================
+Models
+======
 
 Module contents
 ---------------

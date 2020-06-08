@@ -1,5 +1,5 @@
-django\_dicom.filters package
-=============================
+Filters
+=======
 
 Module contents
 ---------------
