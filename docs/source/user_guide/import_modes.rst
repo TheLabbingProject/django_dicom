@@ -23,7 +23,7 @@ In order to change the import mode, in your `project settings`_ add:
 
 .. code-block:: python
 
-    DICOM_IMPORT_MODE = "miniaml" # or "full"
+    DICOM_IMPORT_MODE = "minimal" # or "full"
 
 
 .. _project settings: https://docs.djangoproject.com/en/3.0/ref/settings/
