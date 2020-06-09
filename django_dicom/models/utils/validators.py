@@ -13,4 +13,3 @@ def validate_file_extension(value):
         raise ValidationError(
             f"Invalid file: {value.name}! Only {ext} files are supported."
         )
-

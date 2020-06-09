@@ -6,13 +6,13 @@ Tests for custom fields.
 from django.db.models import CharField
 from django.forms import MultipleChoiceField
 from django.test import TestCase
-from django_dicom.models.fields import ChoiceArrayField
+from django_dicom.models.utils.fields import ChoiceArrayField
 
 
 class ChoiceArrayFieldTestCase(TestCase):
     """
     Tests for the :class:`~django_dicom.models.fields.ChoiceArrayField` model.
-    
+
     """
 
     # Some choices to test with:
@@ -25,7 +25,7 @@ class ChoiceArrayFieldTestCase(TestCase):
         Adds a :class:`~django_dicom.models.fields.ChoiceArrayField` instance to
         the tests' contexts.
         For more information see unittest's :meth:`~unittest.TestCase.setUp` method.
-        
+
         """
 
         self.field = ChoiceArrayField(
@@ -36,7 +36,7 @@ class ChoiceArrayFieldTestCase(TestCase):
         """
         Tests that :meth:`~django.db.models.Field.formfield` method returns the
         expected value.
-        
+
         """
 
         choices = self.field.base_field.choices

@@ -19,9 +19,8 @@ from dicom_parser.utils.value_representation import ValueRepresentation
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
-from django_dicom.models import logs
 from django_dicom.models.managers.dicom_entity import DicomEntityManager
-from django_dicom.models.utils import snake_case_to_camel_case
+from django_dicom.models.utils import logs, snake_case_to_camel_case
 from django_dicom.utils.html import Html
 
 

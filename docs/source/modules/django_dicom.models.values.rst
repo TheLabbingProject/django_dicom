@@ -52,6 +52,13 @@ django\_dicom.models.values.date module
    :undoc-members:
    :show-inheritance:
 
+django\_dicom.models.values.datetime module
+-------------------------------------------
+
+.. automodule:: django_dicom.models.values.datetime
+   :members:
+   :show-inheritance:
+
 django\_dicom.models.values.decimal\_string module
 --------------------------------------------------
 

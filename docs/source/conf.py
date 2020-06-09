@@ -51,6 +51,8 @@ EXLUDED_MEMBERS = (
     "get_next_by_modified",
     "get_previous_by_created",
     "get_previous_by_modified",
+    "DoesNotExist",
+    "MultipleObjectsReturned",
 )
 autodoc_default_options = {"exclude-members": ", ".join(EXLUDED_MEMBERS)}
 
