@@ -46,15 +46,15 @@ class DataElementTestCase(TestCase):
         self.assertIsInstance(result, str)
         self.assertEqual(result, expected)
 
-    def test_dict_key_to_series_two_keywords(self):
+    def test__normalize_dict_key_two_keywords(self):
         expected = "Value Representation"
-        result = self.definition.dict_key_to_series("value_representation")
+        result = self.definition._normalize_dict_key("value_representation")
         self.assertIsInstance(result, str)
         self.assertEqual(result, expected)
 
-    def test_dict_key_to_series_one_keyword(self):
+    def test__normalize_dict_key_one_keyword(self):
         expected = "Tag"
-        result = self.definition.dict_key_to_series("tag")
+        result = self.definition._normalize_dict_key("tag")
         self.assertIsInstance(result, str)
         self.assertEqual(result, expected)
 

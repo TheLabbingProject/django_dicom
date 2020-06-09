@@ -1,5 +1,5 @@
 """
-Definition of the :class:`FilterSet` sub-class that will be assigned to the
+Definition of the :class:`FilterSet` subclass that will be assigned to the
 :class:`~django_dicom.views.patient.PatientViewSet`\'s
 :attr:`~django_dicom.views.patient.PatientViewSet.filter_class` attribute value.
 """

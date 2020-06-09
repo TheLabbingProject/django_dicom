@@ -36,12 +36,12 @@ class DataElementDefinition(models.Model):
             "description": self.description,
         }
 
-    def dict_key_to_series(self, key: str) -> str:
+    def _normalize_dict_key(self, key: str) -> str:
         return key.replace("_", " ").title() if len(key) > 2 else key.upper()
 
     def to_series(self) -> pd.Series:
         d = self.to_dict()
-        d = {self.dict_key_to_series(key): value for key, value in d.items()}
+        d = {self._normalize_dict_key(key): value for key, value in d.items()}
         return pd.Series(d)
 
     @property

@@ -18,7 +18,7 @@ from pathlib import Path
 
 class ImageManager(DicomEntityManager):
     """
-    A :class:`~django.db.models.Manager` sub-class to manage the
+    A :class:`~django.db.models.Manager` subclass to manage the
     :class:`~django_dicom.models.image.Image` model.
     """
 

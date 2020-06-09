@@ -1,5 +1,5 @@
 """
-Definition of the :class:`FilterSet` sub-class that will be assigned to the
+Definition of the :class:`FilterSet` subclass that will be assigned to the
 :class:`~django_dicom.views.image.ImageViewSet`\'s
 :attr:`~django_dicom.views.image.ImageViewSet.filter_class` attribute value.
 """

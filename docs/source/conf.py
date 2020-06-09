@@ -53,8 +53,15 @@ EXLUDED_MEMBERS = (
     "get_previous_by_modified",
     "DoesNotExist",
     "MultipleObjectsReturned",
+    "id",
+    "definition_id",
+    "header_id",
 )
-autodoc_default_options = {"exclude-members": ", ".join(EXLUDED_MEMBERS)}
+autodoc_default_options = {
+    "exclude-members": ", ".join(EXLUDED_MEMBERS),
+    "undoc-members": False,
+    "member-order": "groupwise",
+}
 
 # Allow safely referencing sections between documents.
 # See: https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html#confval-autosectionlabel_prefix_document
