@@ -17,8 +17,11 @@ from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.header import Header
 from django_dicom.models.managers.image import ImageManager
 from django_dicom.models.series import Series
-from django_dicom.models.validators import digits_and_dots_only, validate_file_extension
 from django_dicom.models.utils import get_dicom_root
+from django_dicom.models.utils.validators import (
+    digits_and_dots_only,
+    validate_file_extension,
+)
 from pathlib import Path
 
 DICOM_ROOT = get_dicom_root()

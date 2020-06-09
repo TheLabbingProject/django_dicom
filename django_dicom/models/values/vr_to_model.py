@@ -8,6 +8,7 @@ VR_TO_MODEL = {
     ValueRepresentation.AS: "AgeString",
     ValueRepresentation.CS: "CodeString",
     ValueRepresentation.DA: "Date",
+    ValueRepresentation.DT: "DateTime",
     ValueRepresentation.DS: "DecimalString",
     ValueRepresentation.FD: "FloatingPointDouble",
     ValueRepresentation.FL: "FloatingPointSingle",

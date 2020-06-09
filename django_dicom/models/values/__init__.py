@@ -3,6 +3,7 @@ from django_dicom.models.values.application_entity import ApplicationEntity
 from django_dicom.models.values.code_string import CodeString
 from django_dicom.models.values.csa_header import CsaHeader
 from django_dicom.models.values.date import Date
+from django_dicom.models.values.datetime import DateTime
 from django_dicom.models.values.decimal_string import DecimalString
 from django_dicom.models.values.floating_point_double import FloatingPointDouble
 from django_dicom.models.values.floating_point_single import FloatingPointSingle

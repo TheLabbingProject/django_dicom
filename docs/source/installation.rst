@@ -38,7 +38,7 @@ Once installed:
         tutorial`_.
 
     * Start the development server and visit http://127.0.0.1:8000/admin/ or
-    http://127.0.0.1:8000/dicom/.
+      http://127.0.0.1:8000/dicom/.
 
 .. _INSTALLED_APPS:
    https://docs.djangoproject.com/en/3.0/ref/settings/#installed-apps
