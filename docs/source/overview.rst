@@ -3,30 +3,31 @@ Overview
 
 `django_dicom` is a reusable Django_ application built to maintain a database
 of DICOM_ data. It was created to support the pylabber_ project, but does not
-depend on it. *django_dicom* creates :class:`~django.db.models.Model`
-sub-classes that represent the various DICOM entities (see `the DICOM standard
-specification`_ and `this blog post`_ for more information) and provides
-utility methods to import data and easily maintain the DICOM entities and their
-relationship. Once data is imported, `Django's
-<https://www.fullstackpython.com/django-orm.html>`_ ORM_ provides us with
-powerful querying abilities.
+depend on it.
+
+DICOM header information is represented using :class:`~django.db.models.Model`
+sub-classes that represent the various entities it may contain (see `the DICOM
+standard specification`_ and `this blog post`_ for more information) and
+provides utility methods to import data and easily maintain the DICOM entities
+and their relationship.
 
 .. image:: images/models.png
     :align: center
-    :alt: Image could not be retrieved!
+    :alt: django_dicom models diagram
 
-The purposed of this `reusable Django application
-<https://docs.djangoproject.com/en/2.2/intro/reusable-apps/>`_ is to create a
-centralized solution for DICOM data management in the context of of academic
-research. It is being built as a databasing solution for `Tel Aviv University`_
-\'s `neuroimaging lab`_.
+The fundamental entities (colored in blue) will be created automatically
+whenever data is :ref:`imported to the database
+<user_guide/importing_data:Importing Data>` by reading the required header
+information using dicom_parser_.
 
+The :ref:`import mode <user_guide/import_modes:Import Modes>` configuration
+will determine which data elements will be serialized to the database under
+that :class:`~django_dicom.models.header.Header`.
+
+.. _dicom_parser: https://github.com/ZviBaratz/dicom_parser/
 .. _DICOM: https://en.wikipedia.org/wiki/DICOM
 .. _Django: https://www.djangoproject.com
-.. _neuroimaging lab: http://neuroimaging.tau.ac.il
-.. _ORM: https://www.fullstackpython.com/object-relational-mappers-orms.html
 .. _pylabber: https://github.com/TheLabbingProject/pylabber
-.. _Tel Aviv University: https://english.tau.ac.il/
 .. _the DICOM standard specification:
    http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
 .. _this blog post:
