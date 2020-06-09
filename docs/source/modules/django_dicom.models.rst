@@ -22,14 +22,6 @@ Subpackages
 Submodules
 ----------
 
-django\_dicom.models.choice\_enum module
-----------------------------------------
-
-.. automodule:: django_dicom.models.choice_enum
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 django\_dicom.models.data\_element module
 -----------------------------------------
 
