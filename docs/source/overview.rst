@@ -6,7 +6,7 @@ of DICOM_ data. It was created to support the pylabber_ project, but does not
 depend on it.
 
 DICOM header information is represented using :class:`~django.db.models.Model`
-sub-classes that represent the various entities it may contain (see `the DICOM
+subclasses that represent the various entities it may contain (see `the DICOM
 standard specification`_ and `this blog post`_ for more information) and
 provides utility methods to import data and easily maintain the DICOM entities
 and their relationship.

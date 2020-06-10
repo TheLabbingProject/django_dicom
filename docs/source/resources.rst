@@ -4,8 +4,8 @@ Resources
 General
 -------
 
-    - Wikipedia_
-    - `The official DICOM standard website`_
+    - Wikipedia_.
+    - `The official DICOM standard website`_.
     - NiBabel_'s `introduction to DICOM`_.
     - `DICOM is Easy`_ - wonderful blog dedicated to the DICOM file format and
       software programming for medical applications.
@@ -34,7 +34,7 @@ Other
       in the DICOM format (PDF_).
     - `Siemens mosaic format`_ - Excellent NiBabel article.
     - Information on GE private tags can be found in the `Discovery VCT DICOM
-      Conformance Statement`_ as well as in the `GE MR DICOM Conformance Statement`_
+      Conformance Statement`_ as well as in the `GE MR DICOM Conformance Statement`_.
     - `NA-MIC Wiki page on DICOM for DWI and DTI`_ - vendor-specific information about DICOM
       and DWI/DTI data encoding.
 

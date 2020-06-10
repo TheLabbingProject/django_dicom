@@ -1,5 +1,5 @@
 """
-Definition of the :class:`FilterSet` sub-class that will be assigned to the
+Definition of the :class:`FilterSet` subclass that will be assigned to the
 :class:`~django_dicom.views.patient.PatientViewSet`\'s
 :attr:`~django_dicom.views.patient.PatientViewSet.filter_class` attribute value.
 """
@@ -98,9 +98,9 @@ class PatientFilter(filters.FilterSet):
         ----------
         queryset : :class:`~django.db.models.query.QuerySet`
             :class:`~django_dicom.models.patient.Patient` instances
-        name : :obj:`str`
+        name : str
             Name of the queried filter field
-        value : :obj:`int`
+        value : int
             :class:`~django_dicom.models.study.Study` primary key
 
         Returns

@@ -1,5 +1,5 @@
 """
-Definition of the :class:`FilterSet` sub-class that will be assigned to the
+Definition of the :class:`FilterSet` subclass that will be assigned to the
 :class:`~django_dicom.views.series.SeriesViewSet`\'s
 :attr:`~django_dicom.views.series.SeriesViewSet.filter_class` attribute value.
 """
@@ -20,9 +20,9 @@ def filter_array(queryset: QuerySet, field_name: str, value: list):
     ----------
     queryset : :class:`~django.db.models.QuerySet`
         The filtered queryset
-    field_name : :obj:`str`
+    field_name : str
         The name of the field the queryset is being filtered by
-    value : :obj:`list`
+    value : list
         The values to filter by
     """
 

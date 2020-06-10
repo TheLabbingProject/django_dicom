@@ -47,14 +47,30 @@ extensions = [
 ]
 
 EXLUDED_MEMBERS = (
+    # Default Django fields, methods, and exceptions that are created in
+    # models but do not require documentation.
+    # Fields
+    "definition_id",
+    "header_id",
+    "id",
+    "parent_id",
+    "patient_id",
+    "series_id",
+    "study_id",
+    # Methods
     "get_next_by_created",
     "get_next_by_modified",
     "get_previous_by_created",
     "get_previous_by_modified",
+    # Exceptions
     "DoesNotExist",
     "MultipleObjectsReturned",
 )
-autodoc_default_options = {"exclude-members": ", ".join(EXLUDED_MEMBERS)}
+autodoc_default_options = {
+    "exclude-members": ", ".join(EXLUDED_MEMBERS),
+    "undoc-members": False,
+    "member-order": "groupwise",
+}
 
 # Allow safely referencing sections between documents.
 # See: https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html#confval-autosectionlabel_prefix_document
@@ -68,6 +84,7 @@ intersphinx_mapping = {
     "django": ("http://django.readthedocs.org/en/latest/", None),
     "django_filters": ("https://django-filter.readthedocs.io/en/master/", None),
     "dicom_parser": ("https://dicom-parser.readthedocs.io/en/latest/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
 }
 
 

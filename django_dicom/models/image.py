@@ -114,11 +114,11 @@ class Image(DicomEntity):
 
     def __str__(self) -> str:
         """
-        Returns the :obj:`str` representation of this instance.
+        Returns the str representation of this instance.
 
         Returns
         -------
-        :obj:`str`
+        str
             This instance's string representation
         """
 
@@ -134,7 +134,7 @@ class Image(DicomEntity):
 
         Returns
         -------
-        :obj:`str`
+        str
             This instance's absolute URL path
         """
 
@@ -161,7 +161,7 @@ class Image(DicomEntity):
 
         Parameters
         ----------
-        rename : :obj:`bool`, optional
+        rename : bool, optional
             Whether to move the file this instance is a reference to to a
             default path under MEDIA_ROOT or not, by default True
         """

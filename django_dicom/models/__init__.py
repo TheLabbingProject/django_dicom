@@ -1,5 +1,5 @@
 """
-Creates :class:`~django.db.models.Model` sub-classes to represent the various
+Creates :class:`~django.db.models.Model` subclasses to represent the various
 DICOM entities.
 
 """

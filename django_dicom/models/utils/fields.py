@@ -1,5 +1,5 @@
 """
-Custom :class:`~django.db.models.Field` sub-classes.
+Custom :class:`~django.db.models.Field` subclasses.
 For more information see the `Django documentation`__.
 
 __ https://docs.djangoproject.com/en/3.0/howto/custom-model-fields/#writing-custom-model-fields

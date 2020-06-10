@@ -67,13 +67,13 @@ class Header(TimeStampedModel):
 
         Parameters
         ----------
-        verbose : :obj:`bool`, optional
+        verbose : bool, optional
             Whether to return a JSON with all of the header information or just
             a link to this instance's admin page, by default False.
 
         Returns
         -------
-        :obj:`str`
+        str
             HTML representaion of this instance
         """
 
@@ -90,7 +90,7 @@ class Header(TimeStampedModel):
 
         Parameters
         ----------
-        keyword : :obj:`str`
+        keyword : str
             Data element keyword
 
         Returns
@@ -118,7 +118,7 @@ class Header(TimeStampedModel):
 
         Returns
         -------
-        :obj:`str`
+        str
             The provided DICOM entity's unique identifier
         """
 
@@ -136,7 +136,7 @@ class Header(TimeStampedModel):
 
         Returns
         -------
-        :obj:`tuple`
+        tuple
             instance, creatd
         """
 
@@ -149,7 +149,7 @@ class Header(TimeStampedModel):
 
         Returns
         -------
-        :obj:`tuple`
+        tuple
             instance, created
         """
 
@@ -162,7 +162,7 @@ class Header(TimeStampedModel):
 
         Returns
         -------
-        :obj:`tuple`
+        tuple
             instance, created
         """
 
@@ -175,7 +175,7 @@ class Header(TimeStampedModel):
 
         Returns
         -------
-        :obj:`tuple`
+        tuple
             instance, created
         """
 
@@ -204,7 +204,7 @@ class Header(TimeStampedModel):
 
         Returns
         -------
-        :obj:`str`
+        str
             Link to this instance in the admin site
         """
 

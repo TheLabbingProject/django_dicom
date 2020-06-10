@@ -8,15 +8,17 @@ Module contents
    :members:
    :show-inheritance:
 
+.. image:: ../images/models.png
+
 Subpackages
 -----------
 
 .. toctree::
    :maxdepth: 1
 
-   django_dicom.models.managers
-   django_dicom.models.utils
-   django_dicom.models.values
+   Managers <django_dicom.models.managers>
+   Utils <django_dicom.models.utils>
+   Data Element Values <django_dicom.models.values>
 
 Submodules
 ----------
@@ -27,6 +29,7 @@ django\_dicom.models.data\_element module
 .. automodule:: django_dicom.models.data_element
    :members:
    :show-inheritance:
+
 
 django\_dicom.models.data\_element\_definition module
 -----------------------------------------------------
