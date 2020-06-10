@@ -25,4 +25,3 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
             "sex",
             "date_of_birth",
         )
-

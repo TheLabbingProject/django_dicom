@@ -12,4 +12,3 @@ class UnsignedLong(DataElementValue):
     raw = models.PositiveIntegerField(
         validators=[MaxValueValidator(MAX_VALUE)], blank=True, null=True
     )
-

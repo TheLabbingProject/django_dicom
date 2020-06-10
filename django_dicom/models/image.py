@@ -114,7 +114,7 @@ class Image(DicomEntity):
 
     def __str__(self) -> str:
         """
-        Returns the str representation of this instance.
+        Returns the string representation of this instance.
 
         Returns
         -------

@@ -17,4 +17,3 @@ class SignedLong(DataElementValue):
         blank=True,
         null=True,
     )
-
