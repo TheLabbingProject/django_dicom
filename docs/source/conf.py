@@ -47,15 +47,24 @@ extensions = [
 ]
 
 EXLUDED_MEMBERS = (
+    # Default Django fields, methods, and exceptions that are created in
+    # models but do not require documentation.
+    # Fields
+    "definition_id",
+    "header_id",
+    "id",
+    "parent_id",
+    "patient_id",
+    "series_id",
+    "study_id",
+    # Methods
     "get_next_by_created",
     "get_next_by_modified",
     "get_previous_by_created",
     "get_previous_by_modified",
+    # Exceptions
     "DoesNotExist",
     "MultipleObjectsReturned",
-    "id",
-    "definition_id",
-    "header_id",
 )
 autodoc_default_options = {
     "exclude-members": ", ".join(EXLUDED_MEMBERS),
