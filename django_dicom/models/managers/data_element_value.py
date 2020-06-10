@@ -18,7 +18,7 @@ from django_dicom.models.values.vr_to_model import get_value_model
 from django_dicom.models.utils.meta import get_model
 from model_utils.managers import InheritanceManager
 from dicom_parser.data_element import DataElement as DicomDataElement
-from typing import Tuple, Union
+from typing import Tuple
 
 
 class DataElementValueManager(InheritanceManager):
@@ -46,7 +46,7 @@ class DataElementValueManager(InheritanceManager):
 
         Parameters
         ----------
-        ValueModel : :class:`~django_dicom.models.values.data_element_value.DataElementValue` # noqa
+        ValueModel : :class:`~django_dicom.models.values.data_element_value.DataElementValue`
             Some
             :class:`~django_dicom.models.values.data_element_value.DataElementValue`
             subclass used to instatiate values
@@ -59,6 +59,9 @@ class DataElementValueManager(InheritanceManager):
         -------
         tuple
             data_element_value, created
+
+
+        .. # noqa: E501
         """
 
         raw = data_element.raw.value
@@ -77,7 +80,7 @@ class DataElementValueManager(InheritanceManager):
 
         Parameters
         ----------
-        ValueModel : :class:`~django_dicom.models.values.data_element_value.DataElementValue` # noqa
+        ValueModel : :class:`~django_dicom.models.values.data_element_value.DataElementValue`
             Some
             :class:`~django_dicom.models.values.data_element_value.DataElementValue`
             subclass used to instatiate values
@@ -88,6 +91,9 @@ class DataElementValueManager(InheritanceManager):
         -------
         Tuple[DataElementValue, bool]
             data_element_value, created
+
+
+        .. # noqa: E501
         """
 
         value, created = ValueModel.objects.get_or_create(
@@ -108,7 +114,7 @@ class DataElementValueManager(InheritanceManager):
 
         Parameters
         ----------
-        ValueModel : :class:`~django_dicom.models.values.data_element_value.DataElementValue` # noqa
+        ValueModel : :class:`~django_dicom.models.values.data_element_value.DataElementValue`
             Some
             :class:`~django_dicom.models.values.data_element_value.DataElementValue`
             subclass used to instatiate values
@@ -119,6 +125,9 @@ class DataElementValueManager(InheritanceManager):
         -------
         Tuple[List[DataElementValue, ...], bool]
             data_element_values, any_created
+
+
+        .. # noqa: E501
         """
 
         tuples = [
@@ -147,7 +156,7 @@ class DataElementValueManager(InheritanceManager):
 
         Parameters
         ----------
-        ValueModel : :class:`~django_dicom.models.values.data_element_value.DataElementValue` # noqa
+        ValueModel : :class:`~django_dicom.models.values.data_element_value.DataElementValue`
             Some
             :class:`~django_dicom.models.values.data_element_value.DataElementValue`
             subclass used to instatiate values
@@ -156,6 +165,9 @@ class DataElementValueManager(InheritanceManager):
         -------
         Tuple[DicomDataElement, bool]
             dicom_data_element, created
+
+
+        .. # noqa: E501
         """
 
         value, created = ValueModel.objects.get_or_create(
@@ -168,17 +180,18 @@ class DataElementValueManager(InheritanceManager):
     ) -> Tuple:
         """
         Handles the creation of the
-        :class:`~django_dicom.models.values.data_element_value.DataElementValue` # noqa
+        :class:`~django_dicom.models.values.data_element_value.DataElementValue`
         subclass instances according to the dicom_parser_
         :class:`~dicom_parser.data_element.DataElement`\'s
         :attr:`~dicom_parser.data_element.DataElement.value_multiplicity`
         attribute.
 
         .. _dicom_parser: https://github.com/ZviBaratz/dicom_parser/
+        .. # noqa: E501
 
         Parameters
         ----------
-        ValueModel : :class:`~django_dicom.models.values.data_element_value.DataElementValue` # noqa
+        ValueModel : :class:`~django_dicom.models.values.data_element_value.DataElementValue`
             Some
             :class:`~django_dicom.models.values.data_element_value.DataElementValue`
             subclass used to instatiate values
@@ -189,6 +202,9 @@ class DataElementValueManager(InheritanceManager):
         -------
         Tuple[Union[DataElementValue, List[DataElementValue, ...]], bool]
             data_element_value or data_element_values, created
+
+
+        .. # noqa: E501
         """
 
         if data_element.value_multiplicity == 1:
