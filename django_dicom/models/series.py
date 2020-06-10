@@ -298,11 +298,11 @@ class Series(DicomEntity):
 
     def __str__(self) -> str:
         """
-        Returns the :obj:`str` representation of this instance.
+        Returns the str representation of this instance.
 
         Returns
         -------
-        :obj:`str`
+        str
             This instance's string representation
         """
 
@@ -318,7 +318,7 @@ class Series(DicomEntity):
 
         Returns
         -------
-        :obj:`str`
+        str
             This instance's absolute URL path
         """
 
@@ -344,7 +344,7 @@ class Series(DicomEntity):
 
         Returns
         -------
-        :obj:`str`
+        str
             This series's base directory path
         """
 
@@ -357,7 +357,7 @@ class Series(DicomEntity):
 
         Returns
         -------
-        :obj:`list`
+        list
             Verbose scanning sequence values
         """
 
@@ -376,7 +376,7 @@ class Series(DicomEntity):
 
         Returns
         -------
-        :obj:`list`
+        list
             Verbose sequence variant values
         """
 
@@ -456,7 +456,7 @@ class Series(DicomEntity):
 
         Returns
         -------
-        :obj:`bool`
+        bool
             Whether this instance has missing relationships
         """
 
@@ -471,7 +471,7 @@ class Series(DicomEntity):
 
         Returns
         -------
-        :obj:`tuple`
+        tuple
             (x, y, z) resolution in millimeters
         """
 

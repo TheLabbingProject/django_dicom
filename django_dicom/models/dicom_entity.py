@@ -109,12 +109,12 @@ class DicomEntity(TimeStampedModel):
 
         Parameters
         ----------
-        text : :obj:`str`, optional
+        text : str, optional
             Text to display, by default None
 
         Returns
         -------
-        :obj:`str`
+        str
             HTML element
         """
 
@@ -130,7 +130,7 @@ class DicomEntity(TimeStampedModel):
 
         Returns
         -------
-        :obj:`str`
+        str
             HTML element
         """
 
@@ -167,7 +167,7 @@ class DicomEntity(TimeStampedModel):
 
         Returns
         -------
-        :obj:`bool`
+        bool
             Whether this field represent DICOM header information or not
         """
 
@@ -182,7 +182,7 @@ class DicomEntity(TimeStampedModel):
 
         Returns
         -------
-        :obj:`list`
+        list
             Fields representing DICOM header information
         """
 
@@ -197,7 +197,7 @@ class DicomEntity(TimeStampedModel):
         ----------
         header : :class:`dicom_parser.header.Header`
             DICOM header data
-        exclude : :obj:`list`, optional
+        exclude : list, optional
             Field names to exclude, default is []
         """
 

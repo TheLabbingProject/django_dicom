@@ -58,7 +58,7 @@ class ImageManager(DicomEntityManager):
         ----------
         path : :class:`pathlib.Path`
             Local *.dcm* file path
-        autoremove : :obj:`bool`, optional
+        autoremove : bool, optional
             Whether to remove the local copy of the *.dcm* file under
             MEDIA_ROOT if creation fails, by default True
 
@@ -95,13 +95,13 @@ class ImageManager(DicomEntityManager):
         ----------
         path : :class:`pathlib.Path`
             Local *.dcm* file path
-        autoremove : :obj:`bool`, optional
+        autoremove : bool, optional
             Whether to remove the local copy of the *.dcm* file under
             MEDIA_ROOT if creation fails, by default True
 
         Returns
         -------
-        :obj:`tuple`
+        tuple
             image, created
         """
 
@@ -124,7 +124,7 @@ class ImageManager(DicomEntityManager):
 
         Returns
         -------
-        :obj:`tuple`
+        tuple
             image, created
         """
 
@@ -141,7 +141,7 @@ class ImageManager(DicomEntityManager):
         ----------
         path : :class:`pathlib.Path`
             Base path of DICOM data import
-        counter : :obj:`dict`
+        counter : dict
             Dictionary containing *created* and *existing* keys containing the
             number of files which fit in each category.
         """
@@ -167,9 +167,9 @@ class ImageManager(DicomEntityManager):
         ----------
         path : :class:`pathlib.Path`
             Base path for recursive *.dcm* import
-        progressbar : :obj:`bool`, optional
+        progressbar : bool, optional
             Whether to display a progressbar or not, by default True
-        report : :obj:`bool`, optional
+        report : bool, optional
             Whether to print out a summary report when finished or not, by
             default True
 

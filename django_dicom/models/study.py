@@ -62,11 +62,11 @@ class Study(DicomEntity):
 
     def __str__(self) -> str:
         """
-        Returns the :obj:`str` representation of this instance.
+        Returns the str representation of this instance.
 
         Returns
         -------
-        :obj:`str`
+        str
             This instance's string representation
         """
 
@@ -82,7 +82,7 @@ class Study(DicomEntity):
 
         Returns
         -------
-        :obj:`str`
+        str
             This instance's absolute URL path
         """
 

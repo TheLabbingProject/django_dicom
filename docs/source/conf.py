@@ -75,6 +75,7 @@ intersphinx_mapping = {
     "django": ("http://django.readthedocs.org/en/latest/", None),
     "django_filters": ("https://django-filter.readthedocs.io/en/master/", None),
     "dicom_parser": ("https://dicom-parser.readthedocs.io/en/latest/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
 }
 
 

@@ -98,9 +98,9 @@ class PatientFilter(filters.FilterSet):
         ----------
         queryset : :class:`~django.db.models.query.QuerySet`
             :class:`~django_dicom.models.patient.Patient` instances
-        name : :obj:`str`
+        name : str
             Name of the queried filter field
-        value : :obj:`int`
+        value : int
             :class:`~django_dicom.models.study.Study` primary key
 
         Returns

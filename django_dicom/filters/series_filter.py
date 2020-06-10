@@ -20,9 +20,9 @@ def filter_array(queryset: QuerySet, field_name: str, value: list):
     ----------
     queryset : :class:`~django.db.models.QuerySet`
         The filtered queryset
-    field_name : :obj:`str`
+    field_name : str
         The name of the field the queryset is being filtered by
-    value : :obj:`list`
+    value : list
         The values to filter by
     """
 

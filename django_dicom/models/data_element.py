@@ -64,11 +64,11 @@ class DataElement(models.Model):
 
     def __str__(self) -> str:
         """
-        Returns the :obj:`str` representation of this instance.
+        Returns the str representation of this instance.
 
         Returns
         -------
-        :obj:`str`
+        str
             This instance's string representation
         """
 
@@ -81,12 +81,12 @@ class DataElement(models.Model):
 
         Parameters
         ----------
-        key : :obj:`str`
+        key : str
             Field name as dictionary key
 
         Returns
         -------
-        :obj:`str`
+        str
             Formatted field name
         """
 
@@ -102,7 +102,7 @@ class DataElement(models.Model):
 
         Returns
         -------
-        :obj:`str`
+        str
             HTML representaion of this instance
         """
 
@@ -116,7 +116,7 @@ class DataElement(models.Model):
 
         Returns
         -------
-        :obj:`dict`
+        dict
             This instance's information
         """
 
@@ -148,7 +148,7 @@ class DataElement(models.Model):
 
         Returns
         -------
-        :obj:`str`
+        str
             HTML link to this instance
         """
 
@@ -207,7 +207,7 @@ class DataElement(models.Model):
 
         Returns
         -------
-        :obj:`int`
+        int
             Value multiplicity
 
         Hint

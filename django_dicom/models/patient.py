@@ -79,11 +79,11 @@ class Patient(DicomEntity):
 
     def __str__(self) -> str:
         """
-        Returns the :obj:`str` representation of this instance.
+        Returns the str representation of this instance.
 
         Returns
         -------
-        :obj:`str`
+        str
             This instance's string representation
         """
 
@@ -98,7 +98,7 @@ class Patient(DicomEntity):
 
         Returns
         -------
-        :obj:`str`
+        str
             This instance's absolute URL path
         """
         return reverse("dicom:patient-detail", args=[str(self.id)])
@@ -109,7 +109,7 @@ class Patient(DicomEntity):
 
         Returns
         -------
-        :obj:`str`
+        str
             Patient's first and last names.
         """
 
@@ -140,7 +140,7 @@ class Patient(DicomEntity):
         ----------
         header : :class:`~dicom_parser.header.Header`
             DICOM header information.
-        exclude : :obj:`list`, optional
+        exclude : list, optional
             Field names to exclude (the default is [], which will not exclude
             any header fields).
         """
