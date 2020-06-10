@@ -1,7 +1,8 @@
 """
-Definition of the :class:`~django_dicom.models.managers.image.ImageManager`
-class.
+Definition of a custom :class:`~django.db.models.Manager` for the
+:class:`~django_dicom.models.image.Image` model.
 """
+
 
 from dicom_parser.header import Header as DicomHeader
 from django.conf import settings
@@ -14,11 +15,12 @@ from django_dicom.models.managers.dicom_entity import DicomEntityManager
 from django_dicom.models.utils.progressbar import create_progressbar
 from io import BufferedReader
 from pathlib import Path
+from typing import Tuple
 
 
 class ImageManager(DicomEntityManager):
     """
-    A :class:`~django.db.models.Manager` subclass to manage the
+    Custom :class:`~django.db.models.Manager` for the
     :class:`~django_dicom.models.image.Image` model.
     """
 
@@ -86,7 +88,7 @@ class ImageManager(DicomEntityManager):
                 path.unlink()
             raise
 
-    def get_or_create_from_dcm(self, path: Path, autoremove: bool = True) -> tuple:
+    def get_or_create_from_dcm(self, path: Path, autoremove: bool = True) -> Tuple:
         """
         Gets or creates an :class:`~django_dicom.models.image.Image` instance
         based on the contents of the provided *.dcm* path.
@@ -101,7 +103,7 @@ class ImageManager(DicomEntityManager):
 
         Returns
         -------
-        tuple
+        Tuple[Image, bool]
             image, created
         """
 
@@ -115,7 +117,7 @@ class ImageManager(DicomEntityManager):
         else:
             return existing, False
 
-    def get_or_create(self, *args, **kwargs) -> tuple:
+    def get_or_create(self, *args, **kwargs) -> Tuple:
         """
         Overrides
         :meth:`~django.db.models.manager.Manager.get_or_create` to call
@@ -124,7 +126,7 @@ class ImageManager(DicomEntityManager):
 
         Returns
         -------
-        tuple
+        Tuple[Image, bool]
             image, created
         """
 
