@@ -1,7 +1,8 @@
 [![PyPI version](https://img.shields.io/pypi/v/django-dicom.svg)](https://pypi.python.org/pypi/django-dicom/)
 [![PyPI status](https://img.shields.io/pypi/status/django-dicom.svg)](https://pypi.python.org/pypi/django-dicom/)
-[![TheLabbingProject](https://circleci.com/gh/TheLabbingProject/django_dicom.svg?style=shield)](https://app.circleci.com/pipelines/github/TheLabbingProject/django-dicom)
-[![Documentation Status](https://readthedocs.org/projects/django-dicom/badge/?version=latest)](http://django-dicom.readthedocs.io/?badge=latest)
+[![CircleCI](https://circleci.com/gh/TheLabbingProject/django_dicom.svg?style=shield)](https://app.circleci.com/pipelines/github/TheLabbingProject/django-dicom)
+[![ReadTheDocs](https://readthedocs.org/projects/django-dicom/badge/?version=latest)](http://django-dicom.readthedocs.io/?badge=latest)
+[![codecov.io](https://codecov.io/gh/TheLabbingProject/django_dicom/coverage.svg?branch=master)](https://codecov.io/github/TheLabbingProject/django_dicom?branch=master)
 
 # django-dicom
 
