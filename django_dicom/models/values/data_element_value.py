@@ -6,17 +6,19 @@ model.
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django_dicom.models.managers.data_element_value import DataElementValueManager
+from django_dicom.models.managers.data_element_value import (
+    DataElementValueManager,
+)
 from django_dicom.utils.html import Html
 
 
 class DataElementValue(models.Model):
     """
-    A :class:`~django.db.models.Model` representing a single value contained by
-    some :class:`~django_dicom.models.data_element.DataElement` instance. If
-    the data element has value multiplicity greater than 1, it will have
-    multiple instances of this model associated with it, each with its own
-    *index* value.
+    A parent :class:`~django.db.models.Model` representing a single value
+    contained by some :class:`~django_dicom.models.data_element.DataElement`
+    instance. If the data element has value multiplicity greater than 1, it
+    will have multiple instances of this model associated with it, each with
+    its own *index* value.
     """
 
     #: If the value is one of a number of values within a DataElement
@@ -56,7 +58,7 @@ class DataElementValue(models.Model):
     def get_raw_peek(self, size: int = 100) -> str:
         """
         Returns a truncated string of the raw data element's value (appended
-        with *...* if changed).
+        with *"..."* if changed).
 
         Parameters
         ----------

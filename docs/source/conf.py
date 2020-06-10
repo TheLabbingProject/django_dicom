@@ -57,6 +57,8 @@ EXLUDED_MEMBERS = (
     "patient_id",
     "series_id",
     "study_id",
+    "dataelementvalue_ptr",
+    "dataelementvalue_ptr_id",
     # Methods
     "get_next_by_created",
     "get_next_by_modified",
@@ -82,7 +84,10 @@ intersphinx_mapping = {
     "numpy": ("http://docs.scipy.org/doc/numpy", None),
     "pydicom": ("https://pydicom.github.io/pydicom/stable", None),
     "django": ("http://django.readthedocs.org/en/latest/", None),
-    "django_filters": ("https://django-filter.readthedocs.io/en/master/", None),
+    "django_filters": (
+        "https://django-filter.readthedocs.io/en/master/",
+        None,
+    ),
     "dicom_parser": ("https://dicom-parser.readthedocs.io/en/latest/", None),
     "pandas": ("https://pandas.pydata.org/docs/", None),
 }
