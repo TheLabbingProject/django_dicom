@@ -25,7 +25,7 @@ class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"])
     def download_series_set(self, request, uid):
-        scans_root = os.path.join(settings.MEDIA_ROOT, 'MRI/DICOM')
+        scans_root = os.path.join(settings.MEDIA_ROOT, "MRI/DICOM")
         patient_path = os.path.join(scans_root, uid)
         patient_zip = patient_path + "_scans.zip"
         make_archive(patient_path + "_scans", "zip", patient_path)

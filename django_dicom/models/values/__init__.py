@@ -1,3 +1,9 @@
+"""
+Definition of
+:class:`~django_dicom.models.values.data_element_value.DataElementValue`
+subclasses for every type of value representation (VR).
+"""
+
 from django_dicom.models.values.age_string import AgeString
 from django_dicom.models.values.application_entity import ApplicationEntity
 from django_dicom.models.values.code_string import CodeString

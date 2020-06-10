@@ -8,52 +8,112 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_dicom', '0001_initial'),
+        ("django_dicom", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='DateTime',
+            name="DateTime",
             fields=[
-                ('dataelementvalue_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='django_dicom.DataElementValue')),
-                ('value', models.DateTimeField()),
-                ('raw', models.CharField(help_text='YYYYMMDDHHMMSS.FFFFFF&ZZXX', max_length=26)),
+                (
+                    "dataelementvalue_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="django_dicom.DataElementValue",
+                    ),
+                ),
+                ("value", models.DateTimeField()),
+                (
+                    "raw",
+                    models.CharField(
+                        help_text="YYYYMMDDHHMMSS.FFFFFF&ZZXX", max_length=26
+                    ),
+                ),
             ],
-            bases=('django_dicom.dataelementvalue',),
+            bases=("django_dicom.dataelementvalue",),
         ),
         migrations.AlterField(
-            model_name='image',
-            name='date',
-            field=models.DateField(blank=True, null=True, verbose_name='Instance Creation Date'),
+            model_name="image",
+            name="date",
+            field=models.DateField(
+                blank=True, null=True, verbose_name="Instance Creation Date"
+            ),
         ),
         migrations.AlterField(
-            model_name='image',
-            name='number',
-            field=models.IntegerField(null=True, verbose_name='Instance Number'),
+            model_name="image",
+            name="number",
+            field=models.IntegerField(null=True, verbose_name="Instance Number"),
         ),
         migrations.AlterField(
-            model_name='image',
-            name='time',
-            field=models.TimeField(blank=True, null=True, verbose_name='Instance Creation Time'),
+            model_name="image",
+            name="time",
+            field=models.TimeField(
+                blank=True, null=True, verbose_name="Instance Creation Time"
+            ),
         ),
         migrations.AlterField(
-            model_name='image',
-            name='uid',
-            field=models.CharField(max_length=64, unique=True, validators=[django.core.validators.RegexValidator('^\\d+(\\.\\d+)*$', code='invalid_uid', message='Digits and dots only!')], verbose_name='SOP Instance UID'),
+            model_name="image",
+            name="uid",
+            field=models.CharField(
+                max_length=64,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^\\d+(\\.\\d+)*$",
+                        code="invalid_uid",
+                        message="Digits and dots only!",
+                    )
+                ],
+                verbose_name="SOP Instance UID",
+            ),
         ),
         migrations.AlterField(
-            model_name='series',
-            name='mr_acquisition_type',
-            field=models.CharField(blank=True, choices=[('2D', '2D'), ('3D', '3D')], help_text='Identification of data encoding scheme', max_length=2, null=True, verbose_name='MR Acquisition Type'),
+            model_name="series",
+            name="mr_acquisition_type",
+            field=models.CharField(
+                blank=True,
+                choices=[("2D", "2D"), ("3D", "3D")],
+                help_text="Identification of data encoding scheme",
+                max_length=2,
+                null=True,
+                verbose_name="MR Acquisition Type",
+            ),
         ),
         migrations.AlterField(
-            model_name='series',
-            name='uid',
-            field=models.CharField(help_text='Unique identifier of the series', max_length=64, unique=True, validators=[django.core.validators.RegexValidator('^\\d+(\\.\\d+)*$', code='invalid_uid', message='Digits and dots only!')], verbose_name='Series Instance UID'),
+            model_name="series",
+            name="uid",
+            field=models.CharField(
+                help_text="Unique identifier of the series",
+                max_length=64,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^\\d+(\\.\\d+)*$",
+                        code="invalid_uid",
+                        message="Digits and dots only!",
+                    )
+                ],
+                verbose_name="Series Instance UID",
+            ),
         ),
         migrations.AlterField(
-            model_name='study',
-            name='uid',
-            field=models.CharField(max_length=64, unique=True, validators=[django.core.validators.RegexValidator('^\\d+(\\.\\d+)*$', code='invalid_uid', message='Digits and dots only!')], verbose_name='Study Instance UID'),
+            model_name="study",
+            name="uid",
+            field=models.CharField(
+                max_length=64,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^\\d+(\\.\\d+)*$",
+                        code="invalid_uid",
+                        message="Digits and dots only!",
+                    )
+                ],
+                verbose_name="Study Instance UID",
+            ),
         ),
     ]

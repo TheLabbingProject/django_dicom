@@ -13,4 +13,3 @@ class StudySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Study
         fields = "id", "url", "description", "date", "time", "uid"
-
