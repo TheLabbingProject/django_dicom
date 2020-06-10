@@ -21,12 +21,12 @@ class Header(TimeStampedModel):
     A model representing a single DICOM `Data Set`_.
 
     .. _Data Set:
-       http://dicom.nema.org/dicom/2013/output/chtml/part05/chapter_7.html
+       http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html
 
     """
 
     #: `Data Set
-    #: <http://dicom.nema.org/dicom/2013/output/chtml/part05/chapter_7.html>`_\s
+    #: <http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html>`_\s
     #: `may be nested
     #: <http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.5.html>`_.
     #: If this header (Data Set) is
@@ -34,7 +34,10 @@ class Header(TimeStampedModel):
     #: <http://dicom.nema.org/medical/dicom/2017e/output/chtml/part05/sect_7.5.2.html>`_,
     #: this field holds that reference.
     parent = models.ForeignKey(
-        "django_dicom.SequenceOfItems", on_delete=models.CASCADE, blank=True, null=True
+        "django_dicom.SequenceOfItems",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
     )
 
     #: This Data Set's index in the sequence (if *parent* is not None).
@@ -100,7 +103,9 @@ class Header(TimeStampedModel):
         """
 
         try:
-            data_element = self.data_element_set.get(definition__keyword=keyword)
+            data_element = self.data_element_set.get(
+                definition__keyword=keyword
+            )
         except ObjectDoesNotExist:
             return None
         else:

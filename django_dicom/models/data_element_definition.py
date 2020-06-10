@@ -24,9 +24,9 @@ class DataElementDefinition(models.Model):
     `registry of data elements`_.
 
     .. _DICOM standard's documentation:
-       http://dicom.nema.org/dicom/2013/output/chtml/part05/chapter_7.html
+       http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html
     .. _registry of data elements:
-       http://dicom.nema.org/dicom/2013/output/chtml/part06/chapter_6.html
+       http://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_6.html
 
     """
 

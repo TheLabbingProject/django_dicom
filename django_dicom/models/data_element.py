@@ -30,13 +30,15 @@ class DataElement(models.Model):
     subclass instances in order to prevent data duplication.
 
     .. _DICOM data element:
-       http://dicom.nema.org/dicom/2013/output/chtml/part05/chapter_7.html
+       http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html
     """
 
     #: The :class:`~django_dicom.models.header.Header` instance to which this
     #: data element belongs.
     header = models.ForeignKey(
-        "django_dicom.Header", on_delete=models.CASCADE, related_name="data_element_set"
+        "django_dicom.Header",
+        on_delete=models.CASCADE,
+        related_name="data_element_set",
     )
 
     #: The
