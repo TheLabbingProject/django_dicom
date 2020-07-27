@@ -30,4 +30,3 @@ You can verify the addition of new data to the database by querying the desired 
 
 
 .. _DICOM: https://en.wikipedia.org/wiki/DICOM
-.. _ZIP archives: https://en.wikipedia.org/wiki/Zip_(file_format)

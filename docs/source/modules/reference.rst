@@ -9,8 +9,6 @@ Module contents
    :undoc-members:
    :show-inheritance:
 
-
-
 Subpackages
 -----------
 
@@ -23,7 +21,6 @@ Subpackages
    django_dicom.serializers
    django_dicom.utils
    django_dicom.views
-
 
 Submodules
 ----------

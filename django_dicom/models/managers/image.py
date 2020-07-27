@@ -88,7 +88,9 @@ class ImageManager(DicomEntityManager):
                 path.unlink()
             raise
 
-    def get_or_create_from_dcm(self, path: Path, autoremove: bool = True) -> Tuple:
+    def get_or_create_from_dcm(
+        self, path: Path, autoremove: bool = True
+    ) -> Tuple:
         """
         Gets or creates an :class:`~django_dicom.models.image.Image` instance
         based on the contents of the provided *.dcm* path.
@@ -199,7 +201,9 @@ class ImageManager(DicomEntityManager):
             # For more information see:
             # https://docs.djangoproject.com/en/3.0/topics/db/transactions/#controlling-transactions-explicitly
             with transaction.atomic():
-                image, created = self.get_or_create_from_dcm(dcm_path, autoremove=True)
+                image, created = self.get_or_create_from_dcm(
+                    dcm_path, autoremove=True
+                )
 
             if report:
                 counter_key = "created" if created else "existing"
