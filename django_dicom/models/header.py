@@ -2,6 +2,7 @@
 Definition of the :class:`~django_dicom.models.header.Header` class.
 
 """
+import os
 
 from dicom_parser.header import Header as DicomHeader
 from django.core.exceptions import ObjectDoesNotExist
@@ -199,7 +200,12 @@ class Header(TimeStampedModel):
         """
 
         if not isinstance(self._instance, DicomHeader):
-            self._instance = DicomHeader(self.image.dcm.path)
+            dcm_path = (
+                self.image.dcm.name
+                if os.getenv("USE_S3")
+                else self.image.dcm.path
+            )
+            self._instance = DicomHeader(dcm_path)
         return self._instance
 
     @property
