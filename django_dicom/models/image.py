@@ -6,6 +6,7 @@ Definition of the :class:`~django_dicom.models.image.Image` class.
 import dicom_parser
 import logging
 import numpy as np
+import os
 import warnings
 import shutil
 
@@ -238,7 +239,7 @@ class Image(DicomEntity):
 
             # Catch any warnings raised by dicom_parser
             with warnings.catch_warnings():
-                using_s3 = getattr(settings, "USE_S3", False)
+                using_s3 = os.getenv["USE_S3"]
                 dcm_path = self.dcm.name if using_s3 else self.dcm.path
                 warnings.filterwarnings("error")
                 try:
