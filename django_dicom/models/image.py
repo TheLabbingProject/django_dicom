@@ -239,7 +239,7 @@ class Image(DicomEntity):
 
             # Catch any warnings raised by dicom_parser
             with warnings.catch_warnings():
-                using_s3 = os.getenv["USE_S3"]
+                using_s3 = os.getenv("USE_S3")
                 dcm_path = self.dcm.name if using_s3 else self.dcm.path
                 warnings.filterwarnings("error")
                 try:
