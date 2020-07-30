@@ -84,7 +84,9 @@ class Image(DicomEntity):
     #: In case any warnings are raised by
     #: `dicom_parser <https://github.com/ZviBaratz/dicom_parser/>`_ upon
     #: reading the image's header information, they are stored in this field.
-    warnings = ArrayField(models.TextField(), blank=True, null=True, default=list)
+    warnings = ArrayField(
+        models.TextField(), blank=True, null=True, default=list
+    )
 
     #: The :class:`~django_dicom.models.series.Series` instance to which this
     #: image belongs.
@@ -110,7 +112,10 @@ class Image(DicomEntity):
 
     class Meta:
         ordering = ("series", "number")
-        indexes = [models.Index(fields=["uid"]), models.Index(fields=["date", "time"])]
+        indexes = [
+            models.Index(fields=["uid"]),
+            models.Index(fields=["date", "time"]),
+        ]
 
     def __str__(self) -> str:
         """
@@ -233,15 +238,17 @@ class Image(DicomEntity):
 
             # Catch any warnings raised by dicom_parser
             with warnings.catch_warnings():
+                using_s3 = getattr(settings, "USE_S3", False)
+                dcm_path = self.dcm.name if using_s3 else self.dcm.path
                 warnings.filterwarnings("error")
                 try:
-                    self._instance = dicom_parser.Image(self.dcm.path)
+                    self._instance = dicom_parser.Image(dcm_path)
                 # Store raised warnings in the appropriate field
                 except Warning as warning:
                     if str(warning) not in self.warnings:
                         self.warnings += [str(warning)]
                     warnings.filterwarnings("ignore")
-                    self._instance = dicom_parser.Image(self.dcm.path)
+                    self._instance = dicom_parser.Image(dcm_path)
         return self._instance
 
     @property
