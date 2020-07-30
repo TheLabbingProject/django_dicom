@@ -216,7 +216,8 @@ class Image(DicomEntity):
 
         target = Path(settings.MEDIA_ROOT, target)
         target.parent.mkdir(parents=True, exist_ok=True)
-        p = Path(self.dcm.path)
+        dcm_path = self.dcm.name if os.getenv("USE_S3") else self.dcm.path
+        p = Path(dcm_path)
         if getattr(settings, "KEEP_ORIGINAL_DICOM", False):
             shutil.copy(str(p), str(target))
         else:

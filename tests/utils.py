@@ -1,7 +1,9 @@
-from rest_framework.test import APITestCase
+import os
+
 from django.contrib.auth import get_user_model
 from django_dicom.models import Image
 from pathlib import Path
+from rest_framework.test import APITestCase
 
 
 TEST_PASSWORD = "Aa123456"
@@ -20,10 +22,11 @@ class LoggedInTestCase(APITestCase):
 
 
 def restore_path(details: dict, old_path: str) -> None:
-    img = Image.objects.get(uid=details["uid"])
-    curr_path = Path(img.dcm.path)
+    image = Image.objects.get(uid=details["uid"])
+    dcm_path = image.dcm.name if os.getenv("USE_S3") else image.dcm.path
+    curr_path = Path(dcm_path)
     curr_path.rename(old_path)
-    img.dcm = str(old_path)
+    image.dcm = str(old_path)
 
 
 def seperate_raw_name(raw_name: str, fields: list) -> dict:
