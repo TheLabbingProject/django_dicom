@@ -179,6 +179,7 @@ class Image(DicomEntity):
             self.header = self.create_header_instance()
             kwargs["header"] = self.header
 
+        created_series = False
         if not self.series and "header" in kwargs:
             self.series, created_series = Series.objects.from_header(
                 kwargs["header"]
