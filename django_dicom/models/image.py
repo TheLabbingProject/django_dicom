@@ -179,12 +179,20 @@ class Image(DicomEntity):
             self.header = self.create_header_instance()
             kwargs["header"] = self.header
 
+        created_series = False
         if not self.series and "header" in kwargs:
-            self.series, _ = Series.objects.from_header(kwargs["header"])
+            self.series, created_series = Series.objects.from_header(
+                kwargs["header"]
+            )
         if self.dcm and rename:
             # Move to default destination.
             self.rename(self.default_path)
         super().save(*args, **kwargs)
+        # If the associated Series instance is new, invoke save() again so that
+        # any signals relying on header data may use the created image's
+        # header.
+        if created_series:
+            self.series.save()
 
     def get_default_path(self) -> Path:
         """
