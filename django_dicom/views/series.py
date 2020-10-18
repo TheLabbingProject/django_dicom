@@ -10,7 +10,7 @@ from rest_framework import viewsets
 class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows series to be viewed or edited.
-    
+
     """
 
     filter_class = SeriesFilter
@@ -64,4 +64,6 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
         user = get_user_model().objects.get(username=self.request.user)
         if user.is_staff:
             return Series.objects.all()
-        return Series.objects.filter(scan__study_groups__study__collaborators=user)
+        return Series.objects.filter(
+            scan__study_groups__study__collaborators=user
+        )

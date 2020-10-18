@@ -4,7 +4,6 @@ Definition of the
 """
 
 
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django_dicom.models.values.data_element_value import DataElementValue
 from django_dicom.utils.html import Html
@@ -19,7 +18,7 @@ class PersonName(DataElementValue):
     #: Overrides
     #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
     #: to assign a :class:`~django.contrib.postgres.fields.JSONField`.
-    value = JSONField(blank=True, null=True)
+    value = models.JSONField(blank=True, null=True)
 
     #: Overrides
     #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`

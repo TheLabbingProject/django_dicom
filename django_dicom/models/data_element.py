@@ -42,7 +42,7 @@ class DataElement(models.Model):
     )
 
     #: The
-    #: :class:`~django_dicom.models.data_element_definition.DataElementDefinition`
+    #: :class:`~django_dicom.models.data_element_definition.DataElementDefinition` # noqa: E501
     #: instance holding information about this element's DICOM tag.
     definition = models.ForeignKey(
         "django_dicom.DataElementDefinition",

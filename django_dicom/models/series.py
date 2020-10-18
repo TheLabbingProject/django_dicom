@@ -17,7 +17,7 @@ from dicom_parser.utils.code_strings import (
     SequenceVariant,
     PatientPosition,
 )
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
@@ -240,7 +240,7 @@ class Series(DicomEntity):
     #: `Operator's Name
     #: <https://dicom.innolitics.com/ciods/mr-image/general-series/00081070>`_
     #: value.
-    operators_name = JSONField(
+    operators_name = models.JSONField(
         blank=True, null=True, help_text=help_text.OPERATORS_NAME
     )
 
