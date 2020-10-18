@@ -19,14 +19,20 @@ class PatientTestCase(TestCase):
     def setUpTestData(cls):
         """
         Creates instances to be used in the tests.
-        For more information see Django's :class:`~django.test.TestCase` documentation_.
+        For more information see Django's :class:`~django.test.TestCase`
+        documentation_.
 
-        .. _documentation: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
+        .. _documentation:
+           https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
         """
 
-        TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
+        TEST_SERIES_FIELDS["patient"] = Patient.objects.create(
+            **TEST_PATIENT_FIELDS
+        )
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
-        TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
+        TEST_IMAGE_FIELDS["series"] = Series.objects.create(
+            **TEST_SERIES_FIELDS
+        )
         Image.objects.create(**TEST_IMAGE_FIELDS)
 
     def setUp(self):
@@ -194,10 +200,11 @@ class PatientTestCase(TestCase):
 
     def test_update_patient_name(self):
         """
-        Tests patient name update according to the DICOM header `Patient's Name (PN)`_
-        data element fields.
+        Tests patient name update according to the DICOM header `Patient's
+        Name (PN)`_ data element fields.
 
-        .. _Patient's Name (PN): http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
+        .. _Patient's Name (PN):
+           http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
 
         """
 
@@ -212,20 +219,23 @@ class PatientTestCase(TestCase):
 
     def test_update_fields_from_header(self):
         """
-        Tests that :meth:`~django_dicom.models.dicom_entity.DicomEntity.update_fields_from_header`
-        method returns the expected values. This test relies on the created instance's
-        fields containing the expected values beforehand.
+        Tests that
+        :meth:`~django_dicom.models.dicom_entity.DicomEntity.update_fields_from_header`
+        method returns the expected values. This test relies on the created
+        instance's fields containing the expected values beforehand.
 
         """
 
         header_fields = self.patient.get_header_fields()
         expected_values = {
-            field.name: getattr(self.patient, field.name) for field in header_fields
+            field.name: getattr(self.patient, field.name)
+            for field in header_fields
         }
         result = self.patient.update_fields_from_header(self.image.header)
         self.assertIsNone(result)
         values = {
-            field.name: getattr(self.patient, field.name) for field in header_fields
+            field.name: getattr(self.patient, field.name)
+            for field in header_fields
         }
         for key, value in values.items():
             try:
@@ -234,7 +244,9 @@ class PatientTestCase(TestCase):
                 if expected_values[key] is None:
                     self.assertEqual(value, "")
                 else:
-                    self.fail(f"expected {expected_values[key]} but got {value}")
+                    self.fail(
+                        f"expected {expected_values[key]} but got {value}"
+                    )
 
     def test_get_admin_link(self):
         """
