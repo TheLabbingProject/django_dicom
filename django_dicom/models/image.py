@@ -6,6 +6,7 @@ Definition of the :class:`~django_dicom.models.image.Image` class.
 import dicom_parser
 import logging
 import numpy as np
+import os
 import warnings
 import shutil
 
@@ -84,7 +85,9 @@ class Image(DicomEntity):
     #: In case any warnings are raised by
     #: `dicom_parser <https://github.com/ZviBaratz/dicom_parser/>`_ upon
     #: reading the image's header information, they are stored in this field.
-    warnings = ArrayField(models.TextField(), blank=True, null=True, default=list)
+    warnings = ArrayField(
+        models.TextField(), blank=True, null=True, default=list
+    )
 
     #: The :class:`~django_dicom.models.series.Series` instance to which this
     #: image belongs.
@@ -110,7 +113,10 @@ class Image(DicomEntity):
 
     class Meta:
         ordering = ("series", "number")
-        indexes = [models.Index(fields=["uid"]), models.Index(fields=["date", "time"])]
+        indexes = [
+            models.Index(fields=["uid"]),
+            models.Index(fields=["date", "time"]),
+        ]
 
     def __str__(self) -> str:
         """
@@ -173,12 +179,20 @@ class Image(DicomEntity):
             self.header = self.create_header_instance()
             kwargs["header"] = self.header
 
+        created_series = False
         if not self.series and "header" in kwargs:
-            self.series, _ = Series.objects.from_header(kwargs["header"])
+            self.series, created_series = Series.objects.from_header(
+                kwargs["header"]
+            )
         if self.dcm and rename:
             # Move to default destination.
             self.rename(self.default_path)
         super().save(*args, **kwargs)
+        # If the associated Series instance is new, invoke save() again so that
+        # any signals relying on header data may use the created image's
+        # header.
+        if created_series:
+            self.series.save()
 
     def get_default_path(self) -> Path:
         """
@@ -210,7 +224,8 @@ class Image(DicomEntity):
 
         target = Path(settings.MEDIA_ROOT, target)
         target.parent.mkdir(parents=True, exist_ok=True)
-        p = Path(self.dcm.path)
+        dcm_path = self.dcm.name if os.getenv("USE_S3") else self.dcm.path
+        p = Path(dcm_path)
         if getattr(settings, "KEEP_ORIGINAL_DICOM", False):
             shutil.copy(str(p), str(target))
         else:
@@ -233,15 +248,17 @@ class Image(DicomEntity):
 
             # Catch any warnings raised by dicom_parser
             with warnings.catch_warnings():
+                using_s3 = os.getenv("USE_S3")
+                dcm_path = self.dcm.name if using_s3 else self.dcm.path
                 warnings.filterwarnings("error")
                 try:
-                    self._instance = dicom_parser.Image(self.dcm.path)
+                    self._instance = dicom_parser.Image(dcm_path)
                 # Store raised warnings in the appropriate field
                 except Warning as warning:
                     if str(warning) not in self.warnings:
                         self.warnings += [str(warning)]
                     warnings.filterwarnings("ignore")
-                    self._instance = dicom_parser.Image(self.dcm.path)
+                    self._instance = dicom_parser.Image(dcm_path)
         return self._instance
 
     @property

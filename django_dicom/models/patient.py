@@ -1,5 +1,5 @@
 """
-Definition of the :class:`~django_dicom.models.patient.Patient` class.
+Definition of the :class:`Patient` class.
 
 """
 
@@ -15,14 +15,17 @@ class Patient(DicomEntity):
     """
     A model to represent a single instance of the Patient_ entity.
 
-    .. _Patient: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
+    .. _Patient:
+       http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
 
     """
 
     #: `Patient ID
     #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100020>`_
     #: value.
-    uid = models.CharField(max_length=64, unique=True, verbose_name="Patient UID")
+    uid = models.CharField(
+        max_length=64, unique=True, verbose_name="Patient UID"
+    )
 
     #: `Patient Birth Date
     #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100030>`_
@@ -32,7 +35,9 @@ class Patient(DicomEntity):
     #: `Patient's Sex
     #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100040>`_
     #: value.
-    sex = models.CharField(max_length=1, choices=Sex.choices(), blank=True, null=True)
+    sex = models.CharField(
+        max_length=1, choices=Sex.choices(), blank=True, null=True
+    )
 
     #: `Patient's Name
     #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100010>`_
@@ -75,7 +80,10 @@ class Patient(DicomEntity):
     logger = logging.getLogger("data.dicom.patient")
 
     class Meta:
-        indexes = [models.Index(fields=["uid"]), models.Index(fields=["date_of_birth"])]
+        indexes = [
+            models.Index(fields=["uid"]),
+            models.Index(fields=["date_of_birth"]),
+        ]
 
     def __str__(self) -> str:
         """
@@ -101,6 +109,7 @@ class Patient(DicomEntity):
         str
             This instance's absolute URL path
         """
+
         return reverse("dicom:patient-detail", args=[str(self.id)])
 
     def get_full_name(self) -> str:
@@ -126,14 +135,14 @@ class Patient(DicomEntity):
             A DICOM image's :class:`~dicom_parser.header.Header` instance.
         """
 
-        patient_name = header.instance.get("PatientName")
+        patient_name = header.instance.get("PatientName", {})
         for part, value in patient_name.items():
             setattr(self, part, value)
 
     def update_fields_from_header(self, header, exclude: list = None) -> None:
         """
         Overrides
-        :meth:`django_dicom.model.dicom_entity.DicomEntity.update_fields_from_header`
+        :meth:`~django_dicom.model.dicom_entity.DicomEntity.update_fields_from_header`
         to handle setting the name parts.
 
         Parameters

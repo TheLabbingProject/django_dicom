@@ -6,6 +6,7 @@ Definition of the :class:`~django_dicom.models.series.Series` class.
 
 import logging
 import numpy as np
+import os
 import pytz
 
 from datetime import datetime
@@ -16,7 +17,7 @@ from dicom_parser.utils.code_strings import (
     SequenceVariant,
     PatientPosition,
 )
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
@@ -70,12 +71,16 @@ class Series(DicomEntity):
     #: `Series Date
     #: <https://dicom.innolitics.com/ciods/mr-image/general-series/00080021>`_
     #: value.
-    date = models.DateField(blank=True, null=True, help_text=help_text.SERIES_DATE)
+    date = models.DateField(
+        blank=True, null=True, help_text=help_text.SERIES_DATE
+    )
 
     #: `Series Time
     #: <https://dicom.innolitics.com/ciods/mr-image/general-series/00080021>`_
     #: value.
-    time = models.TimeField(blank=True, null=True, help_text=help_text.SERIES_TIME)
+    time = models.TimeField(
+        blank=True, null=True, help_text=help_text.SERIES_TIME
+    )
 
     #: `Echo Time
     #: <https://dicom.innolitics.com/ciods/mr-image/mr-image/00180081>`_
@@ -188,14 +193,20 @@ class Series(DicomEntity):
     #: <https://dicom.innolitics.com/ciods/mr-image/device/00500010/00181000>`_
     #: value.
     device_serial_number = models.CharField(
-        max_length=64, blank=True, null=True, help_text=help_text.DEVICE_SERIAL_NUMBER
+        max_length=64,
+        blank=True,
+        null=True,
+        help_text=help_text.DEVICE_SERIAL_NUMBER,
     )
 
     #: `Body Part Examined
     #: <https://dicom.innolitics.com/ciods/mr-image/general-series/00180015>`_
     #: value.
     body_part_examined = models.CharField(
-        max_length=16, blank=True, null=True, help_text=help_text.BODY_PART_EXAMINED
+        max_length=16,
+        blank=True,
+        null=True,
+        help_text=help_text.BODY_PART_EXAMINED,
     )
 
     #: `Patient Position
@@ -220,13 +231,16 @@ class Series(DicomEntity):
     #: <https://dicom.innolitics.com/ciods/mr-image/general-equipment/00080080>`_
     #: value.
     institution_name = models.CharField(
-        max_length=64, blank=True, null=True, help_text=help_text.INSTITUTE_NAME
+        max_length=64,
+        blank=True,
+        null=True,
+        help_text=help_text.INSTITUTE_NAME,
     )
 
     #: `Operator's Name
     #: <https://dicom.innolitics.com/ciods/mr-image/general-series/00081070>`_
     #: value.
-    operators_name = JSONField(
+    operators_name = models.JSONField(
         blank=True, null=True, help_text=help_text.OPERATORS_NAME
     )
 
@@ -249,7 +263,10 @@ class Series(DicomEntity):
     #: value.
     MR_ACQUISITION_2D = "2D"
     MR_ACQUISITION_3D = "3D"
-    MR_ACQUISITION_TYPE_CHOICES = ((MR_ACQUISITION_2D, "2D"), (MR_ACQUISITION_3D, "3D"))
+    MR_ACQUISITION_TYPE_CHOICES = (
+        (MR_ACQUISITION_2D, "2D"),
+        (MR_ACQUISITION_3D, "3D"),
+    )
     mr_acquisition_type = models.CharField(
         max_length=2,
         choices=MR_ACQUISITION_TYPE_CHOICES,
@@ -294,7 +311,10 @@ class Series(DicomEntity):
             "number",
         )
         verbose_name_plural = "Series"
-        indexes = [models.Index(fields=["uid"]), models.Index(fields=["date", "time"])]
+        indexes = [
+            models.Index(fields=["uid"]),
+            models.Index(fields=["date", "time"]),
+        ]
 
     def __str__(self) -> str:
         """
@@ -348,7 +368,13 @@ class Series(DicomEntity):
             This series's base directory path
         """
 
-        return Path(self.image_set.first().dcm.path).parent
+        sample_image = self.image_set.first()
+        dcm_path = (
+            sample_image.dcm.name
+            if os.getenv("USE_S3")
+            else sample_image.dcm.path
+        )
+        return Path(dcm_path).parent
 
     def get_scanning_sequence_display(self) -> list:
         """

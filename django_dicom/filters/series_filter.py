@@ -4,7 +4,11 @@ Definition of the :class:`FilterSet` subclass that will be assigned to the
 :attr:`~django_dicom.views.series.SeriesViewSet.filter_class` attribute value.
 """
 
-from dicom_parser.utils.code_strings import Modality, ScanningSequence, SequenceVariant
+from dicom_parser.utils.code_strings import (
+    Modality,
+    ScanningSequence,
+    SequenceVariant,
+)
 from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 from django_dicom.models.series import Series
@@ -87,9 +91,13 @@ class SeriesFilter(filters.FilterSet):
           database
     """
 
-    study_uid = filters.CharFilter("study__uid", lookup_expr="exact", label="Study UID")
+    study_uid = filters.CharFilter(
+        "study__uid", lookup_expr="exact", label="Study UID"
+    )
     study_description = filters.CharFilter(
-        "study__description", lookup_expr="contains", label="Study description contains"
+        "study__description",
+        lookup_expr="contains",
+        label="Study description contains",
     )
     modality = filters.ChoiceFilter("modality", choices=Modality.choices())
     description = filters.LookupChoiceFilter(
@@ -119,8 +127,12 @@ class SeriesFilter(filters.FilterSet):
     created_after_time = filters.TimeFilter("time", lookup_expr="gte")
     created_before_time = filters.TimeFilter("time", lookup_expr="lte")
     manufacturer = filters.AllValuesFilter("manufacturer")
-    manufacturer_model_name = filters.AllValuesFilter("manufacturer_model_name")
-    magnetic_field_strength = filters.AllValuesFilter("magnetic_field_strength")
+    manufacturer_model_name = filters.AllValuesFilter(
+        "manufacturer_model_name"
+    )
+    magnetic_field_strength = filters.AllValuesFilter(
+        "magnetic_field_strength"
+    )
     device_serial_number = filters.AllValuesFilter("device_serial_number")
     institution_name = filters.AllValuesFilter("institution_name")
 

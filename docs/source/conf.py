@@ -75,7 +75,8 @@ autodoc_default_options = {
 }
 
 # Allow safely referencing sections between documents.
-# See: https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html#confval-autosectionlabel_prefix_document
+# See:
+# https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html#confval-autosectionlabel_prefix_document
 autosectionlabel_prefix_document = True
 
 # Intersphinx
@@ -115,5 +116,6 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = []
 
 # Sphinx expects the master file to be "contents.rst"
-# Fix based on https://stackoverflow.com/questions/56336234/build-fail-sphinx-error-contents-rst-not-found
+# Fix based on
+# https://stackoverflow.com/questions/56336234/build-fail-sphinx-error-contents-rst-not-found
 master_doc = "index"
