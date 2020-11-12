@@ -9,9 +9,10 @@ from dicom_parser.utils.code_strings import (
     ScanningSequence,
     SequenceVariant,
 )
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q
 from django_filters import rest_framework as filters
 from django_dicom.models.series import Series
+from django_dicom.utils import validation
 
 
 def filter_array(queryset: QuerySet, field_name: str, value: list):
@@ -37,6 +38,34 @@ def filter_array(queryset: QuerySet, field_name: str, value: list):
     length = f"{field_name}__len"
     kwargs = {contains: value, length: len(value)}
     return queryset.filter(**kwargs).all()
+
+
+def filter_header(queryset: QuerySet, field_name: str, values: dict):
+    """
+    Returns a desired lookup for a DicomHeader field.
+
+    Parameters
+    ----------
+    queryset : :class:`~django.db.models.QuerySet`
+        The filtered queryset
+    field_name : str
+        The name of the field the queryset is being filtered by
+    values : dict
+        The fields and values to filter by
+    """
+
+    if not values:
+        return queryset
+
+    series_all = queryset.objects.all()
+    series_ids = []
+    for series in series_all:
+        header = series.image_set.first().header.instance
+        result = validation.run_checks(values, header)
+        if result:
+            series_ids.append(series.id)
+
+    return queryset.filter(id__in=series_ids).all()
 
 
 class SeriesFilter(filters.FilterSet):
