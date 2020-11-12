@@ -208,10 +208,14 @@ class DicomEntity(TimeStampedModel):
         # Create a list of fields to read from the header.
         exclude = exclude or []
         fields = [
-            field for field in self.get_header_fields() if field.name not in exclude
+            field
+            for field in self.get_header_fields()
+            if field.name not in exclude
         ]
         # Log the result.
-        self._logger.debug(f"Included fields: {[field.name for field in fields]}")
+        self._logger.debug(
+            f"Included fields: {[field.name for field in fields]}"
+        )
         if exclude:
             self._logger.debug(f"Excluded fields: {exclude}")
 
@@ -233,8 +237,14 @@ class DicomEntity(TimeStampedModel):
                         value = [v for v in data_element.raw.value]
                     else:
                         value = data_element.raw.value
+                # Convert tuples to lists
+                elif data_element.value_multiplicity > 1:
+                    value = list(data_element.value)
+
                 # Listify ArrayField values
-                if isinstance(field, ArrayField) and not isinstance(value, list):
+                if isinstance(field, ArrayField) and not isinstance(
+                    value, list
+                ):
                     value = [value]
             # Set the field's value and log.
             setattr(self, field.name, value)
