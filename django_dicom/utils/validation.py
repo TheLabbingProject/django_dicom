@@ -1,23 +1,42 @@
-fields = {
-    "ScanningSequence": (0x0018, 0x0020),
-    "SequenceVariant": (0x0018, 0x0021),
-    "RepetitionTime": (0x0018, 0x0080),
-    "InversionTime": (0x0018, 0x0082),
-    "PixelSpacing": (0x0028, 0x0030),
-    "SliceThickness": (0x0018, 0x0050),
-    "SeriesDescription": (0x0008, 0x103E),
-    "SequenceName": (0x0018, 0x0024),
-    "PulseSequenceName": (0x0018, 0x9005),
-    "StudyTime": (0x0008, 0x0030),
-    "StudyDate": (0x0008, 0x0020),
-    "Manufacturer": (0x0008, 0x0070),
-    "InternalPulseSequenceName": (0x0019, 0x109E),
-}
+from dicom_parser.utils.code_strings import ScanningSequence, SequenceVariant
+
+# fields = {
+#     "ScanningSequence": (0x0018, 0x0020),
+#     "SequenceVariant": (0x0018, 0x0021),
+#     "RepetitionTime": (0x0018, 0x0080),
+#     "InversionTime": (0x0018, 0x0082),
+#     "PixelSpacing": (0x0028, 0x0030),
+#     "SliceThickness": (0x0018, 0x0050),
+#     "SeriesDescription": (0x0008, 0x103E),
+#     "SequenceName": (0x0018, 0x0024),
+#     "PulseSequenceName": (0x0018, 0x9005),
+#     "StudyTime": (0x0008, 0x0030),
+#     "StudyDate": (0x0008, 0x0020),
+#     "Manufacturer": (0x0008, 0x0070),
+#     "InternalPulseSequenceName": (0x0019, 0x109E),
+# }
 
 
 def header_getter(field, header):
-    data = header.get(fields[field])
-    return data.value if data else None
+    data = header.get(field)
+    if type(data) is list:
+        data = (
+            [ScanningSequence(elem).name for elem in data]
+            if field == "ScanningSequence"
+            else [SequenceVariant(elem).name for elem in data]
+            if field == "SequenceVariant"
+            else data
+        )
+    else:
+        data = (
+            ScanningSequence(data).name
+            if field == "ScanningSequence"
+            else SequenceVariant(data).name
+            if field == "SequenceVariant"
+            else data
+        )
+
+    return data or None
 
 
 def positive_checker(value, field, header_value):
@@ -63,14 +82,18 @@ def negative_list_checker(values, field, header_value):
 
 
 def run_checks(search_values, header):
-    fields_check = [field_checker(item, header) for item in search_values]
+    fields_check = [
+        field_checker(item, search_values[item], header)
+        for item in search_values
+    ]
     return all(fields_check)
 
 
 def field_checker(field, value, header):
     global checking_fields
-    func = "negative" if field[0] == "-" else "positive"
-    field = field[1:]
+    first_char = field[0] == "-"
+    func = "negative" if first_char else "positive"
+    field = field[1:] if first_char else field
     header_value = header_getter(field, header)
     return checking_fields[field][func](value, field, header_value)
 

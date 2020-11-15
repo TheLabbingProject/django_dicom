@@ -9,10 +9,11 @@ from dicom_parser.utils.code_strings import (
     ScanningSequence,
     SequenceVariant,
 )
-from django.db.models import QuerySet, Q
+from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 from django_dicom.models.series import Series
 from django_dicom.utils import validation
+import json
 
 
 def filter_array(queryset: QuerySet, field_name: str, value: list):
@@ -40,7 +41,7 @@ def filter_array(queryset: QuerySet, field_name: str, value: list):
     return queryset.filter(**kwargs).all()
 
 
-def filter_header(queryset: QuerySet, field_name: str, values: dict):
+def filter_header(queryset: QuerySet, field_name: str, values: str):
     """
     Returns a desired lookup for a DicomHeader field.
 
@@ -57,11 +58,12 @@ def filter_header(queryset: QuerySet, field_name: str, values: dict):
     if not values:
         return queryset
 
-    series_all = queryset.objects.all()
+    series_all = queryset.all()
+    values_json = json.loads(values)
     series_ids = []
     for series in series_all:
         header = series.image_set.first().header.instance
-        result = validation.run_checks(values, header)
+        result = validation.run_checks(values_json, header)
         if result:
             series_ids.append(series.id)
 
@@ -164,6 +166,7 @@ class SeriesFilter(filters.FilterSet):
     )
     device_serial_number = filters.AllValuesFilter("device_serial_number")
     institution_name = filters.AllValuesFilter("institution_name")
+    header_fields = filters.CharFilter("image", method=filter_header)
 
     class Meta:
         model = Series
