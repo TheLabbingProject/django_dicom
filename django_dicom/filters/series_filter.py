@@ -187,6 +187,7 @@ class SeriesFilter(filters.FilterSet):
             "echo_time",
             "inversion_time",
             "repetition_time",
+            "slice_thickness",
             "scanning_sequence",
             "sequence_variant",
             "flip_angle",

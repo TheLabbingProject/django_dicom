@@ -64,4 +64,6 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
         user = get_user_model().objects.get(username=self.request.user)
         if user.is_staff:
             return Series.objects.all()
-        return Series.objects.filter(scan__study_groups__study__collaborators=user)
+        return Series.objects.filter(
+            scan__study_groups__study__collaborators=user
+        )
