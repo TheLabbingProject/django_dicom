@@ -166,6 +166,7 @@ class SeriesFilter(filters.FilterSet):
     )
     device_serial_number = filters.AllValuesFilter("device_serial_number")
     institution_name = filters.AllValuesFilter("institution_name")
+    pixel_spacing = filters.MultipleChoiceFilter("pixel_spacing", method=filter_array, conjoined=True)
     header_fields = filters.CharFilter("image", method=filter_header)
 
     class Meta:
@@ -188,6 +189,7 @@ class SeriesFilter(filters.FilterSet):
             "inversion_time",
             "repetition_time",
             "slice_thickness",
+            "pixel_spacing",
             "scanning_sequence",
             "sequence_variant",
             "flip_angle",

@@ -89,35 +89,6 @@ def run_checks(search_values, header):
     return all(fields_check)
 
 
-def field_checker(field, value, header):
-    global checking_fields
-    first_char = field[0] == "-"
-    func = "negative" if first_char else "positive"
-    field = field[1:] if first_char else field
-    header_value = header_getter(field, header)
-    return checking_fields[field][func](value, field, header_value)
-
-
-def scan_details(scan_id, header):
-    return {
-        "ID": scan_id,
-        "RepetitionTime": header_getter("RepetitionTime", header),
-        "InversionTime": header_getter("InversionTime", header),
-        "PixelSpacing": header_getter("PixelSpacing", header),
-        "SliceThickness": header_getter("SliceThickness", header),
-        "SeriesDescription": header_getter("SeriesDescription", header),
-        "SequenceName": header_getter("SequenceName", header),
-        "InternalPulseSequenceName": header_getter(
-            "InternalPulseSequenceName", header
-        ),
-        "StudyTime": header_getter("StudyTime", header),
-        "StudyDate": header_getter("StudyDate", header),
-        "Manufacturer": header_getter("Manufacturer", header),
-        "ScanningSequence": header_getter("ScanningSequence", header),
-        "SequenceVariant": header_getter("SequenceVariant", header),
-    }
-
-
 checking_fields = {
     "ScanningSequence": {
         "positive": positive_list_checker,
@@ -160,3 +131,32 @@ checking_fields = {
         "negative": negative_checker,
     },
 }
+
+
+def field_checker(field, value, header):
+    first_char = field[0] == "-"
+    func = "negative" if first_char else "positive"
+    field = field[1:] if first_char else field
+    header_value = header_getter(field, header)
+    return checking_fields[field][func](value, field, header_value)
+
+
+def scan_details(scan_id, header):
+    return {
+        "ID": scan_id,
+        "RepetitionTime": header_getter("RepetitionTime", header),
+        "InversionTime": header_getter("InversionTime", header),
+        "PixelSpacing": header_getter("PixelSpacing", header),
+        "SliceThickness": header_getter("SliceThickness", header),
+        "SeriesDescription": header_getter("SeriesDescription", header),
+        "SequenceName": header_getter("SequenceName", header),
+        "InternalPulseSequenceName": header_getter(
+            "InternalPulseSequenceName", header
+        ),
+        "StudyTime": header_getter("StudyTime", header),
+        "StudyDate": header_getter("StudyDate", header),
+        "Manufacturer": header_getter("Manufacturer", header),
+        "ScanningSequence": header_getter("ScanningSequence", header),
+        "SequenceVariant": header_getter("SequenceVariant", header),
+    }
+
