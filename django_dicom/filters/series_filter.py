@@ -166,7 +166,9 @@ class SeriesFilter(filters.FilterSet):
     )
     device_serial_number = filters.AllValuesFilter("device_serial_number")
     institution_name = filters.AllValuesFilter("institution_name")
-    pixel_spacing = filters.MultipleChoiceFilter("pixel_spacing", method=filter_array, conjoined=True)
+    pixel_spacing = filters.CharFilter(
+        "pixel_spacing", lookup_expr="icontains"
+    )
     header_fields = filters.CharFilter("image", method=filter_header)
 
     class Meta:

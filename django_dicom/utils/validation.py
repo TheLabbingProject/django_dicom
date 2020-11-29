@@ -7,7 +7,7 @@ from dicom_parser.utils.code_strings import ScanningSequence, SequenceVariant
 #     "InversionTime": (0x0018, 0x0082),
 #     "PixelSpacing": (0x0028, 0x0030),
 #     "SliceThickness": (0x0018, 0x0050),
-#     "SeriesDescription": (0x0008, 0x103E),
+#     "StudyDescription": (0x0008, 0x1030),
 #     "SequenceName": (0x0018, 0x0024),
 #     "PulseSequenceName": (0x0018, 0x9005),
 #     "StudyTime": (0x0008, 0x0030),
@@ -18,6 +18,9 @@ from dicom_parser.utils.code_strings import ScanningSequence, SequenceVariant
 
 
 def header_getter(field, header):
+    # if "(" in field:
+    #     field = [hex(int(tag.strip(), 16)) for tag in field[1:-1].split(",")]
+    #     field = tuple(field)
     data = header.get(field)
     if type(data) is list:
         data = (

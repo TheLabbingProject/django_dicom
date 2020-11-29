@@ -71,12 +71,16 @@ class Series(DicomEntity):
     #: `Series Date
     #: <https://dicom.innolitics.com/ciods/mr-image/general-series/00080021>`_
     #: value.
-    date = models.DateField(blank=True, null=True, help_text=help_text.SERIES_DATE)
+    date = models.DateField(
+        blank=True, null=True, help_text=help_text.SERIES_DATE
+    )
 
     #: `Series Time
     #: <https://dicom.innolitics.com/ciods/mr-image/general-series/00080021>`_
     #: value.
-    time = models.TimeField(blank=True, null=True, help_text=help_text.SERIES_TIME)
+    time = models.TimeField(
+        blank=True, null=True, help_text=help_text.SERIES_TIME
+    )
 
     #: `Echo Time
     #: <https://dicom.innolitics.com/ciods/mr-image/mr-image/00180081>`_
@@ -189,14 +193,20 @@ class Series(DicomEntity):
     #: <https://dicom.innolitics.com/ciods/mr-image/device/00500010/00181000>`_
     #: value.
     device_serial_number = models.CharField(
-        max_length=64, blank=True, null=True, help_text=help_text.DEVICE_SERIAL_NUMBER,
+        max_length=64,
+        blank=True,
+        null=True,
+        help_text=help_text.DEVICE_SERIAL_NUMBER,
     )
 
     #: `Body Part Examined
     #: <https://dicom.innolitics.com/ciods/mr-image/general-series/00180015>`_
     #: value.
     body_part_examined = models.CharField(
-        max_length=16, blank=True, null=True, help_text=help_text.BODY_PART_EXAMINED,
+        max_length=16,
+        blank=True,
+        null=True,
+        help_text=help_text.BODY_PART_EXAMINED,
     )
 
     #: `Patient Position
@@ -221,7 +231,10 @@ class Series(DicomEntity):
     #: <https://dicom.innolitics.com/ciods/mr-image/general-equipment/00080080>`_
     #: value.
     institution_name = models.CharField(
-        max_length=64, blank=True, null=True, help_text=help_text.INSTITUTE_NAME,
+        max_length=64,
+        blank=True,
+        null=True,
+        help_text=help_text.INSTITUTE_NAME,
     )
 
     #: `Operator's Name
@@ -357,7 +370,9 @@ class Series(DicomEntity):
 
         sample_image = self.image_set.first()
         dcm_path = (
-            sample_image.dcm.name if os.getenv("USE_S3") else sample_image.dcm.path
+            sample_image.dcm.name
+            if os.getenv("USE_S3")
+            else sample_image.dcm.path
         )
         return Path(dcm_path).parent
 
