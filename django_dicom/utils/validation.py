@@ -1,4 +1,6 @@
 from dicom_parser.utils.code_strings import ScanningSequence, SequenceVariant
+from django_dicom.utils.fields_enum import NegativitiyEnum, FieldsEnum
+from django_dicom.models import DataElement
 
 # fields = {
 #     "ScanningSequence": (0x0018, 0x0020),
@@ -18,28 +20,35 @@ from dicom_parser.utils.code_strings import ScanningSequence, SequenceVariant
 
 
 def header_getter(field, header):
-    # if "(" in field:
-    #     field = [hex(int(tag.strip(), 16)) for tag in field[1:-1].split(",")]
-    #     field = tuple(field)
-    data = header.get(field)
-    if type(data) is list:
+    data_element = header.get_data_element(field)
+
+    dtype = data_element.VALUE_REPRESENTATION.value
+    data = data_element.value
+    if "String" in dtype and not "Decimal" in dtype and not "Code" in dtype:
+        dtype = "STRING"
+    elif "Code String" in dtype:
+        dtype = "LIST"
+    else:
+        dtype = "NORMAL"
+
+    if isinstance(data, (tuple, list)):
         data = (
             [ScanningSequence(elem).name for elem in data]
-            if field == "ScanningSequence"
+            if field == "ScanningSequence" or field == (0x0018, 0x0020)
             else [SequenceVariant(elem).name for elem in data]
-            if field == "SequenceVariant"
+            if field == "SequenceVariant" or field == (0x0018, 0x0021)
             else data
         )
     else:
         data = (
             ScanningSequence(data).name
-            if field == "ScanningSequence"
+            if field == "ScanningSequence" or field == (0x0018, 0x0020)
             else SequenceVariant(data).name
-            if field == "SequenceVariant"
+            if field == "SequenceVariant" or field == (0x0018, 0x0021)
             else data
         )
 
-    return data or None
+    return data or None, dtype
 
 
 def positive_checker(value, field, header_value):
@@ -56,31 +65,43 @@ def negative_checker(value, field, header_value):
 
 def positive_string_checker(values, field, header_value):
     if header_value:
-        return any(
-            value in str(header_value) or value.lower() in str(header_value)
-            for value in values
-        )
+        if isinstance(values, (tuple, list)):
+            return any(
+                value in str(header_value) or value.lower() in str(header_value)
+                for value in values
+            )
+        else:
+            return values in str(header_value) or values.lower() in str(header_value)
     return False
 
 
 def negative_string_checker(values, field, header_value):
     if header_value:
-        return not any(
-            value in str(header_value) or value.lower() in str(header_value)
-            for value in values
-        )
+        if isinstance(values, (tuple, list)):
+            return not any(
+                value in str(header_value) or value.lower() in str(header_value)
+                for value in values
+            )
+        else:
+            return not values in str(header_value) and not values.lower() in str(header_value)
     return False
 
 
 def positive_list_checker(values, field, header_value):
     if header_value:
-        return all(value in header_value for value in values)
+        if isinstance(values, (tuple, list)):
+            return all(value in header_value for value in values)
+        else:
+            return values in header_value
     return False
 
 
 def negative_list_checker(values, field, header_value):
     if header_value:
-        return not all(value in header_value for value in values)
+        if isinstance(values, (tuple, list)):
+            return not all(value in header_value for value in values)
+        else:
+            return not values in header_value
     return False
 
 
@@ -91,57 +112,78 @@ def run_checks(search_values, header):
     ]
     return all(fields_check)
 
+checkers_list = [
+    [
+        positive_checker,
+        positive_list_checker,
+        positive_string_checker,
+    ],
+    [
+        negative_checker,
+        negative_list_checker,
+        negative_string_checker,
+    ]
+]
 
-checking_fields = {
-    "ScanningSequence": {
-        "positive": positive_list_checker,
-        "negative": negative_list_checker,
-    },
-    "SequenceVariant": {
-        "positive": positive_list_checker,
-        "negative": negative_list_checker,
-    },
-    "SequenceName": {
-        "positive": positive_string_checker,
-        "negative": negative_string_checker,
-    },
-    "InternalPulseSequenceName": {
-        "positive": positive_string_checker,
-        "negative": negative_string_checker,
-    },
-    "InversionTime": {
-        "positive": positive_checker,
-        "negative": negative_checker,
-    },
-    "RepetitionTime": {
-        "positive": positive_checker,
-        "negative": negative_checker,
-    },
-    "Manufacturer": {
-        "positive": positive_checker,
-        "negative": negative_checker,
-    },
-    "PixelSpacing": {
-        "positive": positive_checker,
-        "negative": negative_checker,
-    },
-    "SliceThickness": {
-        "positive": positive_checker,
-        "negative": negative_checker,
-    },
-    "SeriesDescription": {
-        "positive": positive_checker,
-        "negative": negative_checker,
-    },
-}
+# checking_fields = {
+#     "ScanningSequence": {
+#         "positive": positive_list_checker,
+#         "negative": negative_list_checker,
+#     },
+#     "SequenceVariant": {
+#         "positive": positive_list_checker,
+#         "negative": negative_list_checker,
+#     },
+#     "SequenceName": {
+#         "positive": positive_string_checker,
+#         "negative": negative_string_checker,
+#     },
+#     "InternalPulseSequenceName": {
+#         "positive": positive_string_checker,
+#         "negative": negative_string_checker,
+#     },
+#     "InversionTime": {
+#         "positive": positive_checker,
+#         "negative": negative_checker,
+#     },
+#     "RepetitionTime": {
+#         "positive": positive_checker,
+#         "negative": negative_checker,
+#     },
+#     "Manufacturer": {
+#         "positive": positive_checker,
+#         "negative": negative_checker,
+#     },
+#     "PixelSpacing": {
+#         "positive": positive_checker,
+#         "negative": negative_checker,
+#     },
+#     "SliceThickness": {
+#         "positive": positive_checker,
+#         "negative": negative_checker,
+#     },
+#     "SeriesDescription": {
+#         "positive": positive_checker,
+#         "negative": negative_checker,
+#     },
+# }
+
+def field_correction(field):
+    first_char = field[0] == "-"
+    func = "NEGATIVE" if first_char else "POSITIVE"
+    output = field[1:] if first_char else field
+    if "(" in output:
+        output = [int(tag.strip(), 16) for tag in output[1:-1].split(",")]
+        output = tuple(output)
+
+    return func, output
 
 
 def field_checker(field, value, header):
-    first_char = field[0] == "-"
-    func = "negative" if first_char else "positive"
-    field = field[1:] if first_char else field
-    header_value = header_getter(field, header)
-    return checking_fields[field][func](value, field, header_value)
+    func, field = field_correction(field)
+    header_value, dtype = header_getter(field, header)
+    return checkers_list[NegativitiyEnum[func].value][FieldsEnum[dtype].value](value, field, header_value)
+    # return checking_fields[field][func](value, field, header_value)
 
 
 def scan_details(scan_id, header):
