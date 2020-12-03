@@ -1,6 +1,5 @@
 from dicom_parser.utils.code_strings import ScanningSequence, SequenceVariant
-from django_dicom.utils.fields_enum import NegativitiyEnum, FieldsEnum
-from django_dicom.models import DataElement
+from django_dicom.utils.utils import NegativitiyEnum, FieldsEnum
 
 # fields = {
 #     "ScanningSequence": (0x0018, 0x0020),
@@ -24,7 +23,7 @@ def header_getter(field, header):
 
     dtype = data_element.VALUE_REPRESENTATION.value
     data = data_element.value
-    if "String" in dtype and not "Decimal" in dtype and not "Code" in dtype:
+    if "String" in dtype and "Decimal" not in dtype and "Code" not in dtype:
         dtype = "STRING"
     elif "Code String" in dtype:
         dtype = "LIST"
@@ -67,11 +66,14 @@ def positive_string_checker(values, field, header_value):
     if header_value:
         if isinstance(values, (tuple, list)):
             return any(
-                value in str(header_value) or value.lower() in str(header_value)
+                value in str(header_value)
+                or value.lower() in str(header_value)
                 for value in values
             )
         else:
-            return values in str(header_value) or values.lower() in str(header_value)
+            return values in str(header_value) or values.lower() in str(
+                header_value
+            )
     return False
 
 
@@ -79,11 +81,14 @@ def negative_string_checker(values, field, header_value):
     if header_value:
         if isinstance(values, (tuple, list)):
             return not any(
-                value in str(header_value) or value.lower() in str(header_value)
+                value in str(header_value)
+                or value.lower() in str(header_value)
                 for value in values
             )
         else:
-            return not values in str(header_value) and not values.lower() in str(header_value)
+            return values not in str(
+                header_value
+            ) and values.lower() not in str(header_value)
     return False
 
 
@@ -101,7 +106,7 @@ def negative_list_checker(values, field, header_value):
         if isinstance(values, (tuple, list)):
             return not all(value in header_value for value in values)
         else:
-            return not values in header_value
+            return values not in header_value
     return False
 
 
@@ -112,17 +117,10 @@ def run_checks(search_values, header):
     ]
     return all(fields_check)
 
+
 checkers_list = [
-    [
-        positive_checker,
-        positive_list_checker,
-        positive_string_checker,
-    ],
-    [
-        negative_checker,
-        negative_list_checker,
-        negative_string_checker,
-    ]
+    [positive_checker, positive_list_checker, positive_string_checker],
+    [negative_checker, negative_list_checker, negative_string_checker],
 ]
 
 # checking_fields = {
@@ -168,6 +166,7 @@ checkers_list = [
 #     },
 # }
 
+
 def field_correction(field):
     first_char = field[0] == "-"
     func = "NEGATIVE" if first_char else "POSITIVE"
@@ -182,8 +181,9 @@ def field_correction(field):
 def field_checker(field, value, header):
     func, field = field_correction(field)
     header_value, dtype = header_getter(field, header)
-    return checkers_list[NegativitiyEnum[func].value][FieldsEnum[dtype].value](value, field, header_value)
-    # return checking_fields[field][func](value, field, header_value)
+    return checkers_list[NegativitiyEnum[func].value][FieldsEnum[dtype].value](
+        value, field, header_value
+    )
 
 
 def scan_details(scan_id, header):
@@ -204,4 +204,3 @@ def scan_details(scan_id, header):
         "ScanningSequence": header_getter("ScanningSequence", header),
         "SequenceVariant": header_getter("SequenceVariant", header),
     }
-

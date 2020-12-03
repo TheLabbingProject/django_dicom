@@ -12,7 +12,7 @@ from dicom_parser.utils.code_strings import (
 from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 from django_dicom.models.series import Series
-from django_dicom.utils import validation
+from django_dicom.utils import validation, utils
 import json
 
 
@@ -38,6 +38,29 @@ def filter_array(queryset: QuerySet, field_name: str, value: list):
     contains = f"{field_name}__contains"
     length = f"{field_name}__len"
     kwargs = {contains: value, length: len(value)}
+    return queryset.filter(**kwargs).all()
+
+
+def filter_spacing(queryset: QuerySet, field_name: str, value: list):
+    """
+    Returns an exact lookup for a PostgreSQL ArrayField_.
+
+    .. _ArrayField: https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#arrayfield
+
+    Parameters
+    ----------
+    queryset : :class:`~django.db.models.QuerySet`
+        The filtered queryset
+    field_name : str
+        The name of the field the queryset is being filtered by
+    value : list
+        The values to filter by
+    """
+
+    if not value:
+        return queryset
+    # We check both content and length in order to return only exact matches
+    kwargs = {field_name: value}
     return queryset.filter(**kwargs).all()
 
 
@@ -166,8 +189,12 @@ class SeriesFilter(filters.FilterSet):
     )
     device_serial_number = filters.AllValuesFilter("device_serial_number")
     institution_name = filters.AllValuesFilter("institution_name")
-    pixel_spacing = filters.CharFilter(
-        "pixel_spacing", lookup_expr="icontains"
+    pixel_spacing = filters.CharFilter("pixel_spacing", method=filter_spacing)
+    repetition_time = filters.LookupChoiceFilter(
+        "repetition_time", lookup_choices=utils.number_lookups,
+    )
+    inversion_time = filters.LookupChoiceFilter(
+        "inversion_time", lookup_choices=utils.number_lookups,
     )
     header_fields = filters.CharFilter("image", method=filter_header)
 
