@@ -4,6 +4,7 @@ from django_dicom.utils.utils import NegativitiyEnum, FieldsEnum
 # fields = {
 #     "ScanningSequence": (0x0018, 0x0020),
 #     "SequenceVariant": (0x0018, 0x0021),
+#     "EchoTime": (0x0018, 0x0081),
 #     "RepetitionTime": (0x0018, 0x0080),
 #     "InversionTime": (0x0018, 0x0082),
 #     "PixelSpacing": (0x0028, 0x0030),
@@ -23,7 +24,12 @@ def header_getter(field, header):
 
     dtype = data_element.VALUE_REPRESENTATION.value
     data = data_element.value
-    if "String" in dtype and "Decimal" not in dtype and "Code" not in dtype:
+    if (
+        "String" in dtype
+        and "Decimal" not in dtype
+        and "Code" not in dtype
+        or dtype == "Unknown"
+    ):
         dtype = "STRING"
     elif "Code String" in dtype:
         dtype = "LIST"
@@ -122,49 +128,6 @@ checkers_list = [
     [positive_checker, positive_list_checker, positive_string_checker],
     [negative_checker, negative_list_checker, negative_string_checker],
 ]
-
-# checking_fields = {
-#     "ScanningSequence": {
-#         "positive": positive_list_checker,
-#         "negative": negative_list_checker,
-#     },
-#     "SequenceVariant": {
-#         "positive": positive_list_checker,
-#         "negative": negative_list_checker,
-#     },
-#     "SequenceName": {
-#         "positive": positive_string_checker,
-#         "negative": negative_string_checker,
-#     },
-#     "InternalPulseSequenceName": {
-#         "positive": positive_string_checker,
-#         "negative": negative_string_checker,
-#     },
-#     "InversionTime": {
-#         "positive": positive_checker,
-#         "negative": negative_checker,
-#     },
-#     "RepetitionTime": {
-#         "positive": positive_checker,
-#         "negative": negative_checker,
-#     },
-#     "Manufacturer": {
-#         "positive": positive_checker,
-#         "negative": negative_checker,
-#     },
-#     "PixelSpacing": {
-#         "positive": positive_checker,
-#         "negative": negative_checker,
-#     },
-#     "SliceThickness": {
-#         "positive": positive_checker,
-#         "negative": negative_checker,
-#     },
-#     "SeriesDescription": {
-#         "positive": positive_checker,
-#         "negative": negative_checker,
-#     },
-# }
 
 
 def field_correction(field):

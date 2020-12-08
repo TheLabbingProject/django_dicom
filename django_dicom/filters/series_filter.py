@@ -59,7 +59,7 @@ def filter_spacing(queryset: QuerySet, field_name: str, value: list):
 
     if not value:
         return queryset
-    # We check both content and length in order to return only exact matches
+    # We check first value with the given operator
     kwargs = {field_name: value}
     return queryset.filter(**kwargs).all()
 
@@ -195,6 +195,9 @@ class SeriesFilter(filters.FilterSet):
     )
     inversion_time = filters.LookupChoiceFilter(
         "inversion_time", lookup_choices=utils.number_lookups,
+    )
+    echo_time = filters.LookupChoiceFilter(
+        "echo_time", lookup_choices=utils.number_lookups,
     )
     header_fields = filters.CharFilter("image", method=filter_header)
 
