@@ -152,6 +152,7 @@ def field_checker(field, value, header):
 def scan_details(scan_id, header):
     return {
         "ID": scan_id,
+        "EchoTime": header_getter("EchoTime", header),
         "RepetitionTime": header_getter("RepetitionTime", header),
         "InversionTime": header_getter("InversionTime", header),
         "PixelSpacing": header_getter("PixelSpacing", header),

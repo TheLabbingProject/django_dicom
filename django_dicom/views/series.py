@@ -5,6 +5,8 @@ from django_dicom.serializers import SeriesSerializer
 from django_dicom.views.defaults import DefaultsMixin
 from django_dicom.views.pagination import StandardResultsSetPagination
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 
 class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
@@ -67,3 +69,14 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
         return Series.objects.filter(
             scan__study_groups__study__collaborators=user
         )
+
+    @action(detail=False, methods=["get"])
+    def get_manufacturers(self, request):
+        queryset = self.get_queryset()
+        manufacturers = set(
+            value
+            for value in queryset.values_list("manufacturer", flat=True)
+            if value is not None
+        )
+        data = {"results": manufacturers}
+        return Response(data)

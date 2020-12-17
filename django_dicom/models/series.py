@@ -258,6 +258,23 @@ class Series(DicomEntity):
         null=True, blank=True, help_text=help_text.FLIP_ANGLE
     )
 
+    #: `Pulse Sequence Name
+    #: <https://dicom.innolitics.com/ciods/enhanced-mr-color-image/mr-pulse-sequence/00189005>`_
+    #: value.
+    pulse_sequence_name = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        help_text=help_text.PULSE_SEQUENCE_NAME,
+    )
+
+    #: `Sequence Name
+    #: <https://dicom.innolitics.com/ciods/mr-image/mr-image/00180024>`_
+    #: value.
+    sequence_name = models.CharField(
+        max_length=64, blank=True, null=True, help_text=help_text.SEQUENCE_NAME
+    )
+
     #: `MR Acquisition Type
     #: <https://dicom.innolitics.com/ciods/mr-image/mr-image/00180023>`_
     #: value.
@@ -297,9 +314,10 @@ class Series(DicomEntity):
         "description": "SeriesDescription",
         "number": "SeriesNumber",
         "mr_acquisition_type": "MRAcquisitionType",
+        "pulse_sequence_name": (0x0019, 0x109C),
     }
 
-    # Cached :class:`~dicom_parser.image.Image` instance.
+    # Cached :class:`~dicom_parser.series.Series` instance.
     _instance = None
 
     logger = logging.getLogger("data.dicom.series")

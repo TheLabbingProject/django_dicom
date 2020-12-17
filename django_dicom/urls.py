@@ -17,4 +17,9 @@ urlpatterns = [
         views.PatientViewSet.as_view({"get": "download_series_set"}),
         name="download_series_set",
     ),
+    path(
+        "dicom/manufacturersList/",
+        views.SeriesViewSet.as_view({"get": "get_manufacturers"}),
+        name="get_manufacturers",
+    ),
 ]
