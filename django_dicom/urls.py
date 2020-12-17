@@ -22,4 +22,9 @@ urlpatterns = [
         views.SeriesViewSet.as_view({"get": "get_manufacturers"}),
         name="get_manufacturers",
     ),
+    path(
+        "dicom/series/get_csv/",
+        views.SeriesViewSet.as_view({"get": "get_csv"}),
+        name="get_csv",
+    ),
 ]
