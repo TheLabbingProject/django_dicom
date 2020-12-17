@@ -8,12 +8,7 @@ from dicom_parser.header import Header as DicomHeader
 class Migration(migrations.Migration):
     def populate_new_fields(apps, schema_editor):
         Series = apps.get_model("django_dicom", "Series")
-        iterator = create_progressbar(
-            Series.objects.all(),
-            unit="series",
-            desc="Populating new series fields",
-        )
-        for series in iterator:
+        for series in Series.objects.all():
             header = DicomHeader(str(series.image_set.first().dcm))
             series.pulse_sequence_name = header.get((0x0019, 0x109C))
             series.sequence_name = header.get((0x0018, 0x0024))

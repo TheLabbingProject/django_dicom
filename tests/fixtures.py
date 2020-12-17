@@ -2,14 +2,18 @@ import os
 
 from datetime import datetime
 
-TEST_FILES_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "files")
+TEST_FILES_PATH = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), "files"
+)
 TEST_ZIP_PATH = os.path.join(TEST_FILES_PATH, "001.zip")
 TEST_IMAGE_PATH = os.path.join(TEST_FILES_PATH, "001.dcm")
 TEST_DWI_IMAGE_PATH = os.path.join(TEST_FILES_PATH, "dwi_image.dcm")
 TEST_DIFFERENT_PATIENT_IMAGE_PATH = os.path.join(
     TEST_FILES_PATH, "different_patient.dcm"
 )
-TEST_DIFFERENT_STUDY_IMAGE_PATH = os.path.join(TEST_FILES_PATH, "different_study.dcm")
+TEST_DIFFERENT_STUDY_IMAGE_PATH = os.path.join(
+    TEST_FILES_PATH, "different_study.dcm"
+)
 
 TEST_IMAGE_FIELDS = {
     "dcm": TEST_IMAGE_PATH,
@@ -51,6 +55,7 @@ TEST_SERIES_FIELDS = {
     "slice_thickness": 6.0,
     "echo_train_length": 1,
     "operators_name": "Irina",
+    "sequence_name": "*fl2d1",
 }
 TEST_DWI_SERIES_FIELDS = {
     "uid": "1.3.12.2.1107.5.2.43.66024.2018050112551393877039165.0.0.0",
@@ -148,7 +153,10 @@ TEST_PERSON_NAME2 = {
 }
 
 now_time = datetime.now()
-TEST_DATETIME = {"value": now_time.strftime("%Y%m%d%H%M%S.%f&%Z%x"), "raw": now_time}
+TEST_DATETIME = {
+    "value": now_time.strftime("%Y%m%d%H%M%S.%f&%Z%x"),
+    "raw": now_time,
+}
 
 TEST_DEFINITION_TO_SERIES = {
     "Tag": ("7fe1", "0010"),

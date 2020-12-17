@@ -34,11 +34,15 @@ class SeriesTestCase(TestCase):
 
         .. _documentation: https://docs.djangoproject.com/en/2.2/topics/testing/tools/#testcase
         """
-        TEST_SERIES_FIELDS["patient"] = Patient.objects.create(**TEST_PATIENT_FIELDS)
+        TEST_SERIES_FIELDS["patient"] = Patient.objects.create(
+            **TEST_PATIENT_FIELDS
+        )
         TEST_DWI_SERIES_FIELDS["patient"] = TEST_SERIES_FIELDS["patient"]
         TEST_SERIES_FIELDS["study"] = Study.objects.create(**TEST_STUDY_FIELDS)
         TEST_DWI_SERIES_FIELDS["study"] = TEST_SERIES_FIELDS["study"]
-        TEST_IMAGE_FIELDS["series"] = Series.objects.create(**TEST_SERIES_FIELDS)
+        TEST_IMAGE_FIELDS["series"] = Series.objects.create(
+            **TEST_SERIES_FIELDS
+        )
         TEST_DWI_IMAGE_FIELDS["series"] = Series.objects.create(
             **TEST_DWI_SERIES_FIELDS
         )
@@ -79,7 +83,9 @@ class SeriesTestCase(TestCase):
         .. _Series: https://en.wiktionary.org/wiki/series
         """
 
-        self.assertTupleEqual(Series._meta.ordering, ("-date", "time", "number",))
+        self.assertTupleEqual(
+            Series._meta.ordering, ("-date", "time", "number",)
+        )
 
     # TODO: Test for indexes
 
@@ -817,6 +823,49 @@ class SeriesTestCase(TestCase):
         self.assertTrue(field.blank)
         self.assertTrue(field.null)
 
+    # pulse_sequence_name
+    def test_pulse_sequence_name_blank_and_null(self):
+        """
+        Pulse Sequence Name is not available in all manufacturers,
+        therefore it is possible for this field to be blank and null.
+
+        """
+
+        field = self.series._meta.get_field("pulse_sequence_name")
+        self.assertTrue(field.blank)
+        self.assertTrue(field.null)
+
+    def test_pulse_sequence_name_max_length(self):
+        """
+        Pulse Sequence Name private tag can be as long as 64 chars.
+
+        """
+
+        field = self.series._meta.get_field("pulse_sequence_name")
+        self.assertEqual(field.max_length, 64)
+
+    # sequence_name
+    def test_sequence_name_blank_and_null(self):
+        """
+        Sequence Name is not available in all manufacturers,
+        therefore it is possible for this field to be blank and null.
+
+        """
+
+        field = self.series._meta.get_field("sequence_name")
+        self.assertTrue(field.blank)
+        self.assertTrue(field.null)
+
+    def test_sequence_name_max_length(self):
+        """
+        `Sequence Name`_ can be as long as 64 chars.
+
+        _Sequence Name: https://dicom.innolitics.com/ciods/mr-image/mr-image/00180024
+        """
+
+        field = self.series._meta.get_field("sequence_name")
+        self.assertEqual(field.max_length, 64)
+
     ###########
     # Methods #
     ###########
@@ -862,7 +911,9 @@ class SeriesTestCase(TestCase):
             "operators_name",
         ]
         expected_values = {
-            field.name: seperate_raw_name(getattr(self.series, field.name), fields[:-1])
+            field.name: seperate_raw_name(
+                getattr(self.series, field.name), fields[:-1]
+            )
             if field.name in fields
             else getattr(self.series, field.name)
             for field in header_fields
@@ -870,7 +921,8 @@ class SeriesTestCase(TestCase):
         result = self.series.update_fields_from_header(self.image.header)
         self.assertIsNone(result)
         values = {
-            field.name: getattr(self.series, field.name) for field in header_fields
+            field.name: getattr(self.series, field.name)
+            for field in header_fields
         }
         self.assertDictEqual(values, expected_values)
 
