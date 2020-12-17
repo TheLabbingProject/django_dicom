@@ -7,7 +7,7 @@ from rest_framework import serializers
 class SeriesSerializer(serializers.HyperlinkedModelSerializer):
     """
     A `serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_ class for the :class:`~django_dicom.models.series.Series` model.
-    
+
     """
 
     url = serializers.HyperlinkedIdentityField(view_name="dicom:series-detail")
@@ -33,6 +33,8 @@ class SeriesSerializer(serializers.HyperlinkedModelSerializer):
             "time",
             "modality",
             "protocol_name",
+            "pulse_sequence_name",
+            "sequence_name",
             "scanning_sequence",
             "sequence_variant",
             "pixel_spacing",

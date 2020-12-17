@@ -4,10 +4,21 @@ Definition of the :class:`FilterSet` subclass that will be assigned to the
 :attr:`~django_dicom.views.series.SeriesViewSet.filter_class` attribute value.
 """
 
-from dicom_parser.utils.code_strings import Modality, ScanningSequence, SequenceVariant
-from django.db.models import QuerySet
+from dicom_parser.utils.code_strings import (
+    Modality,
+    ScanningSequence,
+    SequenceVariant,
+)
+from django.db.models import QuerySet, Q
 from django_filters import rest_framework as filters
 from django_dicom.models.series import Series
+from django_dicom.utils import validation, utils
+import json, operator
+from functools import reduce
+
+
+class CharInFilter(filters.BaseInFilter, filters.CharFilter):
+    pass
 
 
 def filter_array(queryset: QuerySet, field_name: str, value: list):
@@ -35,6 +46,59 @@ def filter_array(queryset: QuerySet, field_name: str, value: list):
     return queryset.filter(**kwargs).all()
 
 
+def filter_header(queryset: QuerySet, field_name: str, values: str):
+    """
+    Returns a desired lookup for a DicomHeader field.
+
+    Parameters
+    ----------
+    queryset : :class:`~django.db.models.QuerySet`
+        The filtered queryset
+    field_name : str
+        The name of the field the queryset is being filtered by
+    values : dict
+        The fields and values to filter by
+    """
+
+    if not values:
+        return queryset
+
+    series_all = queryset.all()
+    values_json = json.loads(values)
+    series_ids = []
+    for series in series_all:
+        header = series.image_set.first().header.instance
+        result = validation.run_checks(values_json, header)
+        if result:
+            series_ids.append(series.id)
+
+    return queryset.filter(id__in=series_ids).all()
+
+
+def filter_in_string(queryset: QuerySet, field_name: str, values: list):
+    """
+    Returns a in-icontains mixed lookup with 'or' between values for a CharField.
+
+    Parameters
+    ----------
+    queryset : :class:`~django.db.models.QuerySet`
+        The filtered queryset
+    field_name : str
+        The name of the field the queryset is being filtered by
+    values : str
+        The values to filter by
+    """
+
+    if not values:
+        return queryset
+    # We check both content and length in order to return only exact matches
+    icontains = f"{field_name}__icontains"
+    condition = reduce(
+        operator.or_, [Q(**{icontains: value}) for value in values]
+    )
+    return queryset.filter(condition).all()
+
+
 class SeriesFilter(filters.FilterSet):
     """
     Provides filtering functionality for the
@@ -50,7 +114,7 @@ class SeriesFilter(filters.FilterSet):
           instance's :attr:`~django_dicom.models.study.Study.uid` value
         * *study_description*: Related
           :class:`~django_dicom.models.study.Study` instance's
-          :attr:`~django_dicom.models.study.Study.description` value (contains)
+          :attr:`~django_dicom.models.study.Study.description` value (in-icontains)
         * *modality*: Any of the values defined in
           :class:`~dicom_parser.utils.code_strings.modality.Modality`
         * *description*: Series description value (contains, icontains, or
@@ -85,11 +149,22 @@ class SeriesFilter(filters.FilterSet):
         * *institution_name*: Any of the existing
           :attr:`~django_dicom.models.series.Series.institution_name` in the
           database
+        * *pulse_sequence_name*:
+          :attr:`~django_dicom.models.series.Series.pulse_sequence_name` value
+          (in-icontains)
+        * *sequence_name*:
+          :attr:`~django_dicom.models.series.Series.sequence_name` value
+          (in-icontains)
     """
 
-    study_uid = filters.CharFilter("study__uid", lookup_expr="exact", label="Study UID")
-    study_description = filters.CharFilter(
-        "study__description", lookup_expr="contains", label="Study description contains"
+    study_uid = filters.CharFilter(
+        "study__uid", lookup_expr="exact", label="Study UID"
+    )
+    study_description = CharInFilter(
+        field_name="study__description",
+        lookup_expr="in",
+        label="Study description icontains",
+        method=filter_in_string,
     )
     modality = filters.ChoiceFilter("modality", choices=Modality.choices())
     description = filters.LookupChoiceFilter(
@@ -119,10 +194,30 @@ class SeriesFilter(filters.FilterSet):
     created_after_time = filters.TimeFilter("time", lookup_expr="gte")
     created_before_time = filters.TimeFilter("time", lookup_expr="lte")
     manufacturer = filters.AllValuesFilter("manufacturer")
-    manufacturer_model_name = filters.AllValuesFilter("manufacturer_model_name")
-    magnetic_field_strength = filters.AllValuesFilter("magnetic_field_strength")
+    manufacturer_model_name = filters.AllValuesFilter(
+        "manufacturer_model_name"
+    )
+    magnetic_field_strength = filters.AllValuesFilter(
+        "magnetic_field_strength"
+    )
     device_serial_number = filters.AllValuesFilter("device_serial_number")
     institution_name = filters.AllValuesFilter("institution_name")
+    pulse_sequence_name = CharInFilter(
+        field_name="pulse_sequence_name",
+        lookup_expr="icontains",
+        method=filter_in_string,
+    )
+    sequence_name = CharInFilter(
+        field_name="sequence_name",
+        lookup_expr="icontains",
+        method=filter_in_string,
+    )
+    pixel_spacing = filters.RangeFilter("pixel_spacing__0")
+    slice_thickness = filters.RangeFilter("slice_thickness")
+    repetition_time = filters.RangeFilter("repetition_time")
+    inversion_time = filters.RangeFilter("inversion_time")
+    echo_time = filters.RangeFilter("echo_time")
+    header_fields = filters.CharFilter("image", method=filter_header)
 
     class Meta:
         model = Series
@@ -143,6 +238,8 @@ class SeriesFilter(filters.FilterSet):
             "echo_time",
             "inversion_time",
             "repetition_time",
+            "slice_thickness",
+            "pixel_spacing",
             "scanning_sequence",
             "sequence_variant",
             "flip_angle",
@@ -152,4 +249,6 @@ class SeriesFilter(filters.FilterSet):
             "device_serial_number",
             "institution_name",
             "patient__id",
+            "pulse_sequence_name",
+            "sequence_name",
         )
