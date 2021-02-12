@@ -1,10 +1,11 @@
 import os
-import sys
-import django
 import shutil
+import sys
+
+import django
 from django.conf import settings
-from django.test.utils import get_runner
 from django.core.exceptions import ImproperlyConfigured
+from django.test.utils import get_runner
 
 
 def clean_media():

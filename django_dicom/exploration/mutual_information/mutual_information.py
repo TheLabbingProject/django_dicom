@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
-
+from bokeh.layouts import row, widgetbox
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
-from bokeh.layouts import widgetbox, row
 
 raw_between = pd.read_pickle("default_mutual_information.pkl")
 within = pd.read_pickle("within_patient.pkl")

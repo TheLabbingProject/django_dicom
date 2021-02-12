@@ -3,13 +3,14 @@ Definition of the :class:`~django_dicom.models.image.Image` class.
 
 """
 
-import dicom_parser
 import logging
-import numpy as np
 import os
-import warnings
 import shutil
+import warnings
+from pathlib import Path
 
+import dicom_parser
+import numpy as np
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -23,7 +24,6 @@ from django_dicom.models.utils.validators import (
     digits_and_dots_only,
     validate_file_extension,
 )
-from pathlib import Path
 
 DICOM_ROOT = get_dicom_root()
 
@@ -287,3 +287,7 @@ class Image(DicomEntity):
         """
 
         return self.get_default_path()
+
+    @property
+    def patient(self):
+        return self.series.patient

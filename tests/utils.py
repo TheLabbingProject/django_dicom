@@ -1,10 +1,9 @@
 import os
+from pathlib import Path
 
 from django.contrib.auth import get_user_model
 from django_dicom.models import Image
-from pathlib import Path
 from rest_framework.test import APITestCase
-
 
 TEST_PASSWORD = "Aa123456"
 User = get_user_model()

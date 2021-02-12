@@ -3,9 +3,8 @@ import json
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from pygments import highlight
-from pygments.lexers import JsonLexer
 from pygments.formatters import HtmlFormatter
-
+from pygments.lexers import JsonLexer
 
 ADMIN_VIEW_NAMES = {
     "DataElement": "admin:django_dicom_dataelement_change",

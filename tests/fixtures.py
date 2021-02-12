@@ -1,5 +1,4 @@
 import os
-
 from datetime import datetime
 
 TEST_FILES_PATH = os.path.join(

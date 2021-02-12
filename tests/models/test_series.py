@@ -1,23 +1,15 @@
+from pathlib import Path
+
+from dicom_parser.utils.code_strings import (Modality, PatientPosition,
+                                             ScanningSequence, SequenceVariant)
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from django_dicom.models import Series, Patient, Study, Image
-from dicom_parser.utils.code_strings import (
-    Modality,
-    PatientPosition,
-    ScanningSequence,
-    SequenceVariant,
-)
-from pathlib import Path
-from tests.fixtures import (
-    TEST_IMAGE_FIELDS,
-    TEST_DWI_IMAGE_FIELDS,
-    TEST_SERIES_FIELDS,
-    TEST_DWI_SERIES_FIELDS,
-    TEST_STUDY_FIELDS,
-    TEST_PATIENT_FIELDS,
-)
+from django_dicom.models import Image, Patient, Series, Study
+from tests.fixtures import (TEST_DWI_IMAGE_FIELDS, TEST_DWI_SERIES_FIELDS,
+                            TEST_IMAGE_FIELDS, TEST_PATIENT_FIELDS,
+                            TEST_SERIES_FIELDS, TEST_STUDY_FIELDS)
 from tests.utils import seperate_raw_name
-from django.conf import settings
 
 
 class SeriesTestCase(TestCase):

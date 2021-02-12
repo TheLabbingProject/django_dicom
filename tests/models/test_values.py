@@ -1,7 +1,7 @@
 from django.test import TestCase
-from tests.fixtures import TEST_PERSON_NAME  # , TEST_DATETIME
 from django_dicom.models.values import PersonName
 from django_dicom.utils.html import Html
+from tests.fixtures import TEST_PERSON_NAME  # , TEST_DATETIME
 
 # from django_dicom.models import DateTime
 

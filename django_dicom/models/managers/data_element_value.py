@@ -12,13 +12,14 @@ django-model-utils_\'s `InheritanceManager documentation`_.
    https://django-model-utils.readthedocs.io/en/latest/managers.html#inheritancemanager
 """
 
+from typing import Tuple
+
+from dicom_parser.data_element import DataElement as DicomDataElement
 from dicom_parser.utils.value_representation import ValueRepresentation
 from django.db import DataError
-from django_dicom.models.values.vr_to_model import get_value_model
 from django_dicom.models.utils.meta import get_model
+from django_dicom.models.values.vr_to_model import get_value_model
 from model_utils.managers import InheritanceManager
-from dicom_parser.data_element import DataElement as DicomDataElement
-from typing import Tuple
 
 
 class DataElementValueManager(InheritanceManager):

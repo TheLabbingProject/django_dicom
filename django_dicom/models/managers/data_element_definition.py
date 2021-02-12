@@ -4,8 +4,8 @@ Definition of a custom :class:`~django.db.models.Manager` for the
 model.
 """
 
-from django.db import models
 from dicom_parser.data_element import DataElement as DicomDataElement
+from django.db import models
 
 
 def data_element_to_definition(data_element: DicomDataElement) -> dict:

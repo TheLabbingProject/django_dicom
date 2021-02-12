@@ -1,9 +1,9 @@
-from dicom_parser.utils.value_representation import ValueRepresentation
-from django.apps import apps
-from django.conf import settings
 from enum import Enum
 from pathlib import Path
 
+from dicom_parser.utils.value_representation import ValueRepresentation
+from django.apps import apps
+from django.conf import settings
 
 # Import Management
 ###################

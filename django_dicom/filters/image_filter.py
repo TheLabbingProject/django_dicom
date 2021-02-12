@@ -4,8 +4,8 @@ Definition of the :class:`FilterSet` subclass that will be assigned to the
 :attr:`~django_dicom.views.image.ImageViewSet.filter_class` attribute value.
 """
 
-from django_filters import rest_framework as filters
 from django_dicom.models.image import Image
+from django_filters import rest_framework as filters
 
 
 class ImageFilter(filters.FilterSet):

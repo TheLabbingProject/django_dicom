@@ -1,13 +1,10 @@
-from rest_framework import status
 from django.test import TestCase
 from django.urls import reverse
-from .fixtures import (
-    TEST_IMAGE_FIELDS,
-    TEST_SERIES_FIELDS,
-    TEST_STUDY_FIELDS,
-    TEST_PATIENT_FIELDS,
-)
-from django_dicom.models import Series, Study, Patient, Image
+from django_dicom.models import Image, Patient, Series, Study
+from rest_framework import status
+
+from .fixtures import (TEST_IMAGE_FIELDS, TEST_PATIENT_FIELDS,
+                       TEST_SERIES_FIELDS, TEST_STUDY_FIELDS)
 from .utils import LoggedInTestCase
 
 

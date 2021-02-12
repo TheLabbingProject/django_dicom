@@ -5,8 +5,8 @@ Definition of the
 
 
 from django.db import models
-from django_dicom.models.values.data_element_value import DataElementValue
 from django_dicom.models.utils.validators import digits_and_dots_only
+from django_dicom.models.values.data_element_value import DataElementValue
 
 
 class UniqueIdentifier(DataElementValue):

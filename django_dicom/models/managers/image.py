@@ -1,21 +1,24 @@
 """
-Definition of a custom :class:`~django.db.models.Manager` for the
-:class:`~django_dicom.models.image.Image` model.
+Definition of the :class:`ImageManager` class.
 """
-
+import logging
+from io import BufferedReader
+from pathlib import Path
+from typing import Tuple
 
 from dicom_parser.header import Header as DicomHeader
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, SuspiciousFileOperation
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django.db.models import QuerySet
 from django.db import transaction
+from django.db.models import QuerySet
 from django_dicom.models.managers.dicom_entity import DicomEntityManager
+from django_dicom.models.managers.messages import PATIENT_UID_MISMATCH
 from django_dicom.models.utils.progressbar import create_progressbar
-from io import BufferedReader
-from pathlib import Path
-from typing import Tuple
+from pydicom.errors import InvalidDicomError
+
+IMPORT_LOGGER = logging.getLogger("data_import")
 
 
 class ImageManager(DicomEntityManager):
@@ -161,7 +164,12 @@ class ImageManager(DicomEntityManager):
             print("\nNo .dcm files found!")
 
     def import_path(
-        self, path: Path, progressbar: bool = True, report: bool = True
+        self,
+        path: Path,
+        progressbar: bool = True,
+        report: bool = True,
+        persistent: bool = True,
+        force_patient_uid: bool = False,
     ) -> QuerySet:
         """
         Iterates the given directory tree and imports any *.dcm* files found
@@ -176,6 +184,12 @@ class ImageManager(DicomEntityManager):
         report : bool, optional
             Whether to print out a summary report when finished or not, by
             default True
+        persistent : bool, optional
+            Whether to continue and raise a warning or to raise an exception
+            when failing to read a DICOM file's header
+        force_patient_uid : bool, optional
+            If patient UID for an existing image doesn't match the DB value,
+            change the DB value to match that of the imported image
 
         Returns
         -------
@@ -195,15 +209,25 @@ class ImageManager(DicomEntityManager):
         # Keep a list of all the created images' primary keys
         created_ids = []
 
+        # Keep a list of patient UID mismatches to log
+        patient_uid_mismatch = []
+
         for dcm_path in iterator:
 
             # Atomic image import
             # For more information see:
             # https://docs.djangoproject.com/en/3.0/topics/db/transactions/#controlling-transactions-explicitly
             with transaction.atomic():
-                image, created = self.get_or_create_from_dcm(
-                    dcm_path, autoremove=True
-                )
+                try:
+                    image, created = self.get_or_create_from_dcm(
+                        dcm_path, autoremove=True
+                    )
+                except InvalidDicomError as e:
+                    if persistent:
+                        IMPORT_LOGGER.warning(e)
+                        continue
+                    else:
+                        raise
 
             if report:
                 counter_key = "created" if created else "existing"
@@ -211,7 +235,21 @@ class ImageManager(DicomEntityManager):
 
             if created:
                 created_ids.append(image.id)
-
+            else:
+                if image.patient.uid not in patient_uid_mismatch:
+                    # Validate patient UID for existing images
+                    header = DicomHeader(dcm_path)
+                    patient_uid = header.get("PatientID")
+                    if patient_uid != image.patient.uid:
+                        # Log patient UID mismatch
+                        image_uid = header.get("SOPInstanceUID")
+                        message = PATIENT_UID_MISMATCH.format(
+                            image_uid=image_uid,
+                            db_value=image.patient.uid,
+                            patient_uid=patient_uid,
+                        )
+                        IMPORT_LOGGER.warning(message)
+                        patient_uid_mismatch.append(image.patient.uid)
         if report:
             self.report_import_path_results(path, counter)
 

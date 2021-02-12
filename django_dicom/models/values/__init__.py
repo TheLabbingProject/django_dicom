@@ -21,12 +21,10 @@ from django_dicom.models.values.data_element_value import DataElementValue
 from django_dicom.models.values.date import Date
 from django_dicom.models.values.datetime import DateTime
 from django_dicom.models.values.decimal_string import DecimalString
-from django_dicom.models.values.floating_point_double import (
-    FloatingPointDouble,
-)
-from django_dicom.models.values.floating_point_single import (
-    FloatingPointSingle,
-)
+from django_dicom.models.values.floating_point_double import \
+    FloatingPointDouble
+from django_dicom.models.values.floating_point_single import \
+    FloatingPointSingle
 from django_dicom.models.values.integer_string import IntegerString
 from django_dicom.models.values.long_string import LongString
 from django_dicom.models.values.long_text import LongText
@@ -40,6 +38,6 @@ from django_dicom.models.values.signed_short import SignedShort
 from django_dicom.models.values.time import Time
 from django_dicom.models.values.unique_identifier import UniqueIdentifier
 from django_dicom.models.values.unknown import Unknown
+from django_dicom.models.values.unlimited_text import UnlimitedText
 from django_dicom.models.values.unsigned_long import UnsignedLong
 from django_dicom.models.values.unsigned_short import UnsignedShort
-from django_dicom.models.values.unlimited_text import UnlimitedText
