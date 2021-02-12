@@ -1,5 +1,5 @@
 from dicom_parser.utils.code_strings import ScanningSequence, SequenceVariant
-from django_dicom.utils.utils import NegativitiyEnum, FieldsEnum
+from django_dicom.utils.utils import FieldsEnum, NegativitiyEnum
 
 # fields = {
 #     "ScanningSequence": (0x0018, 0x0020),

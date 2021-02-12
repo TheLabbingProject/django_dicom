@@ -1,5 +1,8 @@
 import os
+from shutil import make_archive
 
+from django.conf import settings
+from django.http import FileResponse
 from django_dicom.filters import PatientFilter
 from django_dicom.models import Patient
 from django_dicom.serializers import PatientSerializer
@@ -7,9 +10,6 @@ from django_dicom.views.defaults import DefaultsMixin
 from django_dicom.views.pagination import StandardResultsSetPagination
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from django.http import FileResponse
-from django.conf import settings
-from shutil import make_archive
 
 
 class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):

@@ -4,17 +4,16 @@ Definition of the :class:`FilterSet` subclass that will be assigned to the
 :attr:`~django_dicom.views.series.SeriesViewSet.filter_class` attribute value.
 """
 
-from dicom_parser.utils.code_strings import (
-    Modality,
-    ScanningSequence,
-    SequenceVariant,
-)
-from django.db.models import QuerySet, Q
-from django_filters import rest_framework as filters
-from django_dicom.models.series import Series
-from django_dicom.utils import validation, utils
-import json, operator
+import json
+import operator
 from functools import reduce
+
+from dicom_parser.utils.code_strings import (Modality, ScanningSequence,
+                                             SequenceVariant)
+from django.db.models import Q, QuerySet
+from django_dicom.models.series import Series
+from django_dicom.utils import utils, validation
+from django_filters import rest_framework as filters
 
 
 class CharInFilter(filters.BaseInFilter, filters.CharFilter):

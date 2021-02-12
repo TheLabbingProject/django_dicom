@@ -1,7 +1,6 @@
 from django.apps import apps
 from django.db.models import Model
 
-
 APP_LABEL = "django_dicom"
 
 

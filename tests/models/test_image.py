@@ -1,20 +1,14 @@
 import numpy as np
-
 from dicom_parser.image import Image as DicomImage
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_dicom.apps import DjangoDicomConfig
-from django_dicom.models import Image, Series, Patient, Study, Header
+from django_dicom.models import Header, Image, Patient, Series, Study
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.utils import snake_case_to_camel_case
-from tests.fixtures import (
-    TEST_IMAGE_FIELDS,
-    TEST_DWI_IMAGE_FIELDS,
-    TEST_SERIES_FIELDS,
-    TEST_DWI_SERIES_FIELDS,
-    TEST_STUDY_FIELDS,
-    TEST_PATIENT_FIELDS,
-)
+from tests.fixtures import (TEST_DWI_IMAGE_FIELDS, TEST_DWI_SERIES_FIELDS,
+                            TEST_IMAGE_FIELDS, TEST_PATIENT_FIELDS,
+                            TEST_SERIES_FIELDS, TEST_STUDY_FIELDS)
 
 
 class ImageTestCase(TestCase):

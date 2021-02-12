@@ -1,14 +1,12 @@
-from django.test import TestCase
-from django_dicom.models import DataElementDefinition
-from tests.fixtures import (
-    TEST_DATA_ELEMENT_DEFINITION,
-    TEST_DATA_ELEMENT_DEFINITION2,
-    TEST_DEFINITION_TO_SERIES,
-    TEST_DEFINITION2_TO_SERIES,
-)
 import pandas as pd
-from django.utils.safestring import mark_safe
+from django.test import TestCase
 from django.urls import reverse
+from django.utils.safestring import mark_safe
+from django_dicom.models import DataElementDefinition
+from tests.fixtures import (TEST_DATA_ELEMENT_DEFINITION,
+                            TEST_DATA_ELEMENT_DEFINITION2,
+                            TEST_DEFINITION2_TO_SERIES,
+                            TEST_DEFINITION_TO_SERIES)
 
 
 class DataElementTestCase(TestCase):

@@ -5,7 +5,6 @@ Definition of the :class:`~django_dicom.models.study.Study` class.
 
 import logging
 
-
 from django.db import models
 from django.urls import reverse
 from django_dicom.models.dicom_entity import DicomEntity

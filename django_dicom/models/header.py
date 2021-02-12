@@ -3,6 +3,7 @@ Definition of the :class:`~django_dicom.models.header.Header` class.
 
 """
 import os
+from typing import Any, List
 
 from dicom_parser.header import Header as DicomHeader
 from django.core.exceptions import ObjectDoesNotExist
@@ -14,7 +15,6 @@ from django_dicom.models.series import Series
 from django_dicom.models.study import Study
 from django_dicom.utils.html import Html
 from model_utils.models import TimeStampedModel
-from typing import Any, List
 
 
 class Header(TimeStampedModel):

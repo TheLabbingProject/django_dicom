@@ -5,27 +5,23 @@ Definition of the :class:`~django_dicom.models.series.Series` class.
 
 
 import logging
-import numpy as np
 import os
-import pytz
-
 from datetime import datetime
+from pathlib import Path
+
+import numpy as np
+import pytz
 from dicom_parser.series import Series as DicomSeries
-from dicom_parser.utils.code_strings import (
-    Modality,
-    ScanningSequence,
-    SequenceVariant,
-    PatientPosition,
-)
+from dicom_parser.utils.code_strings import (Modality, PatientPosition,
+                                             ScanningSequence, SequenceVariant)
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django_dicom.models.dicom_entity import DicomEntity
-from django_dicom.models.utils.fields import ChoiceArrayField
 from django_dicom.models.utils import help_text
+from django_dicom.models.utils.fields import ChoiceArrayField
 from django_dicom.models.utils.validators import digits_and_dots_only
-from pathlib import Path
 
 
 class Series(DicomEntity):

@@ -5,8 +5,8 @@ Definition of the :class:`FilterSet` subclass that will be assigned to the
 """
 
 
-from django_filters import rest_framework as filters
 from django_dicom.models.study import Study
+from django_filters import rest_framework as filters
 
 
 class StudyFilter(filters.FilterSet):

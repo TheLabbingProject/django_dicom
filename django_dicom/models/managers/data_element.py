@@ -3,14 +3,13 @@ Definition of a custom :class:`~django.db.models.Manager` for the
 :class:`~django_dicom.models.data_element.DataElement` model.
 """
 
-from django.db import models
-
+from dicom_parser.data_element import DataElement as DicomDataElement
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
 from django_dicom.exceptions import DicomImportError
 from django_dicom.models.data_element_definition import DataElementDefinition
 from django_dicom.models.managers.messages import DATA_ELEMENT_CREATION_FAILURE
 from django_dicom.models.values.data_element_value import DataElementValue
-from dicom_parser.data_element import DataElement as DicomDataElement
 
 
 class DataElementManager(models.Manager):

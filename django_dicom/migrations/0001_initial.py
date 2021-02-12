@@ -3,13 +3,13 @@
 import django.contrib.postgres.fields
 import django.contrib.postgres.fields.jsonb
 import django.core.validators
-from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
 import django_dicom.models.utils.fields
 import django_dicom.models.utils.validators
 import django_extensions.db.fields
 import model_utils.fields
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):

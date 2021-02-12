@@ -1,19 +1,15 @@
+import pandas as pd
 from django.test import TestCase
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django_dicom.models import DataElement, DataElementDefinition, Header
 from django_dicom.models.values import LongString, PersonName
-from tests.fixtures import (
-    TEST_DATA_ELEMENT,
-    TEST_DATA_ELEMENT2,
-    TEST_DATA_ELEMENT_DEFINITION,
-    TEST_DATA_ELEMENT_DEFINITION2,
-    TEST_DATA_ELEMENT_VALUE_LONG_STRING,
-    TEST_DATA_ELEMENT_SERIES,
-    TEST_PERSON_NAME,
-    TEST_PERSON_NAME2,
-)
-import pandas as pd
-from django.utils.safestring import mark_safe
-from django.urls import reverse
+from tests.fixtures import (TEST_DATA_ELEMENT, TEST_DATA_ELEMENT2,
+                            TEST_DATA_ELEMENT_DEFINITION,
+                            TEST_DATA_ELEMENT_DEFINITION2,
+                            TEST_DATA_ELEMENT_SERIES,
+                            TEST_DATA_ELEMENT_VALUE_LONG_STRING,
+                            TEST_PERSON_NAME, TEST_PERSON_NAME2)
 
 
 class DataElementTestCase(TestCase):

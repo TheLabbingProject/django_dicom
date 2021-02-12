@@ -3,12 +3,12 @@ Definition of the :class:`~django_dicom.models.data_element.DataElement` class.
 
 """
 
-import pandas as pd
+from typing import Any
 
+import pandas as pd
 from django.db import models
 from django_dicom.models.managers.data_element import DataElementManager
 from django_dicom.utils.html import Html
-from typing import Any
 
 
 class DataElement(models.Model):

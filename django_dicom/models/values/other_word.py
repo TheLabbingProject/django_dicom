@@ -4,8 +4,8 @@ Definition of the
 """
 
 
-from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.db import models
 from django_dicom.models.values.data_element_value import DataElementValue
 
 
