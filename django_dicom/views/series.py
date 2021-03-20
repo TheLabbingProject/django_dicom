@@ -1,4 +1,5 @@
 import os
+import shutil
 
 import pandas as pd
 from django.contrib.auth import get_user_model
@@ -113,4 +114,15 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
         output.to_csv(filename, encoding="utf-8-sig", index=False)
         response = FileResponse(open(filename, "rb"), as_attachment=True)
         os.unlink(filename)
+        return response
+
+    @action(detail=True, methods=["get"])
+    def to_zip(self, request: Request, pk: int) -> FileResponse:
+        series = Series.objects.get(id=pk)
+        patient_uid = series.patient.uid
+        date = series.date.strftime("%Y%m%d")
+        name = f"{patient_uid}_{date}_{series.description}"
+        zip_file = shutil.make_archive(name, "zip", series.path)
+        response = FileResponse(open(zip_file, "rb"), as_attachment=True)
+        os.unlink(zip_file)
         return response

@@ -1,6 +1,7 @@
 from django.urls import include, path
-from django_dicom import views
 from rest_framework import routers
+
+from django_dicom import views
 
 app_name = "dicom"
 router = routers.DefaultRouter()
@@ -26,5 +27,10 @@ urlpatterns = [
         "dicom/series/get_csv/",
         views.SeriesViewSet.as_view({"get": "get_csv"}),
         name="get_csv",
+    ),
+    path(
+        "dicom/series/<int:series_id>/to_zip/",
+        views.SeriesViewSet.as_view({"get": "to_zip"}),
+        name="to_zip",
     ),
 ]
