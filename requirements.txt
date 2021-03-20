@@ -10,5 +10,5 @@ pandas~=1.0
 psycopg2-binary~=2.8
 pydicom~=2.0
 pygments~=2.6
-tqdm~=4.40
+tqdm~=4.59
 xlrd~=1.2
