@@ -1,9 +1,6 @@
 """
-Definition of the :class:`~django_dicom.models.series.Series` class.
-
+Definition of the :class:`Series` class.
 """
-
-
 import logging
 import os
 from datetime import datetime
@@ -12,8 +9,12 @@ from pathlib import Path
 import numpy as np
 import pytz
 from dicom_parser.series import Series as DicomSeries
-from dicom_parser.utils.code_strings import (Modality, PatientPosition,
-                                             ScanningSequence, SequenceVariant)
+from dicom_parser.utils.code_strings import (
+    Modality,
+    PatientPosition,
+    ScanningSequence,
+    SequenceVariant,
+)
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
