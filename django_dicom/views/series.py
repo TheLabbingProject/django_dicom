@@ -1,9 +1,11 @@
+import io
 import os
-import shutil
+import zipfile
+from pathlib import Path
 
 import pandas as pd
 from django.contrib.auth import get_user_model
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
 from django_dicom.filters import SeriesFilter
 from django_dicom.models import Series
 from django_dicom.serializers import SeriesSerializer
@@ -13,6 +15,9 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
+
+CONTENT_DISPOSITION = "attachment; filename={name}.zip"
+ZIP_CONTENT_TYPE = "application/x-zip-compressed"
 
 CSV_COLUMNS = {
     "ID": "id",
@@ -118,11 +123,17 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"])
     def to_zip(self, request: Request, pk: int) -> FileResponse:
-        series = Series.objects.get(id=pk)
-        patient_uid = series.patient.uid
-        date = series.date.strftime("%Y%m%d")
-        name = f"{patient_uid}_{date}_{series.description}"
-        zip_file = shutil.make_archive(name, "zip", series.path)
-        response = FileResponse(open(zip_file, "rb"), as_attachment=True)
-        os.unlink(zip_file)
+        instance = Series.objects.get(id=pk)
+        patient_uid = instance.patient.uid
+        date = instance.date.strftime("%Y%m%d")
+        name = f"{patient_uid}_{date}_{instance.description}"
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as zip_file:
+            for dcm in Path(instance.path).iterdir():
+                zip_file.write(dcm, dcm.name)
+        response = HttpResponse(
+            buffer.getvalue(), content_type=ZIP_CONTENT_TYPE
+        )
+        content_disposition = CONTENT_DISPOSITION.format(name=name)
+        response["Content-Disposition"] = content_disposition
         return response
