@@ -11,13 +11,11 @@ from django_dicom.models import Series
 from django_dicom.serializers import SeriesSerializer
 from django_dicom.views.defaults import DefaultsMixin
 from django_dicom.views.pagination import StandardResultsSetPagination
+from django_dicom.views.utils import CONTENT_DISPOSITION, ZIP_CONTENT_TYPE
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
-
-CONTENT_DISPOSITION = "attachment; filename={name}.zip"
-ZIP_CONTENT_TYPE = "application/x-zip-compressed"
 
 CSV_COLUMNS = {
     "ID": "id",
