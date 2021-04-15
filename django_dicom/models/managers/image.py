@@ -14,7 +14,10 @@ from django.core.files.storage import default_storage
 from django.db import transaction
 from django.db.models import QuerySet
 from django_dicom.models.managers.dicom_entity import DicomEntityManager
-from django_dicom.models.managers.messages import PATIENT_UID_MISMATCH
+from django_dicom.models.managers.messages import (
+    IMPORT_ERROR,
+    PATIENT_UID_MISMATCH,
+)
 from django_dicom.models.utils.progressbar import create_progressbar
 from pydicom.errors import InvalidDicomError
 
@@ -82,14 +85,15 @@ class ImageManager(DicomEntityManager):
         except SuspiciousFileOperation:
             with open(path, "rb") as data:
                 local_path = self.store_image_data(data)
-            return self.create(dcm=str(local_path))
+            return self.create_from_dcm(local_path, autoremove=autoremove)
 
         # If the creation failed, remove the local copy and re-raise the
         # exception.
-        except Exception:
+        except Exception as e:
             if autoremove and path.is_file():
                 path.unlink()
-            raise
+            message = IMPORT_ERROR.format(path=path, exception=e)
+            raise RuntimeError(message)
 
     def get_or_create_from_dcm(
         self, path: Path, autoremove: bool = True
