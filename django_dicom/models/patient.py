@@ -162,3 +162,6 @@ class Patient(DicomEntity):
         super().update_fields_from_header(header, exclude=exclude)
         # Handle PatientName fields
         self.update_patient_name(header)
+        # Validate valid sex value
+        if self.sex not in Sex.__members__:
+            self.sex = None
