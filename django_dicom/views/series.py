@@ -135,3 +135,21 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
         content_disposition = CONTENT_DISPOSITION.format(name=name)
         response["Content-Disposition"] = content_disposition
         return response
+
+    @action(detail=False, methods=["get"])
+    def listed_zip(self, request: Request, series_ids: str) -> FileResponse:
+        series_ids = [int(pk) for pk in series_ids.split(",")]
+        queryset = Series.objects.filter(id__in=series_ids)
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as zip_file:
+            for instance in queryset:
+                p = Path(instance.path)
+                for dcm in p.iterdir():
+                    name = dcm.relative_to(p.parent.parent)
+                    zip_file.write(dcm, name)
+        response = HttpResponse(
+            buffer.getvalue(), content_type=ZIP_CONTENT_TYPE
+        )
+        content_disposition = CONTENT_DISPOSITION.format(name="scans")
+        response["Content-Disposition"] = content_disposition
+        return response
