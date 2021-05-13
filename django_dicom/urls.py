@@ -29,6 +29,11 @@ urlpatterns = [
         name="get_csv",
     ),
     path(
+        "dicom/series/to_zip/<str:series_ids>/",
+        views.SeriesViewSet.as_view({"get": "listed_zip"}),
+        name="listed_zip",
+    ),
+    path(
         "dicom/series/<int:series_id>/to_zip/",
         views.SeriesViewSet.as_view({"get": "to_zip"}),
         name="to_zip",
