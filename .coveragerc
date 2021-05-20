@@ -4,6 +4,7 @@ omit = ../*migrations*
     *tests*
     venv/**
     setup.py
+    .tox/
 
 source = .
 branch = True
