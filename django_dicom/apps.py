@@ -44,8 +44,7 @@ class DjangoDicomConfig(AppConfig):
         self.application_entity.maximum_pdu_size = 0
 
         # Associate the created application entity with any registered users.
-        # StorageUser = self.get_model("StorageServiceClassUser")
-        # for user in StorageUser.objects.all():
-        #     if user.server is None:
-        #         user.start()
-
+        StorageUser = self.get_model("StorageServiceClassUser")
+        for user in StorageUser.objects.all():
+            if user.server is None:
+                user.start()
