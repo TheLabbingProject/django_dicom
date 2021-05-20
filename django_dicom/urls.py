@@ -7,6 +7,7 @@ app_name = "dicom"
 router = routers.DefaultRouter()
 router.register(r"image", views.ImageViewSet)
 router.register(r"series", views.SeriesViewSet)
+router.register(r"storage_scu", views.StorageScuViewSet)
 router.register(r"study", views.StudyViewSet)
 router.register(r"patient", views.PatientViewSet)
 

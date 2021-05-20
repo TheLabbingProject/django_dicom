@@ -1,9 +1,11 @@
 from django.contrib import admin
 from django.db.models import QuerySet
+
 from django_dicom.models.data_element import DataElement
 from django_dicom.models.data_element_definition import DataElementDefinition
 from django_dicom.models.header import Header
 from django_dicom.models.image import Image
+from django_dicom.models.networking import StorageServiceClassUser
 from django_dicom.models.patient import Patient
 from django_dicom.models.series import Series
 from django_dicom.models.study import Study
@@ -213,7 +215,15 @@ class ImageAdmin(admin.ModelAdmin):
         "header_link",
         "warnings",
     )
-    list_display = "id", "uid", "header_link", "date", "time", "series_link", "number"
+    list_display = (
+        "id",
+        "uid",
+        "header_link",
+        "date",
+        "time",
+        "series_link",
+        "number",
+    )
     ordering = "-date", "-time", "-series", "number"
     readonly_fields = (
         "id",
@@ -364,13 +374,24 @@ class StudySeriesInLine(admin.TabularInline):
 
 
 class StudyAdmin(admin.ModelAdmin):
-    list_display = ("id", "uid", "description")
+    list_display = "id", "uid", "description"
     inlines = (StudySeriesInLine,)
     readonly_fields = ["uid"]
 
 
+class StorageServiceClassUserAdmin(admin.ModelAdmin):
+    list_display = "title", "ip", "port"
+
+
 class PatientAdmin(admin.ModelAdmin):
-    list_display = ("id", "uid", "given_name", "family_name", "sex", "date_of_birth")
+    list_display = (
+        "id",
+        "uid",
+        "given_name",
+        "family_name",
+        "sex",
+        "date_of_birth",
+    )
     inlines = (SeriesInLine,)
     fieldsets = (
         (None, {"fields": ("uid",)}),
@@ -398,3 +419,4 @@ admin.site.register(Image, ImageAdmin)
 admin.site.register(Series, SeriesAdmin)
 admin.site.register(Study, StudyAdmin)
 admin.site.register(Patient, PatientAdmin)
+admin.site.register(StorageServiceClassUser, StorageServiceClassUserAdmin)
