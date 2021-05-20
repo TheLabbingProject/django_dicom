@@ -24,13 +24,18 @@ jobs:
       - python/load-cache
       - python/install-deps
       - python/save-cache
-      - run: pip install tox
+      - run:
+          name: Upgrade pip
+          command: pip install --upgrade pip
+      - run:
+          name: Install tox
+          command: pip install tox
       - run:
           name: Install liblzma-dev
           command: apt update && apt install -y liblzma-dev
       - run:
-          command: tox
           name: Test using tox
+          command: tox
       - codecov/upload:
           file: coverage.xml
           flags: unittests
