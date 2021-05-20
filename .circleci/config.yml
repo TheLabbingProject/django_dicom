@@ -26,6 +26,9 @@ jobs:
       - python/save-cache
       - run: pip install tox
       - run:
+          name: Install liblzma-dev
+          command: apt update && apt install -y liblzma-dev
+      - run:
           command: tox
           name: Test using tox
       - codecov/upload:
