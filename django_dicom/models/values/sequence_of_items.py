@@ -1,13 +1,10 @@
 """
-Definition of the
-:class:`~django_dicom.models.values.sequence_of_items.SequenceOfItems`
-model.
-
+Definition of the :class:`SequenceOfItems` model.
 """
-
 from django.utils.safestring import mark_safe
-from django_dicom.models.managers.values.sequence_of_items import \
-    SequenceOfItemsManager
+from django_dicom.models.managers.values.sequence_of_items import (
+    SequenceOfItemsManager,
+)
 from django_dicom.models.values.data_element_value import DataElementValue
 from django_dicom.utils.html import Html
 

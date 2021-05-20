@@ -1,9 +1,6 @@
 """
-Definition of the
-:class:`~django_dicom.models.values.unlimited_text.UnlimitedText` model.
+Definition of the :class:`UnlimitedText` model.
 """
-
-
 from django.db import models
 from django_dicom.models.values.data_element_value import DataElementValue
 
@@ -14,15 +11,16 @@ class UnlimitedText(DataElementValue):
     element value.
     """
 
-    #: Overrides
-    #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
-    #: to assign a :class:`~django.db.models.TextField`.
     value = models.TextField(blank=True, null=True)
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
+    to assign a :class:`~django.db.models.TextField`.
+    """
 
-    #: Overrides
-    #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
-    #: to assign a :class:`~django.db.models.TextField`.
     raw = models.TextField(blank=True, null=True)
-
-
-# flake8: noqa: E501
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
+    to assign a :class:`~django.db.models.TextField`.
+    """

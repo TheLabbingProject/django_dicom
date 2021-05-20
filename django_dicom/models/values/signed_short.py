@@ -1,9 +1,6 @@
 """
-Definition of the
-:class:`~django_dicom.models.values.signed_short.SignedShort` model.
+Definition of the :class:`SignedShort` model.
 """
-
-
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django_dicom.models.values.data_element_value import DataElementValue
@@ -20,9 +17,6 @@ class SignedShort(DataElementValue):
     data element value.
     """
 
-    #: Overrides
-    #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
-    #: to assign a :class:`~django.db.models.IntegerField`.
     value = models.IntegerField(
         validators=[
             MaxValueValidator(MAX_VALUE),
@@ -31,10 +25,12 @@ class SignedShort(DataElementValue):
         blank=True,
         null=True,
     )
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
+    to assign an :class:`~django.db.models.IntegerField`.
+    """
 
-    #: Overrides
-    #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
-    #: to assign a :class:`~django.db.models.IntegerField`.
     raw = models.IntegerField(
         validators=[
             MaxValueValidator(MAX_VALUE),
@@ -43,6 +39,8 @@ class SignedShort(DataElementValue):
         blank=True,
         null=True,
     )
-
-
-# flake8: noqa: E501
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
+    to assign an :class:`~django.db.models.IntegerField`.
+    """

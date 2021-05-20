@@ -35,7 +35,8 @@ class Image(DicomEntity):
     :attr:`~django_dicom.models.image.Image.dcm` field set to some *.dcm* file
     from which the header information is read.
 
-    .. _Image: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
+    .. _Image:
+       http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
 
     """
 

@@ -1,6 +1,5 @@
 """
-Definition of the
-:class:`~django_dicom.models.values.long_string.LongString` model.
+Definition of the :class:`LongString` model.
 """
 
 
@@ -14,15 +13,16 @@ class LongString(DataElementValue):
     data element value.
     """
 
-    #: Overrides
-    #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
-    #: to assign a :class:`~django.db.models.CharField`.
     value = models.CharField(max_length=64, blank=True, null=True)
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
+    to assign a :class:`~django.db.models.CharField`.
+    """
 
-    #: Overrides
-    #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
-    #: to assign a :class:`~django.db.models.CharField`.
     raw = models.CharField(max_length=64, blank=True, null=True)
-
-
-# flake8: noqa: E501
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
+    to assign a :class:`~django.db.models.CharField`.
+    """

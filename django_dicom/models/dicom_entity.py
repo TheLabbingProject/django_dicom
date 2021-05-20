@@ -43,8 +43,8 @@ class DicomEntity(TimeStampedModel):
     FIELD_TO_HEADER = {}
 
     # This dictionairy is used to identify fields that do not represent DICOM
-    # header information. These fields will not be updated when calling a derived
-    # model's update_fields_from_header() method.
+    # header information. These fields will not be updated when calling a
+    # derived model's update_fields_from_header() method.
     _NOT_HEADER_FIELD = {
         "types": (
             models.OneToOneField,
@@ -139,10 +139,11 @@ class DicomEntity(TimeStampedModel):
     @classmethod
     def get_header_keyword(cls, field_name: str) -> str:
         """
-        Returns the data element keyword to return the requested field's value from
-        header data. Relies on the derived model's `FIELD_TO_HEADER` class attribute.
-        If no matching key is found, will simply return the field's name in
-        CamelCase formatting (the formatting of pydicom_\'s header keywords).
+        Returns the data element keyword to return the requested field's value
+        from header data. Relies on the derived model's `FIELD_TO_HEADER` class
+        attribute. If no matching key is found, will simply return the field's
+        name in CamelCase formatting (the formatting of pydicom_\'s header
+        keywords).
 
         .. _pydicom: https://pydicom.github.io/
 
@@ -177,8 +178,8 @@ class DicomEntity(TimeStampedModel):
 
     def get_header_fields(self) -> list:
         """
-        Returns a list of the derived model's fields which represent DICOM header
-        information.
+        Returns a list of the derived model's fields which represent DICOM
+        header information.
 
         Returns
         -------

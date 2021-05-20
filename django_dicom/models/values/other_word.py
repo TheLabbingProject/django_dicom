@@ -1,9 +1,6 @@
 """
-Definition of the
-:class:`~django_dicom.models.values.other_word.OtherWord` model.
+Definition of the :class:`OtherWord` model.
 """
-
-
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django_dicom.models.values.data_element_value import DataElementValue
@@ -15,15 +12,16 @@ class OtherWord(DataElementValue):
     data element value.
     """
 
-    #: Overrides
-    #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
-    #: to assign a :class:`~django.contrib.postgres.fields.ArrayField`.
     value = ArrayField(models.IntegerField(), blank=True, null=True)
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
+    to assign a :class:`~django.db.models.IntegerField`.
+    """
 
-    #: Overrides
-    #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
-    #: to assign a :class:`~django.db.models.BinaryField`.
     raw = models.BinaryField(blank=True, null=True)
-
-
-# flake8: noqa: E501
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
+    to assign a :class:`~django.db.models.BinaryField`.
+    """

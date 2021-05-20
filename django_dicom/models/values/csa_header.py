@@ -1,8 +1,6 @@
 """
-Definition of the
-:class:`~django_dicom.models.values.csa_header.CsaHeader` model.
+Definition of the :class:`CsaHeader` model.
 """
-
 from django.db import models
 from django_dicom.models.values.data_element_value import DataElementValue
 from django_dicom.utils.html import Html
@@ -18,13 +16,25 @@ class CsaHeader(DataElementValue):
     For more information about CSA headers, see dicom_parser_\'s
     `CSA headers documentation`_.
 
-    .. _dicom_parser: https://github.com/ZviBaratz/dicom_parser/
+    .. _dicom_parser:
+       https://github.com/ZviBaratz/dicom_parser/
     .. _CSA headers documentation:
        https://dicom-parser.readthedocs.io/en/latest/siemens/csa_headers.html#csa-headers
     """
 
-    raw = models.TextField(blank=True, null=True)
     value = models.JSONField(blank=True, null=True)
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
+    to assign a :class:`~django.db.models.JSONField`.
+    """
+
+    raw = models.TextField(blank=True, null=True)
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
+    to assign a :class:`~django.db.models.TextField`.
+    """
 
     def to_html(self, verbose: bool = False, **kwargs) -> str:
         """

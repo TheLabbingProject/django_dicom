@@ -1,6 +1,5 @@
 """
-Definition of the
-:class:`~django_dicom.models.values.short_string.ShortString` model.
+Definition of the :class:`ShortString` model.
 """
 
 
