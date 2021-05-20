@@ -1,5 +1,5 @@
 """
-Definition of the :class:`~django_dicom.models.study.Study` class.
+Definition of the :class:`Study` class.
 
 """
 

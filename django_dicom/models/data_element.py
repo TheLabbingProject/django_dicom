@@ -1,5 +1,5 @@
 """
-Definition of the :class:`~django_dicom.models.data_element.DataElement` class.
+Definition of the :class:`DataElement` class.
 
 """
 

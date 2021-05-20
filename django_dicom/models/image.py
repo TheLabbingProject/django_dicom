@@ -1,5 +1,5 @@
 """
-Definition of the :class:`~django_dicom.models.image.Image` class.
+Definition of the :class:`Image` class.
 
 """
 

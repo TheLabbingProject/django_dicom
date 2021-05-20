@@ -1,5 +1,5 @@
 """
-Definition of the :class:`~django_dicom.models.dicom_entity.DicomEntity` class.
+Definition of the :class:`DicomEntity` class.
 This `abstract model`_ serves as a base class for the various `DICOM entities`_
 (e.g. :class:`~django_dicom.models.study.Study` and
 :class:`~django_dicom.models.patient.Patient`).
