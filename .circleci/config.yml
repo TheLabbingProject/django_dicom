@@ -21,12 +21,12 @@ jobs:
           POSTGRES_PASSWORD: password
     steps:
       - checkout
-      - python/load-cache
-      - python/install-deps
-      - python/save-cache
       - run:
           name: Upgrade pip
           command: pip install --upgrade pip
+      - python/load-cache
+      - python/install-deps
+      - python/save-cache
       - run:
           name: Install tox
           command: pip install tox
