@@ -41,4 +41,3 @@ def get_application_entity_title() -> str:
         APPLICATION_ENTITY_TITLE_SETTING,
         DEFAULT_APPLICATION_ENTITY_TITLE,
     )
-

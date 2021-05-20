@@ -1,9 +1,9 @@
 """
 Definition of the :class:`FilterSet` subclass that will be assigned to the
 :class:`~django_dicom.views.patient.PatientViewSet`\'s
-:attr:`~django_dicom.views.patient.PatientViewSet.filter_class` attribute value.
+:attr:`~django_dicom.views.patient.PatientViewSet.filter_class` attribute
+value.
 """
-
 from dicom_parser.utils.code_strings.sex import Sex
 from django.db.models import QuerySet
 from django_dicom.models.patient import Patient
@@ -84,7 +84,9 @@ class PatientFilter(filters.FilterSet):
             "name_suffix",
         )
 
-    def filter_by_study(self, queryset: QuerySet, name: str, value: int) -> QuerySet:
+    def filter_by_study(
+        self, queryset: QuerySet, name: str, value: int
+    ) -> QuerySet:
         """
         Returns all :class:`~django_dicom.models.patient.Patient` instances
         that have :class:`~django_dicom.models.series.Series` instances

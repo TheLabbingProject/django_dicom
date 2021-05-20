@@ -26,20 +26,22 @@ class Header(TimeStampedModel):
 
     """
 
-    #: `Data Set
-    #: <http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html>`_\s
-    #: `may be nested
-    #: <http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.5.html>`_.
-    #: If this header (Data Set) is
-    #: `an item of some sequence
-    #: <http://dicom.nema.org/medical/dicom/2017e/output/chtml/part05/sect_7.5.2.html>`_,
-    #: this field holds that reference.
     parent = models.ForeignKey(
         "django_dicom.SequenceOfItems",
         on_delete=models.CASCADE,
         blank=True,
         null=True,
     )
+    """
+    `Data Set
+    <http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html>`_s
+    `may be nested
+    <http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.5.html>`_.
+    If this header (Data Set) is
+    `an item of some sequence
+    <http://dicom.nema.org/medical/dicom/2017e/output/chtml/part05/sect_7.5.2.html>`_,
+    this field holds that reference.
+    """
 
     #: This Data Set's index in the sequence (if *parent* is not None).
     index = models.PositiveIntegerField(blank=True, null=True)

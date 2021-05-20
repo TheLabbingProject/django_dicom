@@ -29,3 +29,5 @@ ECHO_TRAIN_LENGTH = (
 )
 PULSE_SEQUENCE_NAME = "Name of the pulse sequence for annotation purposes. Potentially vendor-specific name."
 SEQUENCE_NAME = "User defined name for the combination of Scanning Sequence and Sequence Variant."
+
+# flake8: noqa: E501

@@ -38,7 +38,7 @@ class ImageViewSet(DefaultsMixin, viewsets.ModelViewSet):
     #         content = ContentFile(file_obj.read())
     #         temp_file_name = default_storage.save("tmp.zip", content)
     #         temp_file_path = opj(settings.MEDIA_ROOT, temp_file_name)
-    #         LocalImport.import_local_zip_archive(temp_file_path, verbose=False)
+    #         LocalImport.import_local_zip_archive(temp_file_path, verbose=False) # noqa: E501
     #         return Response(
     #             {"message": "Successfully imported ZIP archive!"},
     #             status=status.HTTP_201_CREATED,

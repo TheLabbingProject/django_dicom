@@ -6,23 +6,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_dicom', '0001_initial'),
+        ("django_dicom", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='csaheader',
-            name='value',
+            model_name="csaheader",
+            name="value",
             field=models.JSONField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='personname',
-            name='value',
+            model_name="personname",
+            name="value",
             field=models.JSONField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='series',
-            name='operators_name',
-            field=models.JSONField(blank=True, help_text='Name(s) of the operator(s) supporting the Series.', null=True),
+            model_name="series",
+            name="operators_name",
+            field=models.JSONField(
+                blank=True,
+                help_text="Name(s) of the operator(s) supporting the Series.",
+                null=True,
+            ),
         ),
     ]
+
+
+# flake8: noqa: F501

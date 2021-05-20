@@ -3,16 +3,18 @@ Definition of the :class:`FilterSet` subclass that will be assigned to the
 :class:`~django_dicom.views.series.SeriesViewSet`\'s
 :attr:`~django_dicom.views.series.SeriesViewSet.filter_class` attribute value.
 """
-
 import json
 import operator
 from functools import reduce
 
-from dicom_parser.utils.code_strings import (Modality, ScanningSequence,
-                                             SequenceVariant)
+from dicom_parser.utils.code_strings import (
+    Modality,
+    ScanningSequence,
+    SequenceVariant,
+)
 from django.db.models import Q, QuerySet
 from django_dicom.models.series import Series
-from django_dicom.utils import utils, validation
+from django_dicom.utils import validation
 from django_filters import rest_framework as filters
 
 
@@ -24,7 +26,8 @@ def filter_array(queryset: QuerySet, field_name: str, value: list):
     """
     Returns an exact lookup for a PostgreSQL ArrayField_.
 
-    .. _ArrayField: https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#arrayfield
+    .. _ArrayField:
+       https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#arrayfield
 
     Parameters
     ----------
@@ -76,7 +79,8 @@ def filter_header(queryset: QuerySet, field_name: str, values: str):
 
 def filter_in_string(queryset: QuerySet, field_name: str, values: list):
     """
-    Returns a in-icontains mixed lookup with 'or' between values for a CharField.
+    Returns a in-icontains mixed lookup with 'or' between values for a
+    CharField.
 
     Parameters
     ----------
@@ -113,7 +117,8 @@ class SeriesFilter(filters.FilterSet):
           instance's :attr:`~django_dicom.models.study.Study.uid` value
         * *study_description*: Related
           :class:`~django_dicom.models.study.Study` instance's
-          :attr:`~django_dicom.models.study.Study.description` value (in-icontains)
+          :attr:`~django_dicom.models.study.Study.description` value
+          (in-icontains)
         * *modality*: Any of the values defined in
           :class:`~dicom_parser.utils.code_strings.modality.Modality`
         * *description*: Series description value (contains, icontains, or
@@ -138,7 +143,8 @@ class SeriesFilter(filters.FilterSet):
         * *created_after_time*: Create after time
         * *created_before_time*: Create before time
         * *manufacturer*: Any of the existing
-          :attr:`~django_dicom.models.series.Series.manufacturer` in the database
+          :attr:`~django_dicom.models.series.Series.manufacturer` in the
+          database
         * *manufacturer_model_name*: Any of the existing
           :attr:`~django_dicom.models.series.Series.manufacturer_model_name` in
           the database

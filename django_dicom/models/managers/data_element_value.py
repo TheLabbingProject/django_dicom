@@ -74,7 +74,9 @@ class DataElementValueManager(InheritanceManager):
         )
         return [value], created
 
-    def handle_single_value(self, ValueModel, data_element: DicomDataElement) -> tuple:
+    def handle_single_value(
+        self, ValueModel, data_element: DicomDataElement
+    ) -> tuple:
         """
         Handles data elements with a
         :attr:`~dicom_parser.data_element.DataElement.value_multiplicity` of 1.
@@ -215,7 +217,9 @@ class DataElementValueManager(InheritanceManager):
         else:
             return self.handle_no_value(ValueModel)
 
-    def get_or_create_from_nonsequence(self, data_element: DicomDataElement) -> Tuple:
+    def get_or_create_from_nonsequence(
+        self, data_element: DicomDataElement
+    ) -> Tuple:
         """
         Get or create some
         :class:`~django_dicom.models.values.data_element_value.DataElementValue`
@@ -265,7 +269,9 @@ class DataElementValueManager(InheritanceManager):
         # an array of nested headers).
         if data_element.VALUE_REPRESENTATION == ValueRepresentation.SQ:
             SequenceOfItems = get_model("SequenceOfItems")
-            sequence, created = SequenceOfItems.objects.from_dicom_parser(data_element)
+            sequence, created = SequenceOfItems.objects.from_dicom_parser(
+                data_element
+            )
             return [sequence], created
         # Handle all other data elements.
         else:
