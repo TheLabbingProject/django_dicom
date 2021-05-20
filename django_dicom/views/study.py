@@ -9,7 +9,7 @@ from rest_framework import viewsets
 class StudyViewSet(DefaultsMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows studies to be viewed or edited.
-    
+
     """
 
     filter_class = StudyFilter

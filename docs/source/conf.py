@@ -84,6 +84,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("http://docs.scipy.org/doc/numpy", None),
     "pydicom": ("https://pydicom.github.io/pydicom/stable", None),
+    "pynetdicom": ("https://pydicom.github.io/pynetdicom/stable", None),
     "django": ("http://django.readthedocs.org/en/latest/", None),
     "django_filters": (
         "https://django-filter.readthedocs.io/en/master/",
