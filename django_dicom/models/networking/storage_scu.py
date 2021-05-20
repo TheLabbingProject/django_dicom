@@ -1,18 +1,16 @@
 """
 Definition of the :class:`StorageServiceClassUser` model.
 """
-
 from typing import List
 
 from django.apps import apps
 from django.core.validators import MaxValueValidator
 from django.db import models
+from django_dicom.models.managers.storage_scu import StorageScuQuerySet
 from django_dicom.models.networking.handlers import handlers
-from django_dicom.models.networking.utils import (
-    MAX_PORT_NUMBER,
-    PRESENTATION_CONTEXTS,
-    UID_MAX_LENGTH,
-)
+from django_dicom.models.networking.utils import (MAX_PORT_NUMBER,
+                                                  PRESENTATION_CONTEXTS,
+                                                  UID_MAX_LENGTH)
 from django_dicom.models.utils.fields import ChoiceArrayField
 from pynetdicom import AE, AllStoragePresentationContexts
 from pynetdicom.presentation import PresentationContext
@@ -55,10 +53,12 @@ class StorageServiceClassUser(models.Model):
     Supported presentation contexts.
     """
 
+    objects = StorageScuQuerySet.as_manager()
+
     server: ThreadedAssociationServer = None
     """
     The association server for this user. Should be overridden on application
-    startup by the :func:`start` method.
+    startup by the :func:`associate` method.
     """
 
     class Meta:
@@ -91,7 +91,7 @@ class StorageServiceClassUser(models.Model):
         config = apps.get_app_config("django_dicom")
         return config.application_entity
 
-    def start(self) -> ThreadedAssociationServer:
+    def associate(self) -> ThreadedAssociationServer:
         """
         Start an association server with this user to listen for requests.
 
@@ -119,7 +119,7 @@ class StorageServiceClassUser(models.Model):
 
         See Also
         --------
-        * :func:`start`
+        * :func:`associate`
         """
         return [
             context
