@@ -1,8 +1,6 @@
 """
-Definition of the :class:`~django_dicom.models.values.time.Time` model.
+Definition of the :class:`Time` model.
 """
-
-
 from django.db import models
 from django_dicom.models.values.data_element_value import DataElementValue
 
@@ -13,17 +11,21 @@ class Time(DataElementValue):
     element value.
     """
 
-    #: Overrides
-    #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
-    #: to assign a :class:`~django.db.models.TimeField`.
     value = models.TimeField(blank=True, null=True)
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
+    to assign a :class:`~django.db.models.TimeField`.
+    """
 
-    #: Overrides
-    #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
-    #: to assign a :class:`~django.db.models.CharField`.
     raw = models.CharField(
         max_length=16, help_text="HHMMSS.FFFFFF", blank=True, null=True
     )
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
+    to assign a :class:`~django.db.models.CharField`.
+    """
 
     def to_html(self, **kwargs) -> str:
         """
@@ -36,6 +38,3 @@ class Time(DataElementValue):
         """
 
         return self.value.strftime("%H:%M:%S.%f")
-
-
-# flake8: noqa: E501

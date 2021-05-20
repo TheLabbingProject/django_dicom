@@ -9,7 +9,7 @@ def between_subjects(bins: int = 10) -> pd.DataFrame:
     for reference in Patient.objects.all():
         for other in Patient.objects.all():
             if results.loc[reference.patient_id, other.patient_id] is np.nan:
-                mutual_information_score = reference.calculate_mutual_information(
+                mutual_information_score = reference.calculate_mutual_information(  # noqa: E501
                     other, bins
                 )
                 results.loc[

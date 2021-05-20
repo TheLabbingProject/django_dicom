@@ -1,5 +1,5 @@
 """
-Definition of the :class:`~django_dicom.models.study.Study` class.
+Definition of the :class:`Study` class.
 
 """
 
@@ -15,7 +15,8 @@ class Study(DicomEntity):
     """
     A model to represent a single instance of the Study_ entity.
 
-    .. _Study: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
+    .. _Study:
+       http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
 
     """
 

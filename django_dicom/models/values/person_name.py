@@ -1,9 +1,6 @@
 """
-Definition of the
-:class:`~django_dicom.models.values.person_name.PersonName` model.
+Definition of the :class:`PersonName` model.
 """
-
-
 from django.db import models
 from django_dicom.models.values.data_element_value import DataElementValue
 from django_dicom.utils.html import Html
@@ -15,15 +12,19 @@ class PersonName(DataElementValue):
     data element value.
     """
 
-    #: Overrides
-    #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
-    #: to assign a :class:`~django.contrib.postgres.fields.JSONField`.
     value = models.JSONField(blank=True, null=True)
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`
+    to assign a :class:`~django.db.models.JSONField`.
+    """
 
-    #: Overrides
-    #: :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
-    #: to assign a :class:`~django.db.models.CharField`.
     raw = models.CharField(max_length=64, blank=True, null=True)
+    """
+    Overrides
+    :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
+    to assign a :class:`~django.db.models.BinaryField`.
+    """
 
     # String representation template for a PersonName instance.
     _NAME_STRING_TEMPLATE = (

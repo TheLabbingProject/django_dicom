@@ -29,8 +29,8 @@ class Series(DicomEntity):
     """
     A model to represent a single instance of the Series_ entity.
 
-    .. _Series: http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
-
+    .. _Series:
+       http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
     """
 
     #: `Series Instance UID
@@ -224,15 +224,17 @@ class Series(DicomEntity):
         max_length=10, choices=Modality.choices(), help_text=help_text.MODALITY
     )
 
-    #: `Institution Name
-    #: <https://dicom.innolitics.com/ciods/mr-image/general-equipment/00080080>`_
-    #: value.
     institution_name = models.CharField(
         max_length=64,
         blank=True,
         null=True,
         help_text=help_text.INSTITUTE_NAME,
     )
+    """
+    `Institution Name
+    <https://dicom.innolitics.com/ciods/mr-image/general-equipment/00080080>`_
+    value.
+    """
 
     #: `Operator's Name
     #: <https://dicom.innolitics.com/ciods/mr-image/general-series/00081070>`_
@@ -255,15 +257,17 @@ class Series(DicomEntity):
         null=True, blank=True, help_text=help_text.FLIP_ANGLE
     )
 
-    #: `Pulse Sequence Name
-    #: <https://dicom.innolitics.com/ciods/enhanced-mr-color-image/mr-pulse-sequence/00189005>`_
-    #: value.
     pulse_sequence_name = models.CharField(
         max_length=64,
         blank=True,
         null=True,
         help_text=help_text.PULSE_SEQUENCE_NAME,
     )
+    """
+    `Pulse Sequence Name
+    <https://dicom.innolitics.com/ciods/enhanced-mr-color-image/mr-pulse-sequence/00189005>`_
+    value.
+    """
 
     #: `Sequence Name
     #: <https://dicom.innolitics.com/ciods/mr-image/mr-image/00180024>`_

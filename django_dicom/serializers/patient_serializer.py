@@ -1,15 +1,19 @@
+"""
+Definition of the :class:`PatientSerializer` class.
+"""
 from django_dicom.models.patient import Patient
 from rest_framework import serializers
 
 
 class PatientSerializer(serializers.HyperlinkedModelSerializer):
     """
-    A `serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_
-    class for the :class:`~django_dicom.models.patient.Patient` model.
-    
+    A serializer class for the
+    :class:`~django_dicom.models.patient.Patient` model.
     """
 
-    url = serializers.HyperlinkedIdentityField(view_name="dicom:patient-detail")
+    url = serializers.HyperlinkedIdentityField(
+        view_name="dicom:patient-detail"
+    )
 
     class Meta:
         model = Patient

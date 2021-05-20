@@ -1,3 +1,6 @@
+"""
+Definition of the :class:`SeriesSerializer` class.
+"""
 from django_dicom.models.patient import Patient
 from django_dicom.models.series import Series
 from django_dicom.models.study import Study
@@ -6,8 +9,8 @@ from rest_framework import serializers
 
 class SeriesSerializer(serializers.HyperlinkedModelSerializer):
     """
-    A `serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_ class for the :class:`~django_dicom.models.series.Series` model.
-
+    A serializer class for the :class:`~django_dicom.models.series.Series`
+    model.
     """
 
     url = serializers.HyperlinkedIdentityField(view_name="dicom:series-detail")

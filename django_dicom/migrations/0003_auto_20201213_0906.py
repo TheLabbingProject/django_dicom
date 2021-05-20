@@ -40,3 +40,6 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(populate_new_fields),
     ]
+
+
+# flake8: noqa: F501

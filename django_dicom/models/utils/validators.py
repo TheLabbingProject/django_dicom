@@ -3,7 +3,7 @@ from django.core.validators import RegexValidator
 from django_dicom.apps import DjangoDicomConfig
 
 digits_and_dots_only = RegexValidator(
-    "^\d+(\.\d+)*$", message="Digits and dots only!", code="invalid_uid"
+    r"^\d+(\.\d+)*$", message="Digits and dots only!", code="invalid_uid"
 )
 
 

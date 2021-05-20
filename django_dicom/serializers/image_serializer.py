@@ -1,3 +1,6 @@
+"""
+Definition of the :class:`ImageSerializer` class.
+"""
 from django_dicom.models.image import Image
 from django_dicom.models.series import Series
 from rest_framework import serializers
@@ -5,8 +8,7 @@ from rest_framework import serializers
 
 class ImageSerializer(serializers.HyperlinkedModelSerializer):
     """
-    A `serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_ class for the :class:`~django_dicom.models.image.Image` model.
-    
+    A serializer class for the :class:`~django_dicom.models.image.Image` model.
     """
 
     series = serializers.HyperlinkedRelatedField(

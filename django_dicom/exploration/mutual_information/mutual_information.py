@@ -1,7 +1,5 @@
 import numpy as np
 import pandas as pd
-from bokeh.layouts import row, widgetbox
-from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 
 raw_between = pd.read_pickle("default_mutual_information.pkl")

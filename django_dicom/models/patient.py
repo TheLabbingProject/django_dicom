@@ -100,9 +100,6 @@ class Patient(DicomEntity):
     def get_absolute_url(self) -> str:
         """
         Returns the absolute URL for this instance.
-        For more information see the `Django documentation`__.
-
-        __ https://docs.djangoproject.com/en/3.0/ref/models/instances/#get-absolute-url
 
         Returns
         -------

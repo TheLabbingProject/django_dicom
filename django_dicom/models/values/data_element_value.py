@@ -1,9 +1,6 @@
 """
-Definition of the
-:class:`~django_dicom.models.values.data_element_value.DataElementValue`
-model.
+Definition of the :class:`DataElementValue` model.
 """
-
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django_dicom.models.managers.data_element_value import \

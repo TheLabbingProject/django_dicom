@@ -67,7 +67,9 @@ class DataElementDefinitionManager(models.Manager):
 
         definition = data_element_to_definition(data_element)
         try:
-            existing = self.get(tag=definition["tag"], keyword=definition["keyword"])
+            existing = self.get(
+                tag=definition["tag"], keyword=definition["keyword"]
+            )
             return existing, False
         except self.model.DoesNotExist:
             new = self.create(**definition)
