@@ -125,8 +125,8 @@ class SeriesTestCase(TestCase):
 
     def test_uid_blank_and_null(self):
         """
-        Every :class:`~django_dicom.models.study.Study` instance must have a UID.
-
+        Every :class:`~django_dicom.models.study.Study` instance must have a
+        UID.
         """
 
         field = self.study._meta.get_field("uid")
@@ -136,12 +136,12 @@ class SeriesTestCase(TestCase):
     # description
     def test_description_max_length(self):
         """
-        DICOM's `Study Description`_ attribute may only be as long as 64 characters (
-        see the Long String (LO) `value-representation specification`).
+        DICOM's `Study Description`_ attribute may only be as long as 64
+        characters (see the Long String (LO) value-representation
+        specification).
 
-        .. _Study Description: https://dicom.innolitics.com/ciods/mr-image/general-study/00081030
-        .. _value-representation specification: http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
-
+        .. _Study Description:
+           https://dicom.innolitics.com/ciods/mr-image/general-study/00081030
         """
 
         field = self.study._meta.get_field("description")
@@ -151,9 +151,10 @@ class SeriesTestCase(TestCase):
         """
         The `Study Description`_ attribute is optional (`type 3 data element`).
 
-        .. _Study Description: https://dicom.innolitics.com/ciods/mr-image/general-study/00081030
-        .. _type 3 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.5
-
+        .. _Study Description:
+           https://dicom.innolitics.com/ciods/mr-image/general-study/00081030
+        .. _type 3 data element:
+           http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.5
         """
 
         field = self.study._meta.get_field("description")
@@ -165,9 +166,10 @@ class SeriesTestCase(TestCase):
         """
         The `Study Date`_ attribute may be empty (`type 2 data element`).
 
-        .. _Study Date: https://dicom.innolitics.com/ciods/mr-image/general-study/00080020
-        .. _type 2 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
-
+        .. _Study Date:
+           https://dicom.innolitics.com/ciods/mr-image/general-study/00080020
+        .. _type 2 data element:
+           http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
         """
 
         field = self.study._meta.get_field("date")
@@ -179,9 +181,10 @@ class SeriesTestCase(TestCase):
         """
         The `Study Time`_ attribute may be empty (`type 2 data element`).
 
-        .. _Study Time: https://dicom.innolitics.com/ciods/mr-image/general-study/00080030
-        .. _type 2 data element: http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
-
+        .. _Study Time:
+           https://dicom.innolitics.com/ciods/mr-image/general-study/00080030
+        .. _type 2 data element:
+           http://dicom.nema.org/dicom/2013/output/chtml/part05/sect_7.4.html#sect_7.4.3
         """
 
         field = self.study._meta.get_field("time")
@@ -194,21 +197,16 @@ class SeriesTestCase(TestCase):
 
     def test_string(self):
         """
-        Tests that an :meth:`~django_dicom.models.study.Study.__str__` method returns
-        its UID.
-        For more information see `Django's str method documentation`_.
-
+        Tests that an :meth:`~django_dicom.models.study.Study.__str__` method
+        returns its UID.
         """
 
         self.assertEqual(str(self.study), self.study.uid)
 
     def test_get_absolute_url(self):
         """
-        Tests the :meth:`~django_dicom.models.study.Study.get_absolute_url` method
-        returns the expeted url.
-        For more information regarding `get_absolute_url` see `the Django documentation`_.
-
-        .. _the Django documentation: https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url
+        Tests the :meth:`~django_dicom.models.study.Study.get_absolute_url`
+        method returns the expeted url.
         """
 
         url = self.study.get_absolute_url()

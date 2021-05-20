@@ -76,13 +76,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "tests")
 MEDIA_URL = "/media/"
 ROOT_URLCONF = "tests.urls"
 
+
+DEFAULT_PAGINATION_CLASS = "rest_framework.pagination.PageNumberPagination"
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
     ],
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PAGINATION_CLASS": DEFAULT_PAGINATION_CLASS,
     "PAGE_SIZE": 20,
 }
 
