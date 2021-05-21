@@ -32,7 +32,7 @@ jobs:
           command: pip install tox
       - run:
           name: Test using tox
-          command: touch .env && tox
+          command: touch tests/.env && tox
       - codecov/upload:
           file: coverage.xml
           flags: unittests
