@@ -35,21 +35,48 @@ class DjangoDicomConfig(AppConfig):
         tests_startup = getattr(settings, "TESTS", False)
         scu_autoconnect = getattr(settings, "DICOM_SCU_AUTOCONNECT", True)
         if scu_autoconnect and not tests_startup:
+            self.application_entity = self.create_application_entity()
             self.start_servers()
 
-    def start_servers(self):
-        # Create application entity.
+    def create_application_entity(
+        self, allow_echo: bool = True, maximum_pdu_size: int = 0
+    ) -> AE:
+        """
+        Returns an :class:`~pynetdicom.ae.ApplicationEntity` instance.
+
+        Parameters
+        ----------
+        allow_echo : bool
+            Whether to enable C-ECHO request handling or not, default is True
+        maximum_pdu_size : int
+            Maximal PDU size. By default, overrides pynetdicom's default
+            setting to 0 (unlimited)
+
+        Returns
+        -------
+        AE
+            DICOM networking application entity
+        """
         ae_title = get_application_entity_title()
-        self.application_entity = AE(ae_title=ae_title)
+        application_entity = AE(ae_title=ae_title)
+        if allow_echo:
+            application_entity.add_supported_context(
+                VerificationSOPClass, ALL_TRANSFER_SYNTAXES[:]
+            )
+        application_entity.maximum_pdu_size = maximum_pdu_size
+        return application_entity
 
-        # Enable C-ECHO request handling.
-        self.application_entity.add_supported_context(
-            VerificationSOPClass, ALL_TRANSFER_SYNTAXES[:]
-        )
+    def start_servers(self):
+        """
+        Creates the :class:`pynetdicom.transport.ThreadedAssociationServer`
+        instances to manage requests from storage service class users.
 
-        # Set unlimited PDU size to maximize throughput.
-        self.application_entity.maximum_pdu_size = 0
-
-        # Associate the created application entity with any registered users.
+        See Also
+        --------
+        * :class:`~pynetdicom.transport.ThreadedAssociationServer`
+        * :attr:`~pynetdicom.ae.ApplicationEntity._servers`
+        * :func:`create_application_entity`
+        * :attr:`application_entity`
+        """
         StorageServiceClassUser = self.get_model("StorageServiceClassUser")
         StorageServiceClassUser.objects.start_servers()
