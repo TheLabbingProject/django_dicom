@@ -21,13 +21,18 @@ jobs:
           POSTGRES_PASSWORD: password
     steps:
       - checkout
+      - run:
+          name: Upgrade pip
+          command: pip install --upgrade pip
       - python/load-cache
       - python/install-deps
       - python/save-cache
-      - run: pip install tox
       - run:
-          command: tox
+          name: Install tox
+          command: pip install tox
+      - run:
           name: Test using tox
+          command: touch tests/.env && tox
       - codecov/upload:
           file: coverage.xml
           flags: unittests

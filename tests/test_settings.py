@@ -11,6 +11,8 @@ env = environ.Env(
 )
 environ.Env.read_env()
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 DEBUG = False
 ALLOWED_HOSTS = "*"
 SECRET_KEY = "sa8!1ep_9#36qw@i-3j(a4uikiobleh03jl8v_3!n^^dsm9oyc"
@@ -74,15 +76,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "tests")
 MEDIA_URL = "/media/"
 ROOT_URLCONF = "tests.urls"
 
+
+DEFAULT_PAGINATION_CLASS = "rest_framework.pagination.PageNumberPagination"
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
     ],
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PAGINATION_CLASS": DEFAULT_PAGINATION_CLASS,
     "PAGE_SIZE": 20,
 }
 
 KEEP_ORIGINAL_DICOM = True
 IMPORTED_PATH = os.path.join(MEDIA_ROOT, "MRI")
+TESTS = True

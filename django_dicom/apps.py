@@ -3,6 +3,7 @@ Definition of the :class:`DjangoDicomConfig` class.
 """
 
 from django.apps import AppConfig
+from django.conf import settings
 from pynetdicom import AE
 from pynetdicom._globals import ALL_TRANSFER_SYNTAXES
 from pynetdicom.sop_class import VerificationSOPClass
@@ -31,6 +32,12 @@ class DjangoDicomConfig(AppConfig):
     """
 
     def ready(self):
+        tests_startup = getattr(settings, "TESTS", False)
+        scu_autoconnect = getattr(settings, "DICOM_SCU_AUTOCONNECT", True)
+        if scu_autoconnect and not tests_startup:
+            self.start_servers()
+
+    def start_servers(self):
         # Create application entity.
         ae_title = get_application_entity_title()
         self.application_entity = AE(ae_title=ae_title)
