@@ -31,11 +31,8 @@ jobs:
           name: Install tox
           command: pip install tox
       - run:
-          name: Install liblzma-dev
-          command: apt update && apt install -y liblzma-dev
-      - run:
           name: Test using tox
-          command: tox
+          command: touch .env && tox
       - codecov/upload:
           file: coverage.xml
           flags: unittests
