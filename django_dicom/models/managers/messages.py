@@ -6,5 +6,6 @@ IMPORT_ERROR = (
     "Failed to import {path}\nThe following exception was raised: {exception}"
 )
 PATIENT_UID_MISMATCH = "Patient UID mismatch! Image {image_uid} is associated with patient {db_value} in the database, but the provided header shows {patient_uid}"
+SERVER_ASSOCIATION_START = "Trying to establish connection with {n_servers} associated DICOM storage service class users..."
 
 # flake8: noqa: E501
