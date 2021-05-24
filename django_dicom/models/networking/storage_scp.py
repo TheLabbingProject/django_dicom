@@ -147,8 +147,7 @@ class StorageServiceClassProvider(models.Model):
         Logs the end of a successful association request with storage service
         class provider.
         """
-        message = messages.SERVER_START_SUCCESS.format(provider=str(self))
-        self._logger.info(message)
+        self._logger.info(messages.SERVER_START_SUCCESS)
 
     def _log_server_start_error(self, exception: ValueError) -> None:
         """
