@@ -39,7 +39,5 @@ class StorageScpQuerySet(models.QuerySet):
         """
         Logs the beginning of association requests negotation.
         """
-        message = messages.ASSOCIATION_SERVER_START.format(
-            n_servers=self.count()
-        )
+        message = messages.SERVER_START.format(n_servers=self.count())
         self._logger.info(message)
