@@ -1,5 +1,5 @@
 """
-Definition of the :class:`StorageServiceClassUser` model.
+Definition of the :class:`StorageServiceClassProvider` model.
 """
 import logging
 from typing import List
@@ -7,7 +7,7 @@ from typing import List
 from django.apps import apps
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django_dicom.models.managers.storage_scu import StorageScuQuerySet
+from django_dicom.models.managers.storage_scp import StorageScpQuerySet
 from django_dicom.models.networking import messages
 from django_dicom.models.networking.handlers import handlers
 from django_dicom.models.networking.status import ServerStatus
@@ -22,26 +22,26 @@ from pynetdicom.presentation import PresentationContext
 from pynetdicom.transport import ThreadedAssociationServer
 
 
-class StorageServiceClassUser(models.Model):
+class StorageServiceClassProvider(models.Model):
     """
-    Storage Service Class User (SCU) to accept C-STORE events from.
+    Storage Service Class Provider (SCP) to handle C-STORE requests.
     """
 
     title = models.CharField(max_length=128, blank=True, null=True)
     """
-    Optional title for this storage service user.
+    Optional title for this storage service provider.
     """
 
-    ip = models.GenericIPAddressField(verbose_name="IP")
+    ip = models.GenericIPAddressField(verbose_name="IP", blank=True, null=True)
     """
-    Associated storage service user's IP address.
+    Storage service provider's IP address.
     """
 
     port = models.PositiveIntegerField(
         validators=[MaxValueValidator(MAX_PORT_NUMBER)]
     )
     """
-    Associated storage service user's port.
+    Associated storage service provider's port.
     """
 
     supported_contexts = ChoiceArrayField(
@@ -58,26 +58,26 @@ class StorageServiceClassUser(models.Model):
     Supported presentation contexts.
     """
 
-    objects = StorageScuQuerySet.as_manager()
+    objects = StorageScpQuerySet.as_manager()
     """
     Custom manager class.
 
     See Also
     --------
-    * :class:`~django_dicom.models.managers.storage_scu.StorageScuQuerySet`
+    * :class:`~django_dicom.models.managers.storage_scp.StorageScpQuerySet`
     * :func:`django.db.models.QuerySet.as_manager`
     """
 
     server: ThreadedAssociationServer = None
     """
-    The association server for this user. Should be overridden on application
-    startup by the :func:`associate` method.
+    The association server for this provider. Should be overridden on
+    application startup by the :func:`associate` method.
     """
 
     _logger = logging.getLogger("data.dicom.networking")
 
     class Meta:
-        verbose_name = "Storage SCU"
+        verbose_name = "Storage SCP"
 
     def __str__(self) -> str:
         """
@@ -88,7 +88,8 @@ class StorageServiceClassUser(models.Model):
         str
             This instance's string representation
         """
-        return f"{self.title}@{self.ip}:{self.port}"
+        ip = self.ip or "localhost"
+        return f"{self.title}@{ip}:{self.port}"
 
     def get_application_entity(self) -> AE:
         """
@@ -106,49 +107,50 @@ class StorageServiceClassUser(models.Model):
         config = apps.get_app_config("django_dicom")
         return config.application_entity
 
-    def associate(self) -> ThreadedAssociationServer:
+    def start(self) -> ThreadedAssociationServer:
         """
-        Start an association server with this user to listen for requests.
+        Start an association server with this provider to listen for requests.
 
         Returns
         -------
         ThreadedAssociationServer
             Non-blocking association server
         """
-        self._log_association_start()
+        self._log_server_start()
+        ip = self.ip or ""
         try:
             self.server = self.application_entity.start_server(
-                (self.ip, self.port),
+                (ip, self.port),
                 block=False,
                 evt_handlers=handlers,
                 contexts=self._supported_contexts,
             )
         except (ValueError, OSError) as exception:
-            self._log_association_error(exception)
+            self._log_server_start_error(exception)
         else:
             if isinstance(self.server, ThreadedAssociationServer):
-                self._log_association_success()
+                self._log_server_start_success()
                 return self.server
             else:
                 self._log_silent_failure()
 
-    def _log_association_start(self) -> None:
+    def _log_server_start(self) -> None:
         """
         Logs the beginning of an association request with storage service class
-        user.
+        provider.
         """
-        message = messages.SERVER_ASSOCIATION_START.format(user=str(self))
+        message = messages.SERVER_START.format(provider=str(self))
         self._logger.info(message)
 
-    def _log_association_success(self) -> None:
+    def _log_server_start_success(self) -> None:
         """
         Logs the end of a successful association request with storage service
-        class user.
+        class provider.
         """
-        message = messages.SERVER_ASSOCIATION_SUCCESS.format(user=str(self))
+        message = messages.SERVER_START_SUCCESS.format(provider=str(self))
         self._logger.info(message)
 
-    def _log_association_error(self, exception: ValueError) -> None:
+    def _log_server_start_error(self, exception: ValueError) -> None:
         """
         Logs ValueErrors raised by
         :func:`~pynetdicom.ae.ApplicationEntity.start_server`.
@@ -158,7 +160,7 @@ class StorageServiceClassUser(models.Model):
         exception : ValueError
             Raised exception
         """
-        message = messages.SERVER_ASSOCIATION_ERROR.format(exception=exception)
+        message = messages.SERVER_START_ERROR.format(exception=exception)
         self._logger.warning(message)
 
     def _log_silent_failure(self) -> None:
@@ -243,7 +245,7 @@ class StorageServiceClassUser(models.Model):
     @property
     def is_down(self) -> bool:
         """
-        Returns whether the association with storage SCU is down or not.
+        Returns whether the association with storage SCP is down or not.
 
         Returns
         -------
@@ -260,7 +262,7 @@ class StorageServiceClassUser(models.Model):
     @property
     def is_up(self) -> bool:
         """
-        Returns whether the association with storage SCU is up or not.
+        Returns whether the association with storage SCP is up or not.
 
         Returns
         -------

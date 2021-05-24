@@ -6,7 +6,7 @@ from enum import Enum
 
 class ServerStatus(Enum):
     """
-    Represents the different states an association with some storage SCU may
+    Represents the different states an association with some storage SCP may
     have.
     """
 

@@ -13,7 +13,7 @@ __ https://www.django-rest-framework.org/api-guide/filtering/#generic-filtering
 from django_dicom.filters.image_filter import ImageFilter
 from django_dicom.filters.patient_filter import PatientFilter
 from django_dicom.filters.series_filter import SeriesFilter
-from django_dicom.filters.storage_scu_filter import StorageScuFilter
+from django_dicom.filters.storage_scp_filter import StorageScpFilter
 from django_dicom.filters.study_filter import StudyFilter
 
 # flake8: noqa: F401
