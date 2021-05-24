@@ -1,14 +1,14 @@
 """
 Definition of the :class:`StudyFilter` class.
 """
-from django_dicom.models.networking import StorageServiceClassUser
+from django_dicom.models.networking import StorageServiceClassProvider
 from django_filters import rest_framework as filters
 
 
-class StorageScuFilter(filters.FilterSet):
+class StorageScpFilter(filters.FilterSet):
     """
     Provides filtering functionality for the
-    :class:`~django_dicom.views.storage_scu.StorageScuViewSet`.
+    :class:`~django_dicom.views.storage_scp.StorageScpViewSet`.
 
     Available filters are:
 
@@ -18,7 +18,7 @@ class StorageScuFilter(filters.FilterSet):
     """
 
     class Meta:
-        model = StorageServiceClassUser
+        model = StorageServiceClassProvider
         fields = (
             "id",
             "title",

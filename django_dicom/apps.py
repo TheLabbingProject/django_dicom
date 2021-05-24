@@ -39,9 +39,9 @@ class DjangoDicomConfig(AppConfig):
         starts.
         """
         tests_startup = getattr(settings, "TESTS", False)
-        scu_autoconnect = getattr(settings, "DICOM_SCU_AUTOCONNECT", True)
+        ae_autostart = getattr(settings, "DICOM_AE_AUTOSTART", True)
         ae_exists = self.application_entity is not None
-        ae_missing = scu_autoconnect and not (tests_startup or ae_exists)
+        ae_missing = ae_autostart and not (tests_startup or ae_exists)
         if ae_missing:
             self.application_entity = self.create_application_entity()
             self.start_servers()
@@ -115,9 +115,10 @@ class DjangoDicomConfig(AppConfig):
         * :func:`create_application_entity`
         * :attr:`application_entity`
         """
+        StorageServiceClassProvider = self.get_model(
+            "StorageServiceClassProvider"
+        )
         try:
-            StorageServiceClassUser = self.get_model("StorageServiceClassUser")
+            StorageServiceClassProvider.objects.start_servers()
         except ProgrammingError:
             pass
-        else:
-            StorageServiceClassUser.objects.start_servers()

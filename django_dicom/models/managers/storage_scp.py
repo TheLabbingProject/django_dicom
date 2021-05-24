@@ -1,5 +1,5 @@
 """
-Definition of the :class:`StorageScuQuerySet` class.
+Definition of the :class:`StorageScpQuerySet` class.
 """
 import logging
 from typing import List
@@ -9,10 +9,10 @@ from django_dicom.models.managers import messages
 from pynetdicom.transport import ThreadedAssociationServer
 
 
-class StorageScuQuerySet(models.QuerySet):
+class StorageScpQuerySet(models.QuerySet):
     """
     Custom queryset manager of the
-    :class:`~django_dicom.models.networking.storage_scu.StorageServiceClassUser`
+    :class:`~django_dicom.models.networking.storage_scp.StorageServiceClassProvider`
     model.
     """
 
@@ -20,27 +20,26 @@ class StorageScuQuerySet(models.QuerySet):
 
     def start_servers(self) -> List[ThreadedAssociationServer]:
         """
-        Start association servers with all registered storage service class
-        users.
+        Start association servers.
 
         Returns
         -------
         List[ThreadedAssociationServer]
             Association servers
-            """
+        """
         if not self.exists():
             return
-        self._log_association_start()
+        self._log_servers_start()
         associations = [
-            storage_user.associate() for storage_user in self.all()
+            storage_provider.start() for storage_provider in self.all()
         ]
         return list(filter(None, associations))
 
-    def _log_association_start(self) -> None:
+    def _log_servers_start(self) -> None:
         """
         Logs the beginning of association requests negotation.
         """
-        message = messages.SERVER_ASSOCIATION_START.format(
+        message = messages.ASSOCIATION_SERVER_START.format(
             n_servers=self.count()
         )
         self._logger.info(message)
