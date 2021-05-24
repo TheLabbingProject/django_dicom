@@ -5,6 +5,7 @@ import logging
 
 from django.apps import AppConfig
 from django.conf import settings
+from django.db import ProgrammingError
 from pynetdicom import AE
 from pynetdicom._globals import ALL_TRANSFER_SYNTAXES
 from pynetdicom.sop_class import VerificationSOPClass
@@ -114,5 +115,9 @@ class DjangoDicomConfig(AppConfig):
         * :func:`create_application_entity`
         * :attr:`application_entity`
         """
-        StorageServiceClassUser = self.get_model("StorageServiceClassUser")
-        StorageServiceClassUser.objects.start_servers()
+        try:
+            StorageServiceClassUser = self.get_model("StorageServiceClassUser")
+        except ProgrammingError:
+            pass
+        else:
+            StorageServiceClassUser.objects.start_servers()
