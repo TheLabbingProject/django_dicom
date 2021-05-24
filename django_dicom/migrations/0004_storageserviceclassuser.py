@@ -14,6 +14,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.CreateModel(
             name="StorageServiceClassUser",
+            options={"verbose_name": "Storage SCU"},
             fields=[
                 (
                     "id",
