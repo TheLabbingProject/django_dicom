@@ -123,8 +123,8 @@ class StorageServiceClassUser(models.Model):
                 evt_handlers=handlers,
                 contexts=self._supported_contexts,
             )
-        except ValueError as exception:
-            self._log_association_valueerror(exception)
+        except (ValueError, OSError) as exception:
+            self._log_association_error(exception)
         else:
             if isinstance(self.server, ThreadedAssociationServer):
                 self._log_association_success()
@@ -148,7 +148,7 @@ class StorageServiceClassUser(models.Model):
         message = messages.SERVER_ASSOCIATION_SUCCESS.format(user=str(self))
         self._logger.info(message)
 
-    def _log_association_valueerror(self, exception: ValueError) -> None:
+    def _log_association_error(self, exception: ValueError) -> None:
         """
         Logs ValueErrors raised by
         :func:`~pynetdicom.ae.ApplicationEntity.start_server`.
