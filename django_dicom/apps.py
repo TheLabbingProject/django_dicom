@@ -1,6 +1,7 @@
 """
 Definition of the :class:`DjangoDicomConfig` class.
 """
+import logging
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -34,7 +35,11 @@ class DjangoDicomConfig(AppConfig):
     def ready(self):
         tests_startup = getattr(settings, "TESTS", False)
         scu_autoconnect = getattr(settings, "DICOM_SCU_AUTOCONNECT", True)
-        if scu_autoconnect and not tests_startup:
+        if (
+            scu_autoconnect
+            and not tests_startup
+            and self.application_entity is None
+        ):
             self.application_entity = self.create_application_entity()
             self.start_servers()
 
@@ -57,13 +62,36 @@ class DjangoDicomConfig(AppConfig):
         AE
             DICOM networking application entity
         """
+        from django_dicom.models.networking import (
+            messages as networking_messages,
+        )
+
+        logger = logging.getLogger("data.dicom.networking")
+
         ae_title = get_application_entity_title()
+        start_message = networking_messages.APPLICATION_ENTITY_START.format(
+            title=ae_title
+        )
+        logger.info(start_message)
+
         application_entity = AE(ae_title=ae_title)
+
+        end_message = networking_messages.APPLICATION_ENTITY_SUCCESS
+        logger.info(end_message)
+
         if allow_echo:
             application_entity.add_supported_context(
                 VerificationSOPClass, ALL_TRANSFER_SYNTAXES[:]
             )
+            logger.debug(networking_messages.C_ECHO_HANDLING)
+
         application_entity.maximum_pdu_size = maximum_pdu_size
+        if maximum_pdu_size != 0:
+            message = networking_messages.PDU_LIMIT_CONFIGURATION.format(
+                maximum_pdu_size=maximum_pdu_size
+            )
+            logger.debug(message)
+
         return application_entity
 
     def start_servers(self):
