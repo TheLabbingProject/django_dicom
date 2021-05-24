@@ -158,7 +158,7 @@ class StorageServiceClassUser(models.Model):
         exception : ValueError
             Raised exception
         """
-        message = messages.SERVER_VALUE_ERROR.format(exception=exception)
+        message = messages.SERVER_ASSOCIATION_ERROR.format(exception=exception)
         self._logger.warning(message)
 
     def _log_silent_failure(self) -> None:
