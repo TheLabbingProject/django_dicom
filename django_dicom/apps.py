@@ -33,13 +33,15 @@ class DjangoDicomConfig(AppConfig):
     """
 
     def ready(self):
+        """
+        Overrides :func:`~django.apps.AppConfig.ready` to run code when Django
+        starts.
+        """
         tests_startup = getattr(settings, "TESTS", False)
         scu_autoconnect = getattr(settings, "DICOM_SCU_AUTOCONNECT", True)
-        if (
-            scu_autoconnect
-            and not tests_startup
-            and self.application_entity is None
-        ):
+        ae_exists = self.application_entity is not None
+        ae_missing = scu_autoconnect and not (tests_startup or ae_exists)
+        if ae_missing:
             self.application_entity = self.create_application_entity()
             self.start_servers()
 
@@ -68,23 +70,29 @@ class DjangoDicomConfig(AppConfig):
 
         logger = logging.getLogger("data.dicom.networking")
 
+        # Get application entity title from the application settings and log
+        # start.
         ae_title = get_application_entity_title()
         start_message = networking_messages.APPLICATION_ENTITY_START.format(
             title=ae_title
         )
         logger.info(start_message)
 
+        # Create application entity instance.
         application_entity = AE(ae_title=ae_title)
 
+        # Log end.
         end_message = networking_messages.APPLICATION_ENTITY_SUCCESS
         logger.info(end_message)
 
+        # Add C-ECHO request handling if *allow_echo=True*.
         if allow_echo:
             application_entity.add_supported_context(
                 VerificationSOPClass, ALL_TRANSFER_SYNTAXES[:]
             )
             logger.debug(networking_messages.C_ECHO_HANDLING)
 
+        # Modify the maximal PDU size to optimize throughput.
         application_entity.maximum_pdu_size = maximum_pdu_size
         if maximum_pdu_size != 0:
             message = networking_messages.PDU_LIMIT_CONFIGURATION.format(

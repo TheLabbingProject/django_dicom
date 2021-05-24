@@ -10,6 +10,7 @@ from django.db import models
 from django_dicom.models.managers.storage_scu import StorageScuQuerySet
 from django_dicom.models.networking import messages
 from django_dicom.models.networking.handlers import handlers
+from django_dicom.models.networking.status import ServerStatus
 from django_dicom.models.networking.utils import (
     MAX_PORT_NUMBER,
     PRESENTATION_CONTEXTS,
@@ -115,7 +116,6 @@ class StorageServiceClassUser(models.Model):
             Non-blocking association server
         """
         self._log_association_start()
-        n_servers_before = len(self.application_entity._servers)
         try:
             self.server = self.application_entity.start_server(
                 (self.ip, self.port),
@@ -126,8 +126,7 @@ class StorageServiceClassUser(models.Model):
         except ValueError as exception:
             self._log_association_valueerror(exception)
         else:
-            n_servers_after = len(self.application_entity._servers)
-            if n_servers_after == n_servers_before + 1:
+            if isinstance(self.server, ThreadedAssociationServer):
                 self._log_association_success()
                 return self.server
             else:
@@ -204,3 +203,76 @@ class StorageServiceClassUser(models.Model):
         * :func:`get_application_entity`
         """
         return self.get_application_entity()
+
+    def check_status(self) -> ServerStatus:
+        """
+        Returns the association status.
+
+        Returns
+        -------
+        ServerStatus
+            Server association status
+
+        See Also
+        --------
+        :func:`is_down`
+        :func:`is_up`
+        """
+        if self.is_down:
+            return ServerStatus.DOWN
+        elif self.is_up:
+            return ServerStatus.UP
+        return ServerStatus.INACTIVE
+
+    @property
+    def status(self) -> ServerStatus:
+        """
+        Returns the association status.
+
+        Returns
+        -------
+        ServerStatus
+            Server association status
+
+        See Also
+        --------
+        :func:`check_status`
+        """
+        return self.check_status()
+
+    @property
+    def is_down(self) -> bool:
+        """
+        Returns whether the association with storage SCU is down or not.
+
+        Returns
+        -------
+        bool
+            Whether the association is down or not
+
+        See Also
+        --------
+        :func:`check_status`
+        :func:`is_up`
+        """
+        return self.server is None
+
+    @property
+    def is_up(self) -> bool:
+        """
+        Returns whether the association with storage SCU is up or not.
+
+        Returns
+        -------
+        bool
+            Whether the association is up or not
+
+        See Also
+        --------
+        :func:`check_status`
+        :func:`is_down`
+        """
+        return (
+            self.server is not None
+            and len(self.server.active_associations) == 0
+        )
