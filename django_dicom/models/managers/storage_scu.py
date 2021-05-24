@@ -31,7 +31,10 @@ class StorageScuQuerySet(models.QuerySet):
         if not self.exists():
             return
         self._log_association_start()
-        return [storage_user.associate() for storage_user in self.all()]
+        associations = [
+            storage_user.associate() for storage_user in self.all()
+        ]
+        return list(filter(None, associations))
 
     def _log_association_start(self) -> None:
         """
