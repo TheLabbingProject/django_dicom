@@ -14,7 +14,7 @@ SERVER_ASSOCIATION_START = (
 SERVER_ASSOCIATION_SUCCESS = (
     "SUCCESS! Association with {user} successfully established."
 )
-SERVER_VALUE_ERROR = (
+SERVER_ASSOCIATION_ERROR = (
     "Failed to start server with the following exception: {exception}"
 )
 SERVER_NOT_CREATED = "Server instantiation failed with no exception! No new server found in the app's application entity."
