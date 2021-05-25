@@ -38,7 +38,7 @@ class StorageServiceClassProvider(models.Model):
     """
 
     port = models.PositiveIntegerField(
-        validators=[MaxValueValidator(MAX_PORT_NUMBER)]
+        validators=[MaxValueValidator(MAX_PORT_NUMBER)], default=11112
     )
     """
     Associated storage service provider's port.
@@ -68,12 +68,6 @@ class StorageServiceClassProvider(models.Model):
     * :func:`django.db.models.QuerySet.as_manager`
     """
 
-    server: ThreadedAssociationServer = None
-    """
-    The association server for this provider. Should be overridden on
-    application startup by the :func:`associate` method.
-    """
-
     _logger = logging.getLogger("data.dicom.networking")
 
     class Meta:
@@ -88,7 +82,7 @@ class StorageServiceClassProvider(models.Model):
         str
             This instance's string representation
         """
-        ip = self.ip or "localhost"
+        ip = self.ip or "0.0.0.0"
         return f"{self.title}@{ip}:{self.port}"
 
     def get_application_entity(self) -> AE:
@@ -119,7 +113,7 @@ class StorageServiceClassProvider(models.Model):
         self._log_server_start()
         ip = self.ip or ""
         try:
-            self.server = self.application_entity.start_server(
+            server = self.application_entity.start_server(
                 (ip, self.port),
                 block=False,
                 evt_handlers=handlers,
@@ -128,9 +122,9 @@ class StorageServiceClassProvider(models.Model):
         except (ValueError, OSError) as exception:
             self._log_server_start_error(exception)
         else:
-            if isinstance(self.server, ThreadedAssociationServer):
+            if isinstance(server, ThreadedAssociationServer):
                 self._log_server_start_success()
-                return self.server
+                return server
             else:
                 self._log_silent_failure()
 
@@ -168,6 +162,31 @@ class StorageServiceClassProvider(models.Model):
         could not be found under the app's application entity.
         """
         self._logger.warning(messages.SERVER_NOT_CREATED)
+
+    def get_server(self) -> ThreadedAssociationServer:
+        """
+        Returns the association server instance.
+
+        Returns
+        -------
+        ThreadedAssociationServer
+            DICOM storage SCP threaded association server
+
+        See Also
+        --------
+        * :attr:`server`
+        """
+        servers = self.application_entity._servers
+        ip = self.ip or "0.0.0.0"
+        server_address = ip, self.port
+        try:
+            return [
+                server
+                for server in servers
+                if server.server_address == server_address
+            ][0]
+        except IndexError:
+            pass
 
     @property
     def _supported_contexts(self) -> List[PresentationContext]:
@@ -219,11 +238,26 @@ class StorageServiceClassProvider(models.Model):
         :func:`is_down`
         :func:`is_up`
         """
-        if self.is_down:
+        if self.server is None:
             return ServerStatus.DOWN
-        elif self.is_up:
-            return ServerStatus.UP
-        return ServerStatus.INACTIVE
+        up = bool(self.server.active_associations)
+        return ServerStatus.UP if up else ServerStatus.INACTIVE
+
+    @property
+    def server(self) -> ThreadedAssociationServer:
+        """
+        Returns the association server instance.
+
+        Returns
+        -------
+        ThreadedAssociationServer
+            DICOM storage SCP threaded association server
+
+        See Also
+        --------
+        * :attr:`get_server`
+        """
+        return self.get_server()
 
     @property
     def status(self) -> ServerStatus:
@@ -255,8 +289,9 @@ class StorageServiceClassProvider(models.Model):
         --------
         :func:`check_status`
         :func:`is_up`
+        :attr:`~pynetdicom.transport.ThreadedAssociationServer.active_associations`
         """
-        return self.server is None
+        return
 
     @property
     def is_up(self) -> bool:
