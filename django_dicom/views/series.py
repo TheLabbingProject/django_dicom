@@ -1,3 +1,6 @@
+"""
+Definition of the :class:`SeriesViewSet` class.
+"""
 import io
 import os
 import zipfile
