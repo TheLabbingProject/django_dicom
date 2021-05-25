@@ -21,7 +21,6 @@ def handle_echo(event: events.Event) -> Status:
     Status
         Response status code
     """
-
     return Status.SUCCESS
 
 

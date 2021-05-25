@@ -12,6 +12,24 @@ class StorageScpSerializer(serializers.HyperlinkedModelSerializer):
     model.
     """
 
+    status = serializers.SerializerMethodField()
+
     class Meta:
         model = StorageServiceClassProvider
-        fields = "id", "title", "ip", "port"
+        fields = "id", "title", "ip", "port", "status"
+
+    def get_status(self, instance: StorageServiceClassProvider) -> str:
+        """
+        Returns the current association status.
+
+        Parameters
+        ----------
+        instance : StorageServiceClassProvider
+            Queried storage SCP instance
+
+        Returns
+        -------
+        str
+            Association status
+        """
+        return instance.status.value
