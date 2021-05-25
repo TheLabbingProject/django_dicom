@@ -3,7 +3,6 @@ Definition of a custom :class:`~django.db.models.Manager` for the
 :class:`~django_dicom.models.data_element_definition.DataElementDefinition`
 model.
 """
-
 from dicom_parser.data_element import DataElement as DicomDataElement
 from django.db import models
 

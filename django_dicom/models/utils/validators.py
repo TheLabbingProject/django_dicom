@@ -1,3 +1,6 @@
+"""
+Definition of custom field validations.
+"""
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django_dicom.apps import DjangoDicomConfig

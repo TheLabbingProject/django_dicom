@@ -1,3 +1,6 @@
+"""
+Definition of the :class:`DefaultsMixin` mixin.
+"""
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.authentication import (
     BasicAuthentication,

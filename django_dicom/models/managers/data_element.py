@@ -2,7 +2,6 @@
 Definition of a custom :class:`~django.db.models.Manager` for the
 :class:`~django_dicom.models.data_element.DataElement` model.
 """
-
 from dicom_parser.data_element import DataElement as DicomDataElement
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models

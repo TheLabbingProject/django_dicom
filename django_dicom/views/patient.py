@@ -1,3 +1,6 @@
+"""
+Definition of the :class:`PatientViewSet` class.
+"""
 import os
 from shutil import make_archive
 

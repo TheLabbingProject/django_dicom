@@ -10,8 +10,6 @@ This `abstract model`_ serves as a base class for the various `DICOM entities`_
    http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
 
 """
-
-
 import logging
 
 from dicom_parser.header import Header as DicomHeader

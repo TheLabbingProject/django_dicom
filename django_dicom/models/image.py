@@ -1,8 +1,6 @@
 """
 Definition of the :class:`Image` class.
-
 """
-
 import logging
 import os
 import shutil

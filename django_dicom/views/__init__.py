@@ -1,3 +1,6 @@
+"""
+Definition of the app's :class:`rest_framework.viewsets.ViewSet` subclasses.
+"""
 from django_dicom.views.image import ImageViewSet
 from django_dicom.views.patient import PatientViewSet
 from django_dicom.views.series import SeriesViewSet

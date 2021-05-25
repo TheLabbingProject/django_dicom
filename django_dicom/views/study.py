@@ -1,3 +1,6 @@
+"""
+Definition of the :class:`StudyViewSet` class.
+"""
 from django_dicom.filters import StudyFilter
 from django_dicom.models import Study
 from django_dicom.serializers import StudySerializer

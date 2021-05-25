@@ -2,7 +2,6 @@
 Definition of a custom :class:`~django.db.models.Manager` for the
 :class:`~django_dicom.models.dicom_entity.DicomEntity` model.
 """
-
 from typing import Tuple
 
 from django.core.exceptions import ObjectDoesNotExist

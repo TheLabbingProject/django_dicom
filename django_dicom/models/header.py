@@ -1,6 +1,5 @@
 """
 Definition of the :class:`~django_dicom.models.header.Header` class.
-
 """
 import os
 from typing import Any, List

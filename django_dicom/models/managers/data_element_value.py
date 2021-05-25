@@ -11,7 +11,6 @@ django-model-utils_\'s `InheritanceManager documentation`_.
 .. _InheritanceManager documentation:
    https://django-model-utils.readthedocs.io/en/latest/managers.html#inheritancemanager
 """
-
 from typing import Tuple
 
 from dicom_parser.data_element import DataElement as DicomDataElement

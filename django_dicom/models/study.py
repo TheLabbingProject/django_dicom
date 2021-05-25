@@ -1,8 +1,6 @@
 """
 Definition of the :class:`Study` class.
-
 """
-
 import logging
 
 from django.db import models

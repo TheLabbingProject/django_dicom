@@ -1,8 +1,6 @@
 """
 Definition of the :class:`DataElementDefinition` class.
-
 """
-
 import pandas as pd
 from dicom_parser.utils.value_representation import ValueRepresentation
 from django.contrib.postgres.fields import ArrayField

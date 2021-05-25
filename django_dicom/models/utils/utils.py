@@ -5,10 +5,9 @@ from dicom_parser.utils.value_representation import ValueRepresentation
 from django.apps import apps
 from django.conf import settings
 
+
 # Import Management
 ###################
-
-
 class ImportMode(Enum):
     MINIMAL = "Minimal"
     NORMAL = "Normal"
@@ -74,7 +73,6 @@ def check_element_inclusion(data_element) -> bool:
 
 # Media directory locations
 ###########################
-
 DEFAULT_DICOM_DIR_NAME = "DICOM"
 DEFAULT_MRI_DIR_NAME = "MRI"
 
@@ -101,7 +99,5 @@ def get_dicom_root() -> Path:
 
 # Other
 #######
-
-
 def snake_case_to_camel_case(string: str) -> str:
     return "".join([part.title() for part in string.split("_")])

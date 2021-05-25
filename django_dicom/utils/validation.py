@@ -1,5 +1,5 @@
 from dicom_parser.utils.code_strings import ScanningSequence, SequenceVariant
-from django_dicom.utils.utils import FieldsEnum, NegativitiyEnum
+from django_dicom.utils.utils import FieldsEnum, NegativityEnum
 
 # fields = {
 #     "ScanningSequence": (0x0018, 0x0020),
@@ -144,7 +144,7 @@ def field_correction(field):
 def field_checker(field, value, header):
     func, field = field_correction(field)
     header_value, dtype = header_getter(field, header)
-    return checkers_list[NegativitiyEnum[func].value][FieldsEnum[dtype].value](
+    return checkers_list[NegativityEnum[func].value][FieldsEnum[dtype].value](
         value, field, header_value
     )
 

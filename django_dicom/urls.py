@@ -1,3 +1,7 @@
+"""
+Definition of the app's URLs.
+"""
+
 from django.urls import include, path
 from rest_framework import routers
 
