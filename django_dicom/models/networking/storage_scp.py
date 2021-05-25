@@ -112,6 +112,8 @@ class StorageServiceClassProvider(models.Model):
         """
         self._log_server_start()
         ip = self.ip or ""
+        if self.server is not None:
+            return self.server
         try:
             server = self.application_entity.start_server(
                 (ip, self.port),
