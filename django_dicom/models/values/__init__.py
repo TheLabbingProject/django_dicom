@@ -12,7 +12,6 @@ standard`_ (`part 05, section 6.2`_).
 .. _part 05, section 6.2:
    http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
 """
-
 from django_dicom.models.values.age_string import AgeString
 from django_dicom.models.values.application_entity import ApplicationEntity
 from django_dicom.models.values.code_string import CodeString

@@ -2,7 +2,6 @@
 Definition of a custom :class:`~django.db.models.Manager` for the
 :class:`~django_dicom.models.header.Header` model.
 """
-
 from dicom_parser.header import Header as DicomHeader
 from django.db import models, transaction
 from django_dicom.exceptions import DicomImportError

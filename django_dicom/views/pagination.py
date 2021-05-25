@@ -1,3 +1,6 @@
+"""
+Definition of the :class:`StandardResultsSetPagination` class.
+"""
 from rest_framework.pagination import PageNumberPagination
 
 

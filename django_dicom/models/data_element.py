@@ -1,8 +1,6 @@
 """
 Definition of the :class:`DataElement` class.
-
 """
-
 from typing import Any
 
 import pandas as pd

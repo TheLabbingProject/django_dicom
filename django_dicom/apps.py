@@ -37,6 +37,14 @@ class DjangoDicomConfig(AppConfig):
         """
         Overrides :func:`~django.apps.AppConfig.ready` to run code when Django
         starts.
+
+        Warning
+        -------
+        If the application is served with gunicorn using multiple workers,
+        :func:`ready` is executed multiple times and causes server
+        instantiation to raise *[Errno 98] Address already in use*. In case the
+        application is meant to be served using multiple workers, the DICOM
+        application entity instantiation needs to be revised.
         """
         tests_startup = getattr(settings, "TESTS", False)
         ae_autostart = getattr(settings, "DICOM_AE_AUTOSTART", True)
@@ -121,4 +129,7 @@ class DjangoDicomConfig(AppConfig):
         try:
             StorageServiceClassProvider.objects.start_servers()
         except ProgrammingError:
+            # If the Storage SCP model hasn't yet been created in the database,
+            # ignore this exception (otherwise, the migrations required to
+            # create the table cannot be executed).
             pass

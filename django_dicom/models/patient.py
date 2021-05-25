@@ -1,8 +1,6 @@
 """
 Definition of the :class:`Patient` class.
-
 """
-
 import logging
 
 from dicom_parser.utils.code_strings import Sex

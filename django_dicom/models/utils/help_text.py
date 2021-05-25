@@ -1,3 +1,7 @@
+"""
+:attr:`~django.db.models.Field.help_text` string constants for the various
+fields.
+"""
 SERIES_UID = "Unique identifier of the series"
 SERIES_DATE = "Date the series started"
 SERIES_TIME = "Time the series started"

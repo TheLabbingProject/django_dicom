@@ -8,8 +8,6 @@ __ https://www.django-rest-framework.org/api-guide/filtering/#generic-filtering
    https://django-filter.readthedocs.io/en/stable/guide/rest_framework.html
 .. _REST API: https://en.wikipedia.org/wiki/Representational_state_transfer
 """
-
-
 from django_dicom.filters.image_filter import ImageFilter
 from django_dicom.filters.patient_filter import PatientFilter
 from django_dicom.filters.series_filter import SeriesFilter

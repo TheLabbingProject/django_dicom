@@ -4,5 +4,6 @@ For more information about error and exceptions see the `Python docs`__.
 
 __ https://docs.python.org/3/tutorial/errors.html
 """
-
 from django_dicom.exceptions.dicom_import_error import DicomImportError
+
+# flake8: noqa: F401

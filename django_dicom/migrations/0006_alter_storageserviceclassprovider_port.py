@@ -7,13 +7,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_dicom', '0005_auto_20210524_1522'),
+        ("django_dicom", "0005_auto_20210524_1522"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='storageserviceclassprovider',
-            name='port',
-            field=models.PositiveIntegerField(default=11112, validators=[django.core.validators.MaxValueValidator(65535)]),
+            model_name="storageserviceclassprovider",
+            name="port",
+            field=models.PositiveIntegerField(
+                default=11112,
+                validators=[django.core.validators.MaxValueValidator(65535)],
+            ),
         ),
     ]

@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class NegativitiyEnum(Enum):
+class NegativityEnum(Enum):
     POSITIVE = 0
     NEGATIVE = 1
 

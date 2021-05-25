@@ -1,3 +1,6 @@
+"""
+Definition of the :class:`ImageViewSet` class.
+"""
 from django.contrib.auth import get_user_model
 from django_dicom.filters import ImageFilter
 from django_dicom.models import Image
@@ -11,7 +14,6 @@ from rest_framework.parsers import MultiPartParser
 class ImageViewSet(DefaultsMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows images to be viewed or edited.
-
     """
 
     filter_class = ImageFilter

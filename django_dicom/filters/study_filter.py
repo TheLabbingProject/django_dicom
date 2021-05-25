@@ -3,8 +3,6 @@ Definition of the :class:`FilterSet` subclass that will be assigned to the
 :class:`~django_dicom.views.study.StudyViewSet`\'s
 :attr:`~django_dicom.views.study.StudyViewSet.filter_class` attribute value.
 """
-
-
 from django_dicom.models.study import Study
 from django_filters import rest_framework as filters
 

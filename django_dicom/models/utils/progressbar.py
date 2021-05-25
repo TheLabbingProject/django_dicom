@@ -1,6 +1,12 @@
+"""
+Definition of the :func:`create_progressbar` function.
+"""
 from tqdm import tqdm
 
+#: Default progressbar *desc* parameter value.
 DESCRIPTION = "Importing DICOM data"
+
+#: Default progressbar units (*unit* parameter value).
 UNIT = "image"
 
 
