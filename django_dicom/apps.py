@@ -99,7 +99,7 @@ class DjangoDicomConfig(AppConfig):
             application_entity.add_supported_context(
                 VerificationSOPClass, ALL_TRANSFER_SYNTAXES[:]
             )
-            logger.debug(networking_messages.C_ECHO_HANDLING)
+            logger.debug(networking_messages.C_ECHO_ENABLED)
 
         # Modify the maximal PDU size to optimize throughput.
         application_entity.maximum_pdu_size = maximum_pdu_size
