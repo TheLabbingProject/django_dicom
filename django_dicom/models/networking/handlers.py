@@ -5,6 +5,7 @@ from django_dicom.models.image import Image
 from pydicom.filewriter import write_file_meta_info
 from pynetdicom import events
 from pynetdicom.status import Status
+from pathlib import Path
 
 
 def handle_echo(event: events.Event) -> Status:
@@ -45,21 +46,23 @@ def handle_store(event: events.Event) -> Status:
     .. _Handler implementation documentation:
        https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store
     """
-    with open(event.request.AffectedSOPInstanceUID, "wb") as f:
+    instance_uid = event.request.AffectedSOPInstanceUID
+    file_name = f"{instance_uid}.dcm"
+    with open(file_name, "wb") as content:
         # Write the preamble and prefix
-        f.write(b"\x00" * 128)
-        f.write(b"DICM")
+        content.write(b"\x00" * 128)
+        content.write(b"DICM")
 
         # Encode and write the File Meta Information
-        write_file_meta_info(f, event.file_meta)
+        write_file_meta_info(content, event.file_meta)
 
         # Write the encoded dataset
         dataset = event.request.DataSet.getvalue()
-        f.write(dataset)
+        content.write(dataset)
 
-        # Store received data in the database
-        path = Image.objects.store_image_data(f)
-        Image.objects.get_or_create(dcm=path)
+    # Store received data in the database
+    Image.objects.get_or_create(dcm=file_name)
+    Path(file_name).unlink()
 
     return Status.SUCCESS
 
