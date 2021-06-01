@@ -4,6 +4,7 @@ Event handlers for associated service classes.
 import logging
 from pathlib import Path
 
+from django.conf import settings
 from django_dicom.models.image import Image
 from django_dicom.models.networking import messages
 from pydicom.filewriter import write_file_meta_info
@@ -11,6 +12,8 @@ from pynetdicom import events
 from pynetdicom.status import Status
 
 logger = logging.getLogger("data.dicom.networking")
+
+MEDIA_ROOT = Path(getattr(settings, "MEDIA_ROOT"))
 
 
 def handle_echo(event: events.Event) -> Status:
@@ -29,6 +32,10 @@ def handle_echo(event: events.Event) -> Status:
     """
     logger.debug(messages.C_ECHO_RECEIVED)
     return Status.SUCCESS
+
+
+def get_temp_store_path(instance_uid: str) -> Path:
+    return MEDIA_ROOT / f"{instance_uid}.dcm"
 
 
 def handle_store(event: events.Event) -> Status:
@@ -53,12 +60,12 @@ def handle_store(event: events.Event) -> Status:
        https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store
     """
     instance_uid = event.request.AffectedSOPInstanceUID
-    file_name = f"{instance_uid}.dcm"
+    path = get_temp_store_path(instance_uid)
 
     write_start = messages.C_STORE_RECEIVED.format(instance_uid=instance_uid)
     logging.debug(write_start)
 
-    with open(file_name, "wb") as content:
+    with open(path, "wb") as content:
         # Write the preamble and prefix
         logging.debug(messages.WRITE_DICOM_PREFIX)
         content.write(b"\x00" * 128)
@@ -74,27 +81,27 @@ def handle_store(event: events.Event) -> Status:
         dataset = event.request.DataSet.getvalue()
         content.write(dataset)
 
-        write_end = messages.WRITE_DICOM_END.format(file_name=file_name)
+        write_end = messages.WRITE_DICOM_END.format(file_name=path.name)
         logging.debug(write_end)
 
     # Store received data in the database
-    import_start = messages.IMAGE_IMPORT_START.format(file_name=file_name)
+    import_start = messages.IMAGE_IMPORT_START.format(file_name=path.name)
     logger.debug(import_start)
 
-    Image.objects.get_or_create(dcm=file_name)
+    Image.objects.get_or_create(dcm=path)
 
-    import_end = messages.IMAGE_IMPORT_END.format(file_name=file_name)
+    import_end = messages.IMAGE_IMPORT_END.format(file_name=path.name)
     logger.debug(import_end)
 
     # Remove temporary file
     remove_start = messages.TEMP_DICOM_REMOVAL_START.format(
-        file_name=file_name
+        file_name=path.name
     )
     logger.debug(remove_start)
 
-    Path(file_name).unlink()
+    path.unlink()
 
-    remove_end = messages.TEMP_DICOM_REMOVAL_END.format(file_name=file_name)
+    remove_end = messages.TEMP_DICOM_REMOVAL_END.format(file_name=path.name)
     logger.debug(remove_end)
 
     return Status.SUCCESS
