@@ -6,7 +6,7 @@ APPLICATION_ENTITY_SUCCESS = (
 )
 C_ECHO_ENABLED = "C-ECHO request handling enabled."
 C_ECHO_RECEIVED = "C-ECHO request received."
-C_STORE_RECEIVED = "C-STORE request received for instance UID {instance_uid}."
+C_STORE_RECEIVED = "C-STORE request received."
 IMAGE_IMPORT_END = "Successfully imported {file_name} to the database."
 IMAGE_IMPORT_START = "Importing {file_name} to the database..."
 PDU_LIMIT_CONFIGURATION = (
