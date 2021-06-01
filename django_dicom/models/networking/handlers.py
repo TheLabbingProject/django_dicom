@@ -2,18 +2,14 @@
 Event handlers for associated service classes.
 """
 import logging
-from pathlib import Path
 
-from django.conf import settings
-from django_dicom.models.image import Image
 from django_dicom.models.networking import messages
-from pydicom.filewriter import write_file_meta_info
+from django_dicom.models.networking.logging import log_c_store_received
+from django_dicom.models.networking.utils import import_dataset_to_db
 from pynetdicom import events
 from pynetdicom.status import Status
 
 logger = logging.getLogger("data.dicom.networking")
-
-MEDIA_ROOT = Path(getattr(settings, "MEDIA_ROOT"))
 
 
 def handle_echo(event: events.Event) -> Status:
@@ -32,10 +28,6 @@ def handle_echo(event: events.Event) -> Status:
     """
     logger.debug(messages.C_ECHO_RECEIVED)
     return Status.SUCCESS
-
-
-def get_temp_store_path(instance_uid: str) -> Path:
-    return MEDIA_ROOT / f"{instance_uid}.dcm"
 
 
 def handle_store(event: events.Event) -> Status:
@@ -59,51 +51,8 @@ def handle_store(event: events.Event) -> Status:
     .. _Handler implementation documentation:
        https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store
     """
-    instance_uid = event.request.AffectedSOPInstanceUID
-    path = get_temp_store_path(instance_uid)
-
-    write_start = messages.C_STORE_RECEIVED.format(instance_uid=instance_uid)
-    logging.debug(write_start)
-
-    with open(path, "wb") as content:
-        # Write the preamble and prefix
-        logging.debug(messages.WRITE_DICOM_PREFIX)
-        content.write(b"\x00" * 128)
-        content.write(b"DICM")
-
-        # Encode and write the File Meta Information
-        logging.debug(messages.WRITE_DICOM_METADATA)
-        write_file_meta_info(content, event.file_meta)
-
-        # Write the encoded dataset
-        logging.debug(messages.WRITE_DICOM_DATASET)
-
-        dataset = event.request.DataSet.getvalue()
-        content.write(dataset)
-
-        write_end = messages.WRITE_DICOM_END.format(file_name=path.name)
-        logging.debug(write_end)
-
-    # Store received data in the database
-    import_start = messages.IMAGE_IMPORT_START.format(file_name=path.name)
-    logger.debug(import_start)
-
-    Image.objects.get_or_create(dcm=path)
-
-    import_end = messages.IMAGE_IMPORT_END.format(file_name=path.name)
-    logger.debug(import_end)
-
-    # Remove temporary file
-    remove_start = messages.TEMP_DICOM_REMOVAL_START.format(
-        file_name=path.name
-    )
-    logger.debug(remove_start)
-
-    path.unlink()
-
-    remove_end = messages.TEMP_DICOM_REMOVAL_END.format(file_name=path.name)
-    logger.debug(remove_end)
-
+    log_c_store_received()
+    import_dataset_to_db(event)
     return Status.SUCCESS
 
 
