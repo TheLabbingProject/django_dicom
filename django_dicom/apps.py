@@ -46,7 +46,7 @@ class DjangoDicomConfig(AppConfig):
         application is meant to be served using multiple workers, the DICOM
         application entity instantiation needs to be revised.
         """
-        tests_startup = getattr(settings, "TESTS", False)
+        tests_startup = getattr(settings, "TESTING_MODE", False)
         ae_autostart = getattr(settings, "DICOM_AE_AUTOSTART", True)
         ae_exists = self.application_entity is not None
         ae_missing = ae_autostart and not (tests_startup or ae_exists)
