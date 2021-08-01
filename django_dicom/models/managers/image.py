@@ -173,7 +173,7 @@ class ImageManager(DicomEntityManager):
         progressbar: bool = True,
         report: bool = True,
         persistent: bool = True,
-        force_patient_uid: bool = False,
+        pattern: bool = "*.dcm",
     ) -> QuerySet:
         """
         Iterates the given directory tree and imports any *.dcm* files found
@@ -191,9 +191,8 @@ class ImageManager(DicomEntityManager):
         persistent : bool, optional
             Whether to continue and raise a warning or to raise an exception
             when failing to read a DICOM file's header
-        force_patient_uid : bool, optional
-            If patient UID for an existing image doesn't match the DB value,
-            change the DB value to match that of the imported image
+        pattern : str, optional
+            Globbing pattern to use for file import
 
         Returns
         -------
@@ -202,7 +201,7 @@ class ImageManager(DicomEntityManager):
         """
 
         # Create an iterator
-        iterator = Path(path).rglob("*.dcm")
+        iterator = Path(path).rglob(pattern)
         if progressbar:
             # Create a progressbar wrapped iterator using tqdm
             iterator = create_progressbar(iterator, unit="image")
@@ -240,6 +239,7 @@ class ImageManager(DicomEntityManager):
             if created:
                 created_ids.append(image.id)
             else:
+                # Skip previously reported
                 if image.patient.uid not in patient_uid_mismatch:
                     # Validate patient UID for existing images
                     header = DicomHeader(dcm_path)
