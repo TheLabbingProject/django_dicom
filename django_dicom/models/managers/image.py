@@ -220,17 +220,18 @@ class ImageManager(DicomEntityManager):
             # Atomic image import
             # For more information see:
             # https://docs.djangoproject.com/en/3.0/topics/db/transactions/#controlling-transactions-explicitly
-            with transaction.atomic():
-                try:
-                    image, created = self.get_or_create_from_dcm(
-                        dcm_path, autoremove=True
-                    )
-                except InvalidDicomError as e:
-                    if persistent:
-                        IMPORT_LOGGER.warning(e)
-                        continue
-                    else:
-                        raise
+            if dcm_path.is_file():
+                with transaction.atomic():
+                    try:
+                        image, created = self.get_or_create_from_dcm(
+                            dcm_path, autoremove=True
+                        )
+                    except InvalidDicomError as e:
+                        if persistent:
+                            IMPORT_LOGGER.warning(e)
+                            continue
+                        else:
+                            raise
 
             if report:
                 counter_key = "created" if created else "existing"
