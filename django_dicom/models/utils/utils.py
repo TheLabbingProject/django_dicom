@@ -14,6 +14,8 @@ class ImportMode(Enum):
     FULL = "Full"
 
 
+DEFAULT_IMPORT_MODE: str = "MINIMAL"
+
 PIXEL_ARRAY_TAG = "7fe0", "0010"
 
 IMPORT_CONFIGURATIONS = {
@@ -45,11 +47,11 @@ IMPORT_CONFIGURATIONS = {
 
 
 def get_import_mode() -> ImportMode:
-    setting = getattr(settings, "DICOM_IMPORT_MODE", "NORMAL")
+    setting = getattr(settings, "DICOM_IMPORT_MODE", DEFAULT_IMPORT_MODE)
     try:
         return ImportMode[setting.upper()]
     except KeyError:
-        return ImportMode.NORMAL
+        return ImportMode[DEFAULT_IMPORT_MODE]
 
 
 def get_import_configuration() -> dict:
