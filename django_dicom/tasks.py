@@ -1,5 +1,4 @@
 import math
-from pathlib import Path
 from typing import Iterable, Union
 
 from celery import group, shared_task
