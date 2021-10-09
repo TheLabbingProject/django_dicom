@@ -6,6 +6,7 @@ value.
 """
 from dicom_parser.utils.code_strings.sex import Sex
 from django.db.models import QuerySet
+from django_dicom.filters.utils import DEFAULT_LOOKUP_CHOICES
 from django_dicom.models.patient import Patient
 from django_dicom.models.series import Series
 from django_filters import rest_framework as filters
@@ -35,53 +36,36 @@ class PatientFilter(filters.FilterSet):
         * *study__id*: Related :class:`~django_dicom.models.study.Study` ID
     """
 
-    born_after_date = filters.DateFilter("date_of_birth", lookup_expr="gte")
-    born_before_date = filters.DateFilter("date_of_birth", lookup_expr="lte")
+    date_of_birth = filters.DateFromToRangeFilter()
     name_prefix = filters.AllValuesFilter("name_prefix")
     sex = filters.ChoiceFilter("sex", choices=Sex.choices())
-    uid = filters.LookupChoiceFilter(
-        lookup_choices=[
-            ("contains", "Contains (case-sensitive)"),
-            ("icontains", "Contains (case-insensitive)"),
-            ("exact", "Exact"),
-        ]
-    )
+    uid = filters.LookupChoiceFilter(lookup_choices=DEFAULT_LOOKUP_CHOICES)
     given_name = filters.LookupChoiceFilter(
-        lookup_choices=[
-            ("contains", "Contains (case-sensitive)"),
-            ("icontains", "Contains (case-insensitive)"),
-            ("exact", "Exact"),
-        ]
+        lookup_choices=DEFAULT_LOOKUP_CHOICES
     )
     middle_name = filters.LookupChoiceFilter(
-        lookup_choices=[
-            ("contains", "Contains (case-sensitive)"),
-            ("icontains", "Contains (case-insensitive)"),
-            ("exact", "Exact"),
-        ]
+        lookup_choices=DEFAULT_LOOKUP_CHOICES
     )
     family_name = filters.LookupChoiceFilter(
-        lookup_choices=[
-            ("contains", "Contains (case-sensitive)"),
-            ("icontains", "Contains (case-insensitive)"),
-            ("exact", "Exact"),
-        ]
+        lookup_choices=DEFAULT_LOOKUP_CHOICES
     )
     name_suffix = filters.AllValuesFilter("name_suffix")
     study__id = filters.NumberFilter(method="filter_by_study")
+    n_studies = filters.RangeFilter(
+        label="Number of associated studies between:"
+    )
+    n_series = filters.RangeFilter(
+        label="Number of associated series between:"
+    )
+    n_images = filters.RangeFilter(
+        label="Number of associated images between:"
+    )
 
     class Meta:
         model = Patient
         fields = (
             "id",
             "uid",
-            "born_after_date",
-            "born_before_date",
-            "name_prefix",
-            "given_name",
-            "middle_name",
-            "family_name",
-            "name_suffix",
         )
 
     def filter_by_study(

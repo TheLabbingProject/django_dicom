@@ -43,4 +43,14 @@ urlpatterns = [
         views.SeriesViewSet.as_view({"get": "to_zip"}),
         name="to_zip",
     ),
+    path(
+        "dicom/study/aggregate/",
+        views.SeriesViewSet.as_view({"get": "aggregate"}),
+        name="study_aggregations",
+    ),
+    path(
+        "dicom/patient/aggregate/",
+        views.PatientViewSet.as_view({"get": "aggregate"}),
+        name="patient_aggregations",
+    ),
 ]

@@ -1,7 +1,5 @@
 """
-Definition of the :class:`FilterSet` subclass that will be assigned to the
-:class:`~django_dicom.views.series.SeriesViewSet`\'s
-:attr:`~django_dicom.views.series.SeriesViewSet.filter_class` attribute value.
+Definition of the :class:`SeriesFilter` class.
 """
 import json
 import operator
@@ -13,13 +11,10 @@ from dicom_parser.utils.code_strings import (
     SequenceVariant,
 )
 from django.db.models import Q, QuerySet
+from django_dicom.filters.utils import CharInFilter
 from django_dicom.models.series import Series
 from django_dicom.utils import validation
 from django_filters import rest_framework as filters
-
-
-class CharInFilter(filters.BaseInFilter, filters.CharFilter):
-    pass
 
 
 def filter_array(queryset: QuerySet, field_name: str, value: list):
@@ -38,7 +33,6 @@ def filter_array(queryset: QuerySet, field_name: str, value: list):
     value : list
         The values to filter by
     """
-
     if not value:
         return queryset
     # We check both content and length in order to return only exact matches
@@ -61,7 +55,6 @@ def filter_header(queryset: QuerySet, field_name: str, values: str):
     values : dict
         The fields and values to filter by
     """
-
     if not values:
         return queryset
 
@@ -91,7 +84,6 @@ def filter_in_string(queryset: QuerySet, field_name: str, values: list):
     values : str
         The values to filter by
     """
-
     if not values:
         return queryset
     # We check both content and length in order to return only exact matches
@@ -229,31 +221,6 @@ class SeriesFilter(filters.FilterSet):
         fields = (
             "id",
             "uid",
-            "patient_id",
-            "study_uid",
-            "study_description",
-            "modality",
-            "description",
-            "protocol_name",
             "number",
-            "created_after_date",
-            "created_before_date",
-            "created_after_time",
-            "created_before_time",
-            "echo_time",
-            "inversion_time",
-            "repetition_time",
-            "slice_thickness",
-            "pixel_spacing",
-            "scanning_sequence",
-            "sequence_variant",
-            "flip_angle",
-            "manufacturer",
-            "manufacturer_model_name",
-            "magnetic_field_strength",
-            "device_serial_number",
-            "institution_name",
             "patient__id",
-            "pulse_sequence_name",
-            "sequence_name",
         )

@@ -1,6 +1,7 @@
 """
 Definition of the :class:`StudyFilter` class.
 """
+from django_dicom.filters.utils import DEFAULT_LOOKUP_CHOICES
 from django_dicom.models.study import Study
 from django_filters import rest_framework as filters
 
@@ -21,26 +22,23 @@ class StudyFilter(filters.FilterSet):
         * *created_before_time*: Create before time
     """
 
+    uid = filters.LookupChoiceFilter(lookup_choices=DEFAULT_LOOKUP_CHOICES)
     description = filters.LookupChoiceFilter(
-        lookup_choices=[
-            ("contains", "Contains (case-sensitive)"),
-            ("icontains", "Contains (case-insensitive)"),
-            ("exact", "Exact"),
-        ]
+        lookup_choices=DEFAULT_LOOKUP_CHOICES
     )
-    created_after_date = filters.DateFilter("date", lookup_expr="gte")
-    created_before_date = filters.DateFilter("date", lookup_expr="lte")
-    created_after_time = filters.DateFilter("time", lookup_expr="gte")
-    created_before_time = filters.DateFilter("time", lookup_expr="lte")
+    date = filters.DateFromToRangeFilter()
+    time_after = filters.TimeFilter("time", lookup_expr="gte")
+    time_before = filters.TimeFilter("time", lookup_expr="lte")
+    n_patients = filters.RangeFilter(
+        label="Number of associated patients between:"
+    )
+    n_series = filters.RangeFilter(
+        label="Number of associated series between:"
+    )
+    n_images = filters.RangeFilter(
+        label="Number of associated images between:"
+    )
 
     class Meta:
         model = Study
-        fields = (
-            "id",
-            "uid",
-            "description",
-            "created_after_date",
-            "created_before_date",
-            "created_after_time",
-            "created_before_time",
-        )
+        fields = ("id",)
