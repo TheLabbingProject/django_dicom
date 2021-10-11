@@ -16,7 +16,6 @@ class Patient(DicomEntity):
 
     .. _Patient:
        http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
-
     """
 
     #: `Patient ID
@@ -95,7 +94,6 @@ class Patient(DicomEntity):
         str
             This instance's string representation
         """
-
         return self.uid
 
     def get_absolute_url(self) -> str:
@@ -107,7 +105,6 @@ class Patient(DicomEntity):
         str
             This instance's absolute URL path
         """
-
         return reverse("dicom:patient-detail", args=[str(self.id)])
 
     def get_full_name(self) -> str:
@@ -119,7 +116,6 @@ class Patient(DicomEntity):
         str
             Patient's first and last names.
         """
-
         return f"{self.given_name} {self.family_name}"
 
     def update_patient_name(self, header) -> None:
@@ -151,7 +147,6 @@ class Patient(DicomEntity):
             Field names to exclude (the default is [], which will not exclude
             any header fields).
         """
-
         # Exclude PatientName fields
         if isinstance(exclude, list):
             exclude += self._NAME_PARTS
