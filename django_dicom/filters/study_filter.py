@@ -3,6 +3,7 @@ Definition of the :class:`StudyFilter` class.
 """
 from django_dicom.filters.utils import DEFAULT_LOOKUP_CHOICES
 from django_dicom.models.study import Study
+from django_dicom.utils.configuration import ENABLE_COUNT_FILTERING
 from django_filters import rest_framework as filters
 
 
@@ -29,15 +30,16 @@ class StudyFilter(filters.FilterSet):
     date = filters.DateFromToRangeFilter()
     time_after = filters.TimeFilter("time", lookup_expr="gte")
     time_before = filters.TimeFilter("time", lookup_expr="lte")
-    n_patients = filters.RangeFilter(
-        label="Number of associated patients between:"
-    )
-    n_series = filters.RangeFilter(
-        label="Number of associated series between:"
-    )
-    n_images = filters.RangeFilter(
-        label="Number of associated images between:"
-    )
+    if ENABLE_COUNT_FILTERING:
+        n_patients = filters.RangeFilter(
+            label="Number of associated patients between:"
+        )
+        n_series = filters.RangeFilter(
+            label="Number of associated series between:"
+        )
+        n_images = filters.RangeFilter(
+            label="Number of associated images between:"
+        )
 
     class Meta:
         model = Study

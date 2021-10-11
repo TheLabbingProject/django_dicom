@@ -10,6 +10,12 @@ from django_dicom.views.utils import STUDY_AGGREGATIONS
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django_dicom.utils.configuration import ENABLE_COUNT_FILTERING
+from django_dicom.views.messages import COUNT_FILTERING_DISABLED
+from django.db.models import QuerySet
+from typing import Tuple
+
+DEFAULT_STUDY_ORDERING: Tuple[str] = ("-date", "-time")
 
 
 class StudyViewSet(DefaultsMixin, viewsets.ModelViewSet):
@@ -19,10 +25,39 @@ class StudyViewSet(DefaultsMixin, viewsets.ModelViewSet):
 
     filter_class = StudyFilter
     pagination_class = StandardResultsSetPagination
-    queryset = Study.objects.with_counts()
+    queryset = Study.objects.order_by(*DEFAULT_STUDY_ORDERING)
     serializer_class = StudySerializer
+
+    def get_queryset(self) -> QuerySet:
+        """
+        Overrides the parent :func:`get_queryset` method to apply aggregated
+        annotation if count filtering is enabled.
+
+        Returns
+        -------
+        QuerySet
+            Study queryset
+        """
+        queryset = super().get_queryset()
+        return queryset.with_count() if ENABLE_COUNT_FILTERING else queryset
 
     @action(detail=False, methods=["get"])
     def aggregate(self, request) -> Response:
-        result = self.queryset.aggregate(**STUDY_AGGREGATIONS)
+        """
+        Returns related model counts if count filtering is enabled.
+
+        Parameters
+        ----------
+        request : Request
+            API request
+
+        Returns
+        -------
+        Response
+            Aggregated queryset or informational message
+        """
+        if ENABLE_COUNT_FILTERING:
+            result = self.get_queryset().aggregate(**STUDY_AGGREGATIONS)
+        else:
+            result = COUNT_FILTERING_DISABLED
         return Response(result)

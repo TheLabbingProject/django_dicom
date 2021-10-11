@@ -15,6 +15,13 @@ from django_dicom.views.utils import PATIENT_AGGREGATIONS
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django_dicom.utils.configuration import ENABLE_COUNT_FILTERING
+from django_dicom.views.messages import COUNT_FILTERING_DISABLED
+from typing import Tuple
+from django.db.models import QuerySet
+
+
+DEFAULT_PATIENT_ORDERING: Tuple[str] = "family_name", "given_name"
 
 
 class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):
@@ -25,13 +32,42 @@ class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):
     filter_class = PatientFilter
     pagination_class = StandardResultsSetPagination
     queryset = Patient.objects.order_by(
-        "family_name", "given_name"
-    ).with_counts()
+        *DEFAULT_PATIENT_ORDERING
+    )
     serializer_class = PatientSerializer
+
+    def get_queryset(self) -> QuerySet:
+        """
+        Overrides the parent :func:`get_queryset` method to apply aggregated
+        annotation if count filtering is enabled.
+
+        Returns
+        -------
+        QuerySet
+            Patient queryset
+        """
+        queryset = super().get_queryset()
+        return queryset.with_count() if ENABLE_COUNT_FILTERING else queryset
 
     @action(detail=False, methods=["get"])
     def aggregate(self, request) -> Response:
-        result = self.queryset.aggregate(**PATIENT_AGGREGATIONS)
+        """
+        Returns related model counts if count filtering is enabled.
+
+        Parameters
+        ----------
+        request : Request
+            API request
+
+        Returns
+        -------
+        Response
+            Aggregated queryset or informational message
+        """
+        if ENABLE_COUNT_FILTERING:
+            result = self.get_queryset().aggregate(**PATIENT_AGGREGATIONS)
+        else:
+            result = COUNT_FILTERING_DISABLED
         return Response(result)
 
     @action(detail=True, methods=["get"])

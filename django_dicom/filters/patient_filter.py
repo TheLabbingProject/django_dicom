@@ -9,6 +9,7 @@ from django.db.models import QuerySet
 from django_dicom.filters.utils import DEFAULT_LOOKUP_CHOICES
 from django_dicom.models.patient import Patient
 from django_dicom.models.series import Series
+from django_dicom.utils.configuration import ENABLE_COUNT_FILTERING
 from django_filters import rest_framework as filters
 
 
@@ -51,15 +52,16 @@ class PatientFilter(filters.FilterSet):
     )
     name_suffix = filters.AllValuesFilter("name_suffix")
     study__id = filters.NumberFilter(method="filter_by_study")
-    n_studies = filters.RangeFilter(
-        label="Number of associated studies between:"
-    )
-    n_series = filters.RangeFilter(
-        label="Number of associated series between:"
-    )
-    n_images = filters.RangeFilter(
-        label="Number of associated images between:"
-    )
+    if ENABLE_COUNT_FILTERING:
+        n_studies = filters.RangeFilter(
+            label="Number of associated studies between:"
+        )
+        n_series = filters.RangeFilter(
+            label="Number of associated series between:"
+        )
+        n_images = filters.RangeFilter(
+            label="Number of associated images between:"
+        )
 
     class Meta:
         model = Patient
