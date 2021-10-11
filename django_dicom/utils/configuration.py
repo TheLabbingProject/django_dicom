@@ -1,5 +1,4 @@
 from django.conf import settings
-from typing import Tuple
 
 
 #: The settings key used to set count filtering mode.

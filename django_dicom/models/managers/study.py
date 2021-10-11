@@ -1,4 +1,7 @@
-from django.db.models import Count, QuerySet
+from django.db.models import (
+    Count,
+    QuerySet,
+)
 
 
 class StudyQuerySet(QuerySet):

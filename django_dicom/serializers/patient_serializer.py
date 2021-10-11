@@ -18,9 +18,11 @@ PATIENT_SERIALIZER_FIELDS: Tuple[str] = (
     "name_suffix",
     "sex",
     "date_of_birth",
+    "latest_study_time",
     "n_studies",
     "n_series",
     "n_images",
+    "research_subject",
 )
 
 
@@ -33,6 +35,9 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="dicom:patient-detail"
     )
+    latest_study_time = serializers.DateTimeField()
+    research_subject = serializers.PrimaryKeyRelatedField(read_only=True)
+
     if ENABLE_COUNT_FILTERING:
         n_studies = serializers.IntegerField(
             read_only=True,

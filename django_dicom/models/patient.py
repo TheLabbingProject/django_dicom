@@ -8,6 +8,7 @@ from django.db import models
 from django.urls import reverse
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.managers.patient import PatientQuerySet
+from django_dicom.models.utils.utils import get_subject_model
 
 
 class Patient(DicomEntity):
@@ -189,6 +190,27 @@ class Patient(DicomEntity):
         """
         return self.series_set.values("image").count()
 
+    def query_research_subject(self):
+        """
+        Returns the associated research subject, if such a model is registered
+        and a matching instance exists.
+
+        See Also
+        --------
+        * :func:`research_subject`
+
+        Returns
+        -------
+        Subject
+            Associated research subject
+        """
+        Subject = get_subject_model()
+        if Subject:
+            subject_id = self.series_set.values(
+                "scan__session__subject"
+            ).distinct()
+            return Subject.objects.get(id__in=subject_id)
+
     @property
     def n_studies(self) -> int:
         """
@@ -196,7 +218,7 @@ class Patient(DicomEntity):
 
         See Also
         --------
-        :func:`query_n_studies`
+        * :func:`query_n_studies`
 
         Returns
         -------
@@ -224,7 +246,7 @@ class Patient(DicomEntity):
 
         See Also
         --------
-        :func:`query_n_images`
+        * :func:`query_n_images`
 
         Returns
         -------
@@ -232,3 +254,20 @@ class Patient(DicomEntity):
             Number of associated images
         """
         return self.query_n_images()
+
+    @property
+    def research_subject(self):
+        """
+        Returns the associated research subject, if such a model is registered
+        and a matching instance exists.
+
+        See Also
+        --------
+        * :func:`query_research_subject`
+
+        Returns
+        -------
+        Subject
+            Associated research subject
+        """
+        return self.query_research_subject()

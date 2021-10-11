@@ -21,7 +21,16 @@ from typing import Tuple
 from django.db.models import QuerySet
 
 
-DEFAULT_PATIENT_ORDERING: Tuple[str] = "family_name", "given_name"
+DEFAULT_PATIENT_ORDERING: Tuple[str] = ("family_name", "given_name")
+PATIENT_ORDERING_FIELDS: Tuple[str] = (
+    "id",
+    "uid",
+    "family_name",
+    "given_name",
+    "sex",
+    "date_of_birth",
+    "latest_study_time",
+)
 
 
 class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):
@@ -33,8 +42,9 @@ class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     queryset = Patient.objects.order_by(
         *DEFAULT_PATIENT_ORDERING
-    )
+    ).with_latest_study_time()
     serializer_class = PatientSerializer
+    ordering_fields = PATIENT_ORDERING_FIELDS
 
     def get_queryset(self) -> QuerySet:
         """
