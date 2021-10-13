@@ -3,23 +3,22 @@ Definition of the :class:`PatientViewSet` class.
 """
 import os
 from shutil import make_archive
+from typing import Tuple
 
 from django.conf import settings
+from django.db.models import QuerySet
 from django.http import FileResponse
 from django_dicom.filters import PatientFilter
 from django_dicom.models import Patient
 from django_dicom.serializers import PatientSerializer
+from django_dicom.utils.configuration import ENABLE_COUNT_FILTERING
 from django_dicom.views.defaults import DefaultsMixin
+from django_dicom.views.messages import COUNT_FILTERING_DISABLED
 from django_dicom.views.pagination import StandardResultsSetPagination
 from django_dicom.views.utils import PATIENT_AGGREGATIONS
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django_dicom.utils.configuration import ENABLE_COUNT_FILTERING
-from django_dicom.views.messages import COUNT_FILTERING_DISABLED
-from typing import Tuple
-from django.db.models import QuerySet
-
 
 DEFAULT_PATIENT_ORDERING: Tuple[str] = ("family_name", "given_name")
 PATIENT_ORDERING_FIELDS: Tuple[str] = (
@@ -57,7 +56,7 @@ class PatientViewSet(DefaultsMixin, viewsets.ModelViewSet):
             Patient queryset
         """
         queryset = super().get_queryset()
-        return queryset.with_count() if ENABLE_COUNT_FILTERING else queryset
+        return queryset.with_counts() if ENABLE_COUNT_FILTERING else queryset
 
     @action(detail=False, methods=["get"])
     def aggregate(self, request) -> Response:
