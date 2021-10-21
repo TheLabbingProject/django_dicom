@@ -7,6 +7,7 @@ from dicom_parser.utils.code_strings import Sex
 from django.db import models
 from django.urls import reverse
 from django_dicom.models.dicom_entity import DicomEntity
+from django_dicom.models.managers.dicom_entity import DicomEntityManager
 from django_dicom.models.managers.patient import PatientQuerySet
 from django_dicom.models.utils.utils import get_subject_model
 
@@ -78,7 +79,7 @@ class Patient(DicomEntity):
 
     logger = logging.getLogger("data.dicom.patient")
 
-    objects = PatientQuerySet.as_manager()
+    objects = DicomEntityManager.from_queryset(PatientQuerySet)()
 
     class Meta:
         indexes = [

@@ -7,6 +7,7 @@ from django.db import models
 from django.urls import reverse
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.managers.study import StudyQuerySet
+from django_dicom.models.managers.dicom_entity import DicomEntityManager
 from django_dicom.models.utils.validators import digits_and_dots_only
 
 
@@ -55,7 +56,7 @@ class Study(DicomEntity):
 
     logger = logging.getLogger("data.dicom.study")
 
-    objects = StudyQuerySet.as_manager()
+    objects = DicomEntityManager.from_queryset(StudyQuerySet)()
 
     class Meta:
         verbose_name_plural = "Studies"
