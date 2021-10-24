@@ -207,10 +207,15 @@ class Patient(DicomEntity):
         """
         Subject = get_subject_model()
         if Subject:
-            subject_id = self.series_set.values(
-                "scan__session__subject"
-            ).distinct()
-            return Subject.objects.get(id__in=subject_id)
+            subject_id = set(
+                self.series_set.values_list(
+                    "scan__session__subject", flat=True
+                )
+            )
+            try:
+                return Subject.objects.get(id__in=subject_id)
+            except Subject.DoesNotExist:
+                return Subject.objects.none()
 
     @property
     def n_studies(self) -> int:
