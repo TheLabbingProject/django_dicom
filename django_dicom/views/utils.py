@@ -40,6 +40,7 @@ SERIES_OREDRING_FIELDS: Tuple[str] = (
     "magnetic_field_strength",
     "device_serial_number",
     "institution_name",
+    "sequence_type",
 )
 
 SERIES_SEARCH_FIELDS: Tuple[str] = (

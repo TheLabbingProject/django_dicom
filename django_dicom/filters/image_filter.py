@@ -1,9 +1,8 @@
 """
-Definition of the :class:`FilterSet` subclass that will be assigned to the
-:class:`~django_dicom.views.image.ImageViewSet`\'s
-:attr:`~django_dicom.views.image.ImageViewSet.filter_class` attribute value.
+Definition of the :class:`ImageFilter` class.
 """
 from django_dicom.models.image import Image
+from django_dicom.models.utils.sequence_type import SEQUENCE_TYPE_CHOICES
 from django_filters import rest_framework as filters
 
 
@@ -36,17 +35,14 @@ class ImageFilter(filters.FilterSet):
     created_before_date = filters.DateFilter("date", lookup_expr="lte")
     created_after_time = filters.DateFilter("time", lookup_expr="gte")
     created_before_time = filters.DateFilter("time", lookup_expr="lte")
+    sequence_type = filters.MultipleChoiceFilter(
+        "series__sequence_type", choices=SEQUENCE_TYPE_CHOICES
+    )
 
     class Meta:
         model = Image
         fields = (
             "id",
             "uid",
-            "series_uid",
-            "series_description",
-            "created_after_date",
-            "created_before_date",
-            "created_after_time",
-            "created_before_time",
             "number",
         )

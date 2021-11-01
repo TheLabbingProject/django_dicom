@@ -11,8 +11,9 @@ from dicom_parser.utils.code_strings import (
     SequenceVariant,
 )
 from django.db.models import Q, QuerySet
-from django_dicom.filters.utils import CharInFilter
+from django_dicom.filters.utils import DEFAULT_LOOKUP_CHOICES, CharInFilter
 from django_dicom.models.series import Series
+from django_dicom.models.utils.sequence_type import SEQUENCE_TYPE_CHOICES
 from django_dicom.utils import validation
 from django_filters import rest_framework as filters
 
@@ -129,11 +130,10 @@ class SeriesFilter(filters.FilterSet):
           :attr:`~django_dicom.models.series.Series.repetition_time` value
         * *flip_angle*: Any of the existing
           :attr:`~django_dicom.models.series.Series.flip_angle` in the database
-        * *created_after_date*: Create after date
-        * *date*: Exact :attr:`~django_dicom.models.series.Series.date` value
-        * *created_before_date*: Create before date
-        * *created_after_time*: Create after time
-        * *created_before_time*: Create before time
+        * *date_after*: Exact :attr:`~django_dicom.models.series.Series.date` value
+        * *date_before*: Create before date
+        * *time_after*: Create after time
+        * *time_before*: Create before time
         * *manufacturer*: Any of the existing
           :attr:`~django_dicom.models.series.Series.manufacturer` in the
           database
@@ -165,13 +165,11 @@ class SeriesFilter(filters.FilterSet):
     )
     modality = filters.ChoiceFilter("modality", choices=Modality.choices())
     description = filters.LookupChoiceFilter(
-        lookup_choices=[
-            ("contains", "Contains (case-sensitive)"),
-            ("icontains", "Contains (case-insensitive)"),
-            ("exact", "Exact"),
-        ]
+        lookup_choices=DEFAULT_LOOKUP_CHOICES
     )
-    protocol_name = filters.CharFilter("protocol_name", lookup_expr="contains")
+    protocol_name = filters.CharFilter(
+        "protocol_name", lookup_expr="icontains"
+    )
     scanning_sequence = filters.MultipleChoiceFilter(
         "scanning_sequence",
         choices=ScanningSequence.choices(),
@@ -185,11 +183,8 @@ class SeriesFilter(filters.FilterSet):
         method=filter_array,
     )
     flip_angle = filters.AllValuesFilter("flip_angle")
-    created_after_date = filters.DateFilter("date", lookup_expr="gte")
-    date = filters.DateFilter("date")
-    created_before_date = filters.DateFilter("date", lookup_expr="lte")
-    created_after_time = filters.TimeFilter("time", lookup_expr="gte")
-    created_before_time = filters.TimeFilter("time", lookup_expr="lte")
+    date = filters.DateRangeFilter()
+    time = filters.TimeRangeFilter()
     manufacturer = filters.AllValuesFilter("manufacturer")
     manufacturer_model_name = filters.AllValuesFilter(
         "manufacturer_model_name"
@@ -215,6 +210,14 @@ class SeriesFilter(filters.FilterSet):
     inversion_time = filters.RangeFilter("inversion_time")
     echo_time = filters.RangeFilter("echo_time")
     header_fields = filters.CharFilter("image", method=filter_header)
+    sequence_type = filters.MultipleChoiceFilter(
+        # Exclude the null value choices because it doesn't seem to integrate
+        # well with DRF.
+        choices=SEQUENCE_TYPE_CHOICES[:-1],
+        # Create DRF compatible null filter.
+        null_value=None,
+        null_label="Unknown",
+    )
 
     class Meta:
         model = Series

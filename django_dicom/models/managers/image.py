@@ -174,6 +174,7 @@ class ImageManager(DicomEntityManager):
         report: bool = True,
         persistent: bool = True,
         pattern: bool = "*.dcm",
+        autoremove: bool = True,
     ) -> QuerySet:
         """
         Iterates the given directory tree and imports any *.dcm* files found
@@ -226,7 +227,7 @@ class ImageManager(DicomEntityManager):
             with transaction.atomic():
                 try:
                     image, created = self.get_or_create_from_dcm(
-                        dcm_path, autoremove=True
+                        dcm_path, autoremove=autoremove
                     )
                 except InvalidDicomError as e:
                     if persistent:
