@@ -410,12 +410,16 @@ class Series(DicomEntity):
             Whether to save changes or not, default is True
         """
         sample_image = self.image_set.first()
-        sample_header = sample_image.header.instance
-        detected = sample_header.detected_sequence
-        if self.sequence_type != detected:
-            self.sequence_type = detected
-            if save:
-                self.save()
+        try:
+            sample_header = sample_image.header.instance
+            detected = sample_header.detected_sequence
+        except AttributeError:
+            pass
+        else:
+            if self.sequence_type != detected:
+                self.sequence_type = detected
+                if save:
+                    self.save()
 
     def get_scanning_sequence_display(self) -> list:
         """
