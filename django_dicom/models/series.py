@@ -8,6 +8,7 @@ from pathlib import Path
 
 import numpy as np
 import pytz
+from dicom_parser.header import Header as DicomHeader
 from dicom_parser.series import Series as DicomSeries
 from dicom_parser.utils.code_strings import (
     Modality,
@@ -421,6 +422,22 @@ class Series(DicomEntity):
                 if save:
                     self.save()
 
+    def get_sample_header(self) -> DicomHeader:
+        """
+        Return a sample :class:`~dicom_parser.header.Header` instance
+        for this series.
+
+        See Also
+        --------
+        * :func:`sample_header`
+
+        Returns
+        -------
+        DicomHeader
+            Sample image header information
+        """
+        return self.image_set.first().header.instance
+
     def get_scanning_sequence_display(self) -> list:
         """
         Returns the display valuse of this instance's
@@ -542,3 +559,20 @@ class Series(DicomEntity):
             return tuple(self.pixel_spacing + [self.slice_thickness])
         elif self.pixel_spacing:
             return tuple(self.pixel_spacing)
+
+    @property
+    def sample_header(self) -> DicomHeader:
+        """
+        Return a sample :class:`~dicom_parser.header.Header` instance
+        for this series.
+
+        See Also
+        --------
+        * :func:`get_sample_header`
+
+        Returns
+        -------
+        DicomHeader
+            Sample image header information
+        """
+        return self.get_sample_header()
