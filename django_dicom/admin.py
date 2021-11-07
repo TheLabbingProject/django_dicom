@@ -291,12 +291,13 @@ class SeriesAdmin(admin.ModelAdmin):
         "time",
         "number",
         "description",
+        "sequence_type",
         "uid",
     )
     inlines = (ImageInLine,)
     readonly_fields = ("uid",)
-    list_filter = "date", "patient"
-    search_fields = "description", "uid"
+    list_filter = "date", "sequence_type"
+    search_fields = "description", "uid", "patient__uid"
 
     def patient_link(self, series: Header):
         return series.patient.admin_link

@@ -8,6 +8,7 @@ from pathlib import Path
 
 import numpy as np
 import pytz
+from dicom_parser.header import Header as DicomHeader
 from dicom_parser.series import Series as DicomSeries
 from dicom_parser.utils.code_strings import (
     Modality,
@@ -22,6 +23,7 @@ from django.urls import reverse
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.utils import help_text
 from django_dicom.models.utils.fields import ChoiceArrayField
+from django_dicom.models.utils.sequence_type import SEQUENCE_TYPE_CHOICES
 from django_dicom.models.utils.validators import digits_and_dots_only
 
 
@@ -294,6 +296,11 @@ class Series(DicomEntity):
         verbose_name="MR Acquisition Type",
     )
 
+    #: Scanning sequence type identifier, as detected by *dicom_parser*.
+    sequence_type = models.CharField(
+        max_length=64, choices=SEQUENCE_TYPE_CHOICES, blank=True, null=True
+    )
+
     #: The :class:`~django_dicom.models.study.Study` instance to which this
     #: series belongs.
     study = models.ForeignKey(
@@ -344,7 +351,6 @@ class Series(DicomEntity):
         str
             This instance's string representation
         """
-
         return self.uid
 
     def get_absolute_url(self) -> str:
@@ -360,7 +366,6 @@ class Series(DicomEntity):
         str
             This instance's absolute URL path
         """
-
         return reverse("dicom:series-detail", args=[str(self.id)])
 
     def save(self, *args, **kwargs) -> None:
@@ -368,13 +373,14 @@ class Series(DicomEntity):
         Overrides :meth:`~django_dicom.models.dicom_entity.DicomEntity.save` to
         create any missing related DICOM entities if required.
         """
-
         header = kwargs.get("header")
         if header and self.missing_relation:
             if not self.patient:
                 self.patient, _ = header.get_or_create_patient()
             if not self.study:
                 self.study, _ = header.get_or_create_study()
+        if not self.sequence_type:
+            self.update_sequence_type(save=False)
         super().save(*args, **kwargs)
 
     def get_path(self) -> Path:
@@ -386,7 +392,6 @@ class Series(DicomEntity):
         str
             This series's base directory path
         """
-
         sample_image = self.image_set.first()
         dcm_path = (
             sample_image.dcm.name
@@ -394,6 +399,44 @@ class Series(DicomEntity):
             else sample_image.dcm.path
         )
         return Path(dcm_path).parent
+
+    def update_sequence_type(self, save: bool = True):
+        """
+        Checks the sequence type identifier detected by *dicom_parser* and
+        updates the serialized value if required.
+
+        Parameters
+        ----------
+        save : bool
+            Whether to save changes or not, default is True
+        """
+        sample_image = self.image_set.first()
+        try:
+            sample_header = sample_image.header.instance
+            detected = sample_header.detected_sequence
+        except AttributeError:
+            pass
+        else:
+            if self.sequence_type != detected:
+                self.sequence_type = detected
+                if save:
+                    self.save()
+
+    def get_sample_header(self) -> DicomHeader:
+        """
+        Return a sample :class:`~dicom_parser.header.Header` instance
+        for this series.
+
+        See Also
+        --------
+        * :func:`sample_header`
+
+        Returns
+        -------
+        DicomHeader
+            Sample image header information
+        """
+        return self.image_set.first().header.instance
 
     def get_scanning_sequence_display(self) -> list:
         """
@@ -405,7 +448,6 @@ class Series(DicomEntity):
         list
             Verbose scanning sequence values
         """
-
         if self.scanning_sequence:
             return [
                 ScanningSequence[sequence].value
@@ -424,7 +466,6 @@ class Series(DicomEntity):
         list
             Verbose sequence variant values
         """
-
         if self.sequence_variant:
             return [
                 SequenceVariant[variant].value
@@ -443,7 +484,6 @@ class Series(DicomEntity):
         :class:`pathlib.Path`
             Series directory path
         """
-
         return self.get_path()
 
     @property
@@ -457,7 +497,6 @@ class Series(DicomEntity):
         :class:`dicom_parser.series.Series`
             Series information
         """
-
         if not isinstance(self._instance, DicomSeries):
             self._instance = DicomSeries(self.path)
         return self._instance
@@ -472,7 +511,6 @@ class Series(DicomEntity):
         :class:`np.ndarray`
             Series data
         """
-
         return self.instance.data
 
     @property
@@ -487,7 +525,6 @@ class Series(DicomEntity):
         :class:`datetime.datetime`
             Series datetime
         """
-
         time = self.time or datetime.min.time()
         if self.date:
             return datetime.combine(self.date, time, tzinfo=pytz.UTC)
@@ -504,7 +541,6 @@ class Series(DicomEntity):
         bool
             Whether this instance has missing relationships
         """
-
         return not (self.patient and self.study)
 
     @property
@@ -519,8 +555,24 @@ class Series(DicomEntity):
         tuple
             (x, y, z) resolution in millimeters
         """
-
         if self.pixel_spacing and self.slice_thickness:
             return tuple(self.pixel_spacing + [self.slice_thickness])
         elif self.pixel_spacing:
             return tuple(self.pixel_spacing)
+
+    @property
+    def sample_header(self) -> DicomHeader:
+        """
+        Return a sample :class:`~dicom_parser.header.Header` instance
+        for this series.
+
+        See Also
+        --------
+        * :func:`get_sample_header`
+
+        Returns
+        -------
+        DicomHeader
+            Sample image header information
+        """
+        return self.get_sample_header()

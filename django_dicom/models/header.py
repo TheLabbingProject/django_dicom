@@ -1,5 +1,5 @@
 """
-Definition of the :class:`~django_dicom.models.header.Header` class.
+Definition of the :class:`Header` class.
 """
 import os
 from typing import Any, List
@@ -22,7 +22,6 @@ class Header(TimeStampedModel):
 
     .. _Data Set:
        http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html
-
     """
 
     parent = models.ForeignKey(
@@ -60,7 +59,6 @@ class Header(TimeStampedModel):
         List[dict]
             Header information as a list of dictionaries
         """
-
         return [
             data_element.to_verbose_dict()
             for data_element in self.data_element_set.all()
@@ -81,7 +79,6 @@ class Header(TimeStampedModel):
         str
             HTML representaion of this instance
         """
-
         if verbose:
             return Html.json(self.to_verbose_list())
         text = f"Header #{self.id}"
@@ -103,7 +100,6 @@ class Header(TimeStampedModel):
         Any
             Data element value
         """
-
         try:
             data_element = self.data_element_set.get(
                 definition__keyword=keyword
@@ -128,7 +124,6 @@ class Header(TimeStampedModel):
         str
             The provided DICOM entity's unique identifier
         """
-
         keyword = entity.get_header_keyword("uid")
         return self.instance.get(keyword)
 
@@ -146,7 +141,6 @@ class Header(TimeStampedModel):
         tuple
             instance, creatd
         """
-
         return entity.objects.from_header(self)
 
     def get_or_create_series(self) -> tuple:
@@ -159,7 +153,6 @@ class Header(TimeStampedModel):
         tuple
             instance, created
         """
-
         return self.get_or_create_entity(Series)
 
     def get_or_create_patient(self) -> tuple:
@@ -172,7 +165,6 @@ class Header(TimeStampedModel):
         tuple
             instance, created
         """
-
         return self.get_or_create_entity(Patient)
 
     def get_or_create_study(self) -> tuple:
@@ -185,7 +177,6 @@ class Header(TimeStampedModel):
         tuple
             instance, created
         """
-
         return self.get_or_create_entity(Study)
 
     @property
@@ -199,7 +190,6 @@ class Header(TimeStampedModel):
         :class:`dicom_parser.header.Header`
             Header information
         """
-
         if not isinstance(self._instance, DicomHeader):
             dcm_path = (
                 self.image.dcm.name
@@ -219,6 +209,5 @@ class Header(TimeStampedModel):
         str
             Link to this instance in the admin site
         """
-
         model_name = self.__class__.__name__
         return Html.admin_link(model_name, self.id)
