@@ -1,5 +1,4 @@
 celery>=5.1.2
-dicom_parser==0.1.5
 Django~=3.2
 djangorestframework~=3.12
 django-environ~=0.4
@@ -14,3 +13,4 @@ pygments~=2.6
 pynetdicom~=1.5
 tqdm~=4.59
 xlrd~=1.2
+git+https://github.com/open-dicom/dicom_parser.git@master#egg=dicom_parser
