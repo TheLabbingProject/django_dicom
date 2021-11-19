@@ -9,7 +9,14 @@ SEQUENCE_TYPE_CHOICES = (
             ("t2w", "T2-weighted"),
         ),
     ),
-    ("Diffusion", (("dwi", "DWI"), ("dwi_fieldmap", "DWI Fieldmap"))),
+    (
+        "Diffusion",
+        (
+            ("dwi", "DWI"),
+            ("dwi_fieldmap", "DWI Fieldmap"),
+            ("dwi_derived", "DWI (derived)"),
+        ),
+    ),
     (
         "Functional",
         (
@@ -18,5 +25,6 @@ SEQUENCE_TYPE_CHOICES = (
             ("func_sbref", "fMRI SBRef"),
         ),
     ),
+    ("Physiological", (("physio_log", "Physio Log"),)),
     ("", "Unknown"),
 )
