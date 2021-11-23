@@ -13,7 +13,7 @@ SEQUENCE_TYPE_CHOICES = (
         "Diffusion",
         (
             ("dwi", "DWI"),
-            ("dwi_fieldmap", "DWI Fieldmap"),
+            ("dwi_sbref", "DWI SBRef"),
             ("dwi_derived", "DWI (derived)"),
         ),
     ),
