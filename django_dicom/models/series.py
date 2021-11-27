@@ -5,6 +5,7 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
+from typing import Tuple
 
 import numpy as np
 import pytz
@@ -473,6 +474,14 @@ class Series(DicomEntity):
                 else variant
                 for variant in self.sequence_variant
             ]
+
+    def get_file_paths(self) -> Tuple[Path]:
+        return tuple(
+            [
+                Path(path)
+                for path in self.image_set.values_list("dcm", flat=True)
+            ]
+        )
 
     @property
     def path(self) -> Path:
