@@ -15,7 +15,10 @@ PROTECTED_MEDIA = (
 def clean_media():
     media = settings.IMPORTED_PATH
     if "tests" in media:
-        shutil.rmtree(media)
+        try:
+            shutil.rmtree(media)
+        except FileNotFoundError:
+            pass
     else:
         raise ImproperlyConfigured(PROTECTED_MEDIA)
 

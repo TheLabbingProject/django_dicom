@@ -21,6 +21,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
+
 from django_dicom.models.dicom_entity import DicomEntity
 from django_dicom.models.utils import help_text
 from django_dicom.models.utils.fields import ChoiceArrayField
@@ -411,7 +412,10 @@ class Series(DicomEntity):
         save : bool
             Whether to save changes or not, default is True
         """
-        sample_image = self.image_set.first()
+        try:
+            sample_image = self.image_set.first()        
+        except ValueError:
+            return
         try:
             sample_header = sample_image.header.instance
             detected = sample_header.detected_sequence
