@@ -1,3 +1,4 @@
+import contextlib
 import os
 import shutil
 import sys
@@ -7,20 +8,15 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test.utils import get_runner
 
-PROTECTED_MEDIA = (
-    "Deleting media directory outside of tests environment is forbidden."
-)
+PROTECTED_MEDIA = "Deleting media directory outside of tests environment is forbidden."
 
 
 def clean_media():
     media = settings.IMPORTED_PATH
-    if "tests" in media:
-        try:
-            shutil.rmtree(media)
-        except FileNotFoundError:
-            pass
-    else:
+    if "tests" not in media:
         raise ImproperlyConfigured(PROTECTED_MEDIA)
+    with contextlib.suppress(FileNotFoundError):
+        shutil.rmtree(media)
 
 
 if __name__ == "__main__":

@@ -33,4 +33,3 @@ class IntegerString(DataElementValue):
     :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
     to assign a :class:`~django.db.models.CharField`.
     """
-    """
