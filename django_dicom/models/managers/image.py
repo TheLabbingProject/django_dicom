@@ -13,13 +13,11 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import transaction
 from django.db.models import QuerySet
-from django_dicom.models.managers.dicom_entity import DicomEntityManager
-from django_dicom.models.managers.messages import (
-    IMPORT_ERROR,
-    PATIENT_UID_MISMATCH,
-)
-from django_dicom.models.utils.progressbar import create_progressbar
 from pydicom.errors import InvalidDicomError
+
+from django_dicom.models.managers.dicom_entity import DicomEntityManager
+from django_dicom.models.managers.messages import IMPORT_ERROR, PATIENT_UID_MISMATCH
+from django_dicom.models.utils.progressbar import create_progressbar
 
 IMPORT_LOGGER = logging.getLogger("data_import")
 
@@ -228,34 +226,31 @@ class ImageManager(DicomEntityManager):
                         dcm_path, autoremove=autoremove
                     )
                 except InvalidDicomError as e:
-                    if persistent:
-                        IMPORT_LOGGER.warning(e)
-                        continue
-                    else:
+                    if not persistent:
                         raise
 
+                    IMPORT_LOGGER.warning(e)
+                    continue
             if report:
                 counter_key = "created" if created else "existing"
                 counter[counter_key] += 1
 
             if created:
                 created_ids.append(image.id)
-            else:
-                # Skip previously reported
-                if image.patient.uid not in patient_uid_mismatch:
-                    # Validate patient UID for existing images
-                    header = DicomHeader(dcm_path)
-                    patient_uid = header.get("PatientID")
-                    if patient_uid != image.patient.uid:
-                        # Log patient UID mismatch
-                        image_uid = header.get("SOPInstanceUID")
-                        message = PATIENT_UID_MISMATCH.format(
-                            image_uid=image_uid,
-                            db_value=image.patient.uid,
-                            patient_uid=patient_uid,
-                        )
-                        IMPORT_LOGGER.warning(message)
-                        patient_uid_mismatch.append(image.patient.uid)
+            elif image.patient.uid not in patient_uid_mismatch:
+                # Validate patient UID for existing images
+                header = DicomHeader(dcm_path)
+                patient_uid = header.get("PatientID")
+                if patient_uid != image.patient.uid:
+                    # Log patient UID mismatch
+                    image_uid = header.get("SOPInstanceUID")
+                    message = PATIENT_UID_MISMATCH.format(
+                        image_uid=image_uid,
+                        db_value=image.patient.uid,
+                        patient_uid=patient_uid,
+                    )
+                    IMPORT_LOGGER.warning(message)
+                    patient_uid_mismatch.append(image.patient.uid)
         if report:
             self.report_import_path_results(path, counter)
 
