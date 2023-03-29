@@ -14,7 +14,7 @@ environ.Env.read_env()
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 DEBUG = False
-ALLOWED_HOSTS = "*"
+ALLOWED_HOSTS = ["localhost"]
 SECRET_KEY = "sa8!1ep_9#36qw@i-3j(a4uikiobleh03jl8v_3!n^^dsm9oyc"
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -91,3 +91,4 @@ REST_FRAMEWORK = {
 KEEP_ORIGINAL_DICOM = True
 IMPORTED_PATH = os.path.join(MEDIA_ROOT, "MRI")
 TESTING_MODE = True
+DICOM_IMPORT_MODE = "minimal"

@@ -183,9 +183,7 @@ class StorageServiceClassProvider(models.Model):
         server_address = ip, self.port
         try:
             return [
-                server
-                for server in servers
-                if server.server_address == server_address
+                server for server in servers if server.server_address == server_address
             ][0]
         except IndexError:
             pass
@@ -310,7 +308,4 @@ class StorageServiceClassProvider(models.Model):
         :func:`check_status`
         :func:`is_down`
         """
-        return (
-            self.server is not None
-            and len(self.server.active_associations) == 0
-        )
+        return self.server is not None and len(self.server.active_associations) == 0

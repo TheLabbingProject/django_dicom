@@ -7,6 +7,9 @@ from dicom_parser.utils.code_strings import Sex
 from django.db import models
 from django.urls import reverse
 from django_dicom.models.dicom_entity import DicomEntity
+from django_dicom.models.managers.dicom_entity import DicomEntityManager
+from django_dicom.models.managers.patient import PatientQuerySet
+from django_dicom.models.utils.utils import get_subject_model
 
 
 class Patient(DicomEntity):
@@ -15,15 +18,12 @@ class Patient(DicomEntity):
 
     .. _Patient:
        http://dicom.nema.org/dicom/2013/output/chtml/part03/chapter_A.html
-
     """
 
     #: `Patient ID
     #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100020>`_
     #: value.
-    uid = models.CharField(
-        max_length=64, unique=True, verbose_name="Patient UID"
-    )
+    uid = models.CharField(max_length=64, unique=True, verbose_name="Patient UID")
 
     #: `Patient Birth Date
     #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100030>`_
@@ -33,9 +33,7 @@ class Patient(DicomEntity):
     #: `Patient's Sex
     #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100040>`_
     #: value.
-    sex = models.CharField(
-        max_length=1, choices=Sex.choices(), blank=True, null=True
-    )
+    sex = models.CharField(max_length=1, choices=Sex.choices(), blank=True, null=True)
 
     #: `Patient's Name
     #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100010>`_
@@ -77,6 +75,8 @@ class Patient(DicomEntity):
 
     logger = logging.getLogger("data.dicom.patient")
 
+    objects = DicomEntityManager.from_queryset(PatientQuerySet)()
+
     class Meta:
         indexes = [
             models.Index(fields=["uid"]),
@@ -92,7 +92,6 @@ class Patient(DicomEntity):
         str
             This instance's string representation
         """
-
         return self.uid
 
     def get_absolute_url(self) -> str:
@@ -104,7 +103,6 @@ class Patient(DicomEntity):
         str
             This instance's absolute URL path
         """
-
         return reverse("dicom:patient-detail", args=[str(self.id)])
 
     def get_full_name(self) -> str:
@@ -116,7 +114,6 @@ class Patient(DicomEntity):
         str
             Patient's first and last names.
         """
-
         return f"{self.given_name} {self.family_name}"
 
     def update_patient_name(self, header) -> None:
@@ -148,7 +145,6 @@ class Patient(DicomEntity):
             Field names to exclude (the default is [], which will not exclude
             any header fields).
         """
-
         # Exclude PatientName fields
         if isinstance(exclude, list):
             exclude += self._NAME_PARTS
@@ -160,3 +156,118 @@ class Patient(DicomEntity):
         # Validate valid sex value
         if self.sex not in Sex.__members__:
             self.sex = None
+
+    def query_n_studies(self) -> int:
+        """
+        Returns the number of associated studies.
+
+        See Also
+        --------
+        :func:`n_studies`
+
+        Returns
+        -------
+        int
+            Number of associated studies
+        """
+        return self.series_set.values("study").distinct().count()
+
+    def query_n_images(self) -> int:
+        """
+        Returns the number of associated images.
+
+        See Also
+        --------
+        :func:`n_images`
+
+        Returns
+        -------
+        int
+            Number of associated images
+        """
+        return self.series_set.values("image").count()
+
+    def query_research_subject(self):
+        """
+        Returns the associated research subject, if such a model is registered
+        and a matching instance exists.
+
+        See Also
+        --------
+        * :func:`research_subject`
+
+        Returns
+        -------
+        Subject
+            Associated research subject
+        """
+        Subject = get_subject_model()
+        if Subject:
+            subject_id = set(
+                self.series_set.values_list("scan__session__subject", flat=True)
+            )
+            try:
+                return Subject.objects.get(id__in=subject_id)
+            except Subject.DoesNotExist:
+                return Subject.objects.none()
+
+    @property
+    def n_studies(self) -> int:
+        """
+        Returns the number of associated studies.
+
+        See Also
+        --------
+        * :func:`query_n_studies`
+
+        Returns
+        -------
+        int
+            Number of associated studies
+        """
+        return self.query_n_studies()
+
+    @property
+    def n_series(self) -> int:
+        """
+        Returns the number of associated series.
+
+        Returns
+        -------
+        int
+            Number of associated series
+        """
+        return self.series_set.count()
+
+    @property
+    def n_images(self) -> int:
+        """
+        Returns the number of associated images.
+
+        See Also
+        --------
+        * :func:`query_n_images`
+
+        Returns
+        -------
+        int
+            Number of associated images
+        """
+        return self.query_n_images()
+
+    @property
+    def research_subject(self):
+        """
+        Returns the associated research subject, if such a model is registered
+        and a matching instance exists.
+
+        See Also
+        --------
+        * :func:`query_research_subject`
+
+        Returns
+        -------
+        Subject
+            Associated research subject
+        """
+        return self.query_research_subject()

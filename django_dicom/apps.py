@@ -73,9 +73,7 @@ class DjangoDicomConfig(AppConfig):
         AE
             DICOM networking application entity
         """
-        from django_dicom.models.networking import (
-            messages as networking_messages,
-        )
+        from django_dicom.models.networking import messages as networking_messages
 
         logger = logging.getLogger("data.dicom.networking")
 
@@ -123,9 +121,7 @@ class DjangoDicomConfig(AppConfig):
         * :func:`create_application_entity`
         * :attr:`application_entity`
         """
-        StorageServiceClassProvider = self.get_model(
-            "StorageServiceClassProvider"
-        )
+        StorageServiceClassProvider = self.get_model("StorageServiceClassProvider")
         try:
             StorageServiceClassProvider.objects.start_servers()
         except ProgrammingError:

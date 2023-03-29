@@ -3,8 +3,7 @@ Definition of the :class:`DataElementValue` model.
 """
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django_dicom.models.managers.data_element_value import \
-    DataElementValueManager
+from django_dicom.models.managers.data_element_value import DataElementValueManager
 from django_dicom.utils.html import Html
 
 

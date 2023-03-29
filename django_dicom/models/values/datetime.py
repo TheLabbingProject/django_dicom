@@ -18,9 +18,7 @@ class DateTime(DataElementValue):
     to assign a :class:`~django.db.models.CharField`.
     """
 
-    raw = models.CharField(
-        max_length=26, help_text="YYYYMMDDHHMMSS.FFFFFF&ZZXX"
-    )
+    raw = models.CharField(max_length=26, help_text="YYYYMMDDHHMMSS.FFFFFF&ZZXX")
     """
     Overrides
     :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`

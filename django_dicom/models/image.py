@@ -84,9 +84,7 @@ class Image(DicomEntity):
     #: In case any warnings are raised by
     #: `dicom_parser <https://github.com/ZviBaratz/dicom_parser/>`_ upon
     #: reading the image's header information, they are stored in this field.
-    warnings = ArrayField(
-        models.TextField(), blank=True, null=True, default=list
-    )
+    warnings = ArrayField(models.TextField(), blank=True, null=True, default=list)
 
     #: The :class:`~django_dicom.models.series.Series` instance to which this
     #: image belongs.
@@ -126,7 +124,6 @@ class Image(DicomEntity):
         str
             This instance's string representation
         """
-
         return self.uid
 
     def get_absolute_url(self) -> str:
@@ -142,7 +139,6 @@ class Image(DicomEntity):
         str
             This instance's absolute URL path
         """
-
         return reverse("dicom:image-detail", args=[str(self.id)])
 
     def create_header_instance(self) -> Header:
@@ -155,7 +151,6 @@ class Image(DicomEntity):
         :class:`~django_dicom.models.header.Header`
             Created instance
         """
-
         return Header.objects.from_dicom_parser(self.instance.header)
 
     def save(self, *args, rename: bool = True, **kwargs):
@@ -170,7 +165,6 @@ class Image(DicomEntity):
             Whether to move the file this instance is a reference to to a
             default path under MEDIA_ROOT or not, by default True
         """
-
         if self.dcm and not hasattr(self, "header"):
             # Add the created Header instance to the passed kwargs
             # so that it may be used to update the new image instance's
@@ -180,9 +174,7 @@ class Image(DicomEntity):
 
         created_series = False
         if not self.series and "header" in kwargs:
-            self.series, created_series = Series.objects.from_header(
-                kwargs["header"]
-            )
+            self.series, created_series = Series.objects.from_header(kwargs["header"])
         if self.dcm and rename:
             # Move to default destination.
             self.rename(self.default_path)
@@ -206,7 +198,6 @@ class Image(DicomEntity):
         :class:`pathlib.Path`
             This instance's default location
         """
-
         relative_path = self.instance.default_relative_path
         return DICOM_ROOT / relative_path
 
@@ -220,7 +211,6 @@ class Image(DicomEntity):
         target : :class:`pathlib.Path`
             Destination path
         """
-
         target = Path(settings.MEDIA_ROOT, target)
         target.parent.mkdir(parents=True, exist_ok=True)
         dcm_path = self.dcm.name if os.getenv("USE_S3") else self.dcm.path
@@ -242,9 +232,7 @@ class Image(DicomEntity):
         :class:`dicom_parser.image.Image`
             Image information
         """
-
         if not isinstance(self._instance, dicom_parser.Image):
-
             # Catch any warnings raised by dicom_parser
             with warnings.catch_warnings():
                 using_s3 = os.getenv("USE_S3")
@@ -261,6 +249,18 @@ class Image(DicomEntity):
         return self._instance
 
     @property
+    def sequence_type(self) -> str:
+        """
+        Returns the MRI sequence type detected by *dicom_parser*.
+
+        Returns
+        -------
+        str
+            Sequence type identifier
+        """
+        return self.series.sequence_type
+
+    @property
     def data(self) -> np.ndarray:
         """
         Facilitates access to the :class:`~dicom_parser.image.Image` instance's
@@ -271,7 +271,6 @@ class Image(DicomEntity):
         :class:`np.ndarray`
             The image's pixel data
         """
-
         return self.instance.data
 
     @property
@@ -284,9 +283,17 @@ class Image(DicomEntity):
         :class:`pathlib.Path`
             Default image location
         """
-
         return self.get_default_path()
 
     @property
     def patient(self):
+        """
+        Returns the :class:`~django_dicom.models.patient.Patient` associated
+        with this image.
+
+        Returns
+        -------
+        Patient
+            Associated `Patient` instance
+        """
         return self.series.patient

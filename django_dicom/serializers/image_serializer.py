@@ -6,14 +6,12 @@ from django_dicom.models.series import Series
 from rest_framework import serializers
 
 
-class ImageSerializer(serializers.HyperlinkedModelSerializer):
+class ImageSerializer(serializers.ModelSerializer):
     """
     A serializer class for the :class:`~django_dicom.models.image.Image` model.
     """
 
-    series = serializers.HyperlinkedRelatedField(
-        view_name="dicom:series-detail", queryset=Series.objects.all()
-    )
+    series = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all())
 
     class Meta:
         model = Image

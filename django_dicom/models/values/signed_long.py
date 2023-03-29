@@ -1,8 +1,7 @@
-"""
-Definition of the :class:`SignedLong` model.
-"""
+"""Definition of the :class:`SignedLong` model."""  # noqa: E902
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from django_dicom.models.values.data_element_value import DataElementValue
 
 #: Minimal *SignedLong* value.
@@ -18,10 +17,7 @@ class SignedLong(DataElementValue):
     """
 
     value = models.IntegerField(
-        validators=[
-            MaxValueValidator(MAX_VALUE),
-            MinValueValidator(MIN_VALUE),
-        ],
+        validators=[MaxValueValidator(MAX_VALUE), MinValueValidator(MIN_VALUE)],
         blank=True,
         null=True,
     )
@@ -32,10 +28,7 @@ class SignedLong(DataElementValue):
     """
 
     raw = models.IntegerField(
-        validators=[
-            MaxValueValidator(MAX_VALUE),
-            MinValueValidator(MIN_VALUE),
-        ],
+        validators=[MaxValueValidator(MAX_VALUE), MinValueValidator(MIN_VALUE)],
         blank=True,
         null=True,
     )
@@ -43,4 +36,5 @@ class SignedLong(DataElementValue):
     Overrides
     :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
     to assign an :class:`~django.db.models.IntegerField`.
+    """
     """

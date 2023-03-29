@@ -20,9 +20,7 @@ SERVER_STATUS_COLOR = {
     ServerStatus.INACTIVE: "orange",
     ServerStatus.DOWN: "red",
 }
-SERVER_STATUS_INDICATOR = (
-    '<div style="color: {color}; font-size: 40px;">&bull;</div>'
-)
+SERVER_STATUS_INDICATOR = '<div style="color: {color}; font-size: 40px;">&bull;</div>'
 
 
 class DataElementInLine(admin.TabularInline):
@@ -291,12 +289,13 @@ class SeriesAdmin(admin.ModelAdmin):
         "time",
         "number",
         "description",
+        "sequence_type",
         "uid",
     )
     inlines = (ImageInLine,)
     readonly_fields = ("uid",)
-    list_filter = "date", "patient"
-    search_fields = "description", "uid"
+    list_filter = "date", "sequence_type"
+    search_fields = "description", "uid", "patient__uid"
 
     def patient_link(self, series: Header):
         return series.patient.admin_link
@@ -438,6 +437,4 @@ admin.site.register(Image, ImageAdmin)
 admin.site.register(Series, SeriesAdmin)
 admin.site.register(Study, StudyAdmin)
 admin.site.register(Patient, PatientAdmin)
-admin.site.register(
-    StorageServiceClassProvider, StorageServiceClassProviderAdmin
-)
+admin.site.register(StorageServiceClassProvider, StorageServiceClassProviderAdmin)

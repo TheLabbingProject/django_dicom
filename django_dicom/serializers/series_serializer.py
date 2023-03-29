@@ -7,25 +7,19 @@ from django_dicom.models.study import Study
 from rest_framework import serializers
 
 
-class SeriesSerializer(serializers.HyperlinkedModelSerializer):
+class SeriesSerializer(serializers.ModelSerializer):
     """
     A serializer class for the :class:`~django_dicom.models.series.Series`
     model.
     """
 
-    url = serializers.HyperlinkedIdentityField(view_name="dicom:series-detail")
-    study = serializers.HyperlinkedRelatedField(
-        view_name="dicom:study-detail", queryset=Study.objects.all()
-    )
-    patient = serializers.HyperlinkedRelatedField(
-        view_name="dicom:patient-detail", queryset=Patient.objects.all()
-    )
+    study = serializers.PrimaryKeyRelatedField(queryset=Study.objects.all())
+    patient = serializers.PrimaryKeyRelatedField(queryset=Patient.objects.all())
 
     class Meta:
         model = Series
         fields = (
             "id",
-            "url",
             "study",
             "patient",
             "body_part_examined",
@@ -52,4 +46,5 @@ class SeriesSerializer(serializers.HyperlinkedModelSerializer):
             "device_serial_number",
             "institution_name",
             "uid",
+            "sequence_type",
         )

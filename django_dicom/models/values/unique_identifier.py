@@ -13,10 +13,7 @@ class UniqueIdentifier(DataElementValue):
     """
 
     value = models.CharField(
-        max_length=64,
-        validators=[digits_and_dots_only],
-        blank=True,
-        null=True,
+        max_length=64, validators=[digits_and_dots_only], blank=True, null=True,
     )
     """
     Overrides

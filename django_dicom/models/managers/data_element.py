@@ -67,16 +67,12 @@ class DataElementManager(models.Manager):
             The created instance
         """
 
-        definition, _ = DataElementDefinition.objects.from_dicom_parser(
-            data_element
-        )
+        definition, _ = DataElementDefinition.objects.from_dicom_parser(data_element)
         try:
             return self.get(header=header, definition=definition)
         except ObjectDoesNotExist:
             try:
-                return self.create_from_dicom_parser(
-                    header, definition, data_element
-                )
+                return self.create_from_dicom_parser(header, definition, data_element)
             except TypeError as exception:
                 message = DATA_ELEMENT_CREATION_FAILURE.format(
                     data_element=data_element, exception=exception
