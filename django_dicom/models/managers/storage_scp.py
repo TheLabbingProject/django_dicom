@@ -30,9 +30,7 @@ class StorageScpQuerySet(models.QuerySet):
         if not self.exists():
             return
         self._log_servers_start()
-        associations = [
-            storage_provider.start() for storage_provider in self.all()
-        ]
+        associations = [storage_provider.start() for storage_provider in self.all()]
         return list(filter(None, associations))
 
     def _log_servers_start(self) -> None:

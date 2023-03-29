@@ -24,10 +24,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                (
-                    "title",
-                    models.CharField(blank=True, max_length=128, null=True),
-                ),
+                ("title", models.CharField(blank=True, max_length=128, null=True),),
                 (
                     "ip",
                     models.GenericIPAddressField(
@@ -37,9 +34,7 @@ class Migration(migrations.Migration):
                 (
                     "port",
                     models.PositiveIntegerField(
-                        validators=[
-                            django.core.validators.MaxValueValidator(65535)
-                        ]
+                        validators=[django.core.validators.MaxValueValidator(65535)]
                     ),
                 ),
                 (
@@ -103,10 +98,7 @@ class Migration(migrations.Migration):
                                     "1.2.840.10008.5.1.4.1.1.481.13",
                                     "C-Arm Photon-Electron Radiation Storage",
                                 ),
-                                (
-                                    "1.2.840.10008.5.1.4.1.1.2",
-                                    "CT Image Storage",
-                                ),
+                                ("1.2.840.10008.5.1.4.1.1.2", "CT Image Storage",),
                                 (
                                     "1.2.840.10008.5.1.4.1.1.200.2",
                                     "CT Performed Procedure Protocol Storage",
@@ -287,10 +279,7 @@ class Migration(migrations.Migration):
                                     "1.2.840.10008.5.1.4.1.1.78.1",
                                     "Lensometry Measurements Storage",
                                 ),
-                                (
-                                    "1.2.840.10008.5.1.4.1.1.4",
-                                    "MR Image Storage",
-                                ),
+                                ("1.2.840.10008.5.1.4.1.1.4", "MR Image Storage",),
                                 (
                                     "1.2.840.10008.5.1.4.1.1.4.2",
                                     "MR Spectroscopy Storage",
@@ -403,14 +392,8 @@ class Migration(migrations.Migration):
                                     "1.2.840.10008.5.1.4.1.1.481.6",
                                     "RT Brachy Treatment Record Storage",
                                 ),
-                                (
-                                    "1.2.840.10008.5.1.4.1.1.481.2",
-                                    "RT Dose Storage",
-                                ),
-                                (
-                                    "1.2.840.10008.5.1.4.1.1.481.1",
-                                    "RT Image Storage",
-                                ),
+                                ("1.2.840.10008.5.1.4.1.1.481.2", "RT Dose Storage",),
+                                ("1.2.840.10008.5.1.4.1.1.481.1", "RT Image Storage",),
                                 (
                                     "1.2.840.10008.5.1.4.1.1.481.9",
                                     "RT Ion Beams Treatment Record Storage",
@@ -423,10 +406,7 @@ class Migration(migrations.Migration):
                                     "1.2.840.10008.5.1.4.1.1.481.10",
                                     "RT Physician Intent Storage",
                                 ),
-                                (
-                                    "1.2.840.10008.5.1.4.1.1.481.5",
-                                    "RT Plan Storage",
-                                ),
+                                ("1.2.840.10008.5.1.4.1.1.481.5", "RT Plan Storage",),
                                 (
                                     "1.2.840.10008.5.1.4.1.1.481.12",
                                     "RT Radiation Set Storage",
@@ -447,10 +427,7 @@ class Migration(migrations.Migration):
                                     "1.2.840.10008.5.1.4.1.1.88.68",
                                     "Radiopharmaceutical Radiation Dose SR Storage",
                                 ),
-                                (
-                                    "1.2.840.10008.5.1.4.1.1.66",
-                                    "Raw Data Storage",
-                                ),
+                                ("1.2.840.10008.5.1.4.1.1.66", "Raw Data Storage",),
                                 (
                                     "1.2.840.10008.5.1.4.1.1.67",
                                     "Real World Value Mapping Storage",
@@ -602,5 +579,6 @@ class Migration(migrations.Migration):
         ),
         migrations.DeleteModel(name="StorageServiceClassUser",),
     ]
+
 
 # flake8: noqa: E501

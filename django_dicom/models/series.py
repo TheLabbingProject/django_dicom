@@ -72,16 +72,12 @@ class Series(DicomEntity):
     #: `Series Date
     #: <https://dicom.innolitics.com/ciods/mr-image/general-series/00080021>`_
     #: value.
-    date = models.DateField(
-        blank=True, null=True, help_text=help_text.SERIES_DATE
-    )
+    date = models.DateField(blank=True, null=True, help_text=help_text.SERIES_DATE)
 
     #: `Series Time
     #: <https://dicom.innolitics.com/ciods/mr-image/general-series/00080021>`_
     #: value.
-    time = models.TimeField(
-        blank=True, null=True, help_text=help_text.SERIES_TIME
-    )
+    time = models.TimeField(blank=True, null=True, help_text=help_text.SERIES_TIME)
 
     #: `Echo Time
     #: <https://dicom.innolitics.com/ciods/mr-image/mr-image/00180081>`_
@@ -194,20 +190,14 @@ class Series(DicomEntity):
     #: <https://dicom.innolitics.com/ciods/mr-image/device/00500010/00181000>`_
     #: value.
     device_serial_number = models.CharField(
-        max_length=64,
-        blank=True,
-        null=True,
-        help_text=help_text.DEVICE_SERIAL_NUMBER,
+        max_length=64, blank=True, null=True, help_text=help_text.DEVICE_SERIAL_NUMBER,
     )
 
     #: `Body Part Examined
     #: <https://dicom.innolitics.com/ciods/mr-image/general-series/00180015>`_
     #: value.
     body_part_examined = models.CharField(
-        max_length=16,
-        blank=True,
-        null=True,
-        help_text=help_text.BODY_PART_EXAMINED,
+        max_length=16, blank=True, null=True, help_text=help_text.BODY_PART_EXAMINED,
     )
 
     #: `Patient Position
@@ -229,10 +219,7 @@ class Series(DicomEntity):
     )
 
     institution_name = models.CharField(
-        max_length=64,
-        blank=True,
-        null=True,
-        help_text=help_text.INSTITUTE_NAME,
+        max_length=64, blank=True, null=True, help_text=help_text.INSTITUTE_NAME,
     )
     """
     `Institution Name
@@ -262,10 +249,7 @@ class Series(DicomEntity):
     )
 
     pulse_sequence_name = models.CharField(
-        max_length=64,
-        blank=True,
-        null=True,
-        help_text=help_text.PULSE_SEQUENCE_NAME,
+        max_length=64, blank=True, null=True, help_text=help_text.PULSE_SEQUENCE_NAME,
     )
     """
     `Pulse Sequence Name
@@ -396,9 +380,7 @@ class Series(DicomEntity):
         """
         sample_image = self.image_set.first()
         dcm_path = (
-            sample_image.dcm.name
-            if os.getenv("USE_S3")
-            else sample_image.dcm.path
+            sample_image.dcm.name if os.getenv("USE_S3") else sample_image.dcm.path
         )
         return Path(dcm_path).parent
 
@@ -413,7 +395,7 @@ class Series(DicomEntity):
             Whether to save changes or not, default is True
         """
         try:
-            sample_image = self.image_set.first()        
+            sample_image = self.image_set.first()
         except ValueError:
             return
         try:
@@ -481,10 +463,7 @@ class Series(DicomEntity):
 
     def get_file_paths(self) -> Tuple[Path]:
         return tuple(
-            [
-                Path(path)
-                for path in self.image_set.values_list("dcm", flat=True)
-            ]
+            [Path(path) for path in self.image_set.values_list("dcm", flat=True)]
         )
 
     @property

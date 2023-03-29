@@ -95,9 +95,7 @@ class ImageManager(DicomEntityManager):
             message = IMPORT_ERROR.format(path=path, exception=e)
             raise RuntimeError(message)
 
-    def get_or_create_from_dcm(
-        self, path: Path, autoremove: bool = True
-    ) -> Tuple:
+    def get_or_create_from_dcm(self, path: Path, autoremove: bool = True) -> Tuple:
         """
         Gets or creates an :class:`~django_dicom.models.image.Image` instance
         based on the contents of the provided *.dcm* path.

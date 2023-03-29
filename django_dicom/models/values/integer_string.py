@@ -1,8 +1,7 @@
-"""
-Definition of the :class:`IntegerString` model.
-"""
+"""Definition of the :class:`IntegerString` model."""  # noqa: E902
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from django_dicom.models.values.data_element_value import DataElementValue
 
 #: Minimal *IntegerString* value.
@@ -18,10 +17,7 @@ class IntegerString(DataElementValue):
     """
 
     value = models.IntegerField(
-        validators=[
-            MinValueValidator(MIN_VALUE),
-            MaxValueValidator(MAX_VALUE),
-        ],
+        validators=[MinValueValidator(MIN_VALUE), MaxValueValidator(MAX_VALUE)],
         blank=True,
         null=True,
     )
@@ -36,4 +32,5 @@ class IntegerString(DataElementValue):
     Overrides
     :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`
     to assign a :class:`~django.db.models.CharField`.
+    """
     """

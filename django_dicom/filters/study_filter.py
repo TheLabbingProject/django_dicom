@@ -24,22 +24,14 @@ class StudyFilter(filters.FilterSet):
     """
 
     uid = filters.LookupChoiceFilter(lookup_choices=DEFAULT_LOOKUP_CHOICES)
-    description = filters.LookupChoiceFilter(
-        lookup_choices=DEFAULT_LOOKUP_CHOICES
-    )
+    description = filters.LookupChoiceFilter(lookup_choices=DEFAULT_LOOKUP_CHOICES)
     date = filters.DateFromToRangeFilter()
     time_after = filters.TimeFilter("time", lookup_expr="gte")
     time_before = filters.TimeFilter("time", lookup_expr="lte")
     if ENABLE_COUNT_FILTERING:
-        n_patients = filters.RangeFilter(
-            label="Number of associated patients between:"
-        )
-        n_series = filters.RangeFilter(
-            label="Number of associated series between:"
-        )
-        n_images = filters.RangeFilter(
-            label="Number of associated images between:"
-        )
+        n_patients = filters.RangeFilter(label="Number of associated patients between:")
+        n_series = filters.RangeFilter(label="Number of associated series between:")
+        n_images = filters.RangeFilter(label="Number of associated images between:")
 
     class Meta:
         model = Study

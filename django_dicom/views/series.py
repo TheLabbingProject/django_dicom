@@ -43,9 +43,7 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
         user = get_user_model().objects.get(username=self.request.user)
         if user.is_staff:
             return Series.objects.all()
-        return Series.objects.filter(
-            scan__study_groups__study__collaborators=user
-        )
+        return Series.objects.filter(scan__study_groups__study__collaborators=user)
 
     @action(detail=False, methods=["get"])
     def get_manufacturers(self, request):
@@ -80,9 +78,7 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
         with zipfile.ZipFile(buffer, "w") as zip_file:
             for dcm in Path(instance.path).iterdir():
                 zip_file.write(dcm, dcm.name)
-        response = HttpResponse(
-            buffer.getvalue(), content_type=ZIP_CONTENT_TYPE
-        )
+        response = HttpResponse(buffer.getvalue(), content_type=ZIP_CONTENT_TYPE)
         content_disposition = CONTENT_DISPOSITION.format(name=name)
         response["Content-Disposition"] = content_disposition
         return response
@@ -98,9 +94,7 @@ class SeriesViewSet(DefaultsMixin, viewsets.ModelViewSet):
                 for dcm in p.iterdir():
                     name = dcm.relative_to(p.parent.parent)
                     zip_file.write(dcm, name)
-        response = HttpResponse(
-            buffer.getvalue(), content_type=ZIP_CONTENT_TYPE
-        )
+        response = HttpResponse(buffer.getvalue(), content_type=ZIP_CONTENT_TYPE)
         content_disposition = CONTENT_DISPOSITION.format(name="scans")
         response["Content-Disposition"] = content_disposition
         return response

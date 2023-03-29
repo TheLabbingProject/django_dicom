@@ -25,10 +25,7 @@ class Header(TimeStampedModel):
     """
 
     parent = models.ForeignKey(
-        "django_dicom.SequenceOfItems",
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
+        "django_dicom.SequenceOfItems", on_delete=models.CASCADE, blank=True, null=True,
     )
     """
     `Data Set
@@ -101,9 +98,7 @@ class Header(TimeStampedModel):
             Data element value
         """
         try:
-            data_element = self.data_element_set.get(
-                definition__keyword=keyword
-            )
+            data_element = self.data_element_set.get(definition__keyword=keyword)
         except ObjectDoesNotExist:
             return None
         else:
@@ -192,9 +187,7 @@ class Header(TimeStampedModel):
         """
         if not isinstance(self._instance, DicomHeader):
             dcm_path = (
-                self.image.dcm.name
-                if os.getenv("USE_S3")
-                else self.image.dcm.path
+                self.image.dcm.name if os.getenv("USE_S3") else self.image.dcm.path
             )
             self._instance = DicomHeader(dcm_path)
         return self._instance

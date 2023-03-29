@@ -37,7 +37,5 @@ def get_application_entity_title() -> str:
         Application entity title
     """
     return getattr(
-        settings,
-        APPLICATION_ENTITY_TITLE_SETTING,
-        DEFAULT_APPLICATION_ENTITY_TITLE,
+        settings, APPLICATION_ENTITY_TITLE_SETTING, DEFAULT_APPLICATION_ENTITY_TITLE,
     )

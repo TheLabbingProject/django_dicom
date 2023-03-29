@@ -18,9 +18,7 @@ class Date(DataElementValue):
     to assign a :class:`~django.db.models.CharField`.
     """
 
-    raw = models.CharField(
-        max_length=8, help_text="YYYYMMDD", blank=True, null=True
-    )
+    raw = models.CharField(max_length=8, help_text="YYYYMMDD", blank=True, null=True)
     """
     Overrides
     :attr:`~django_dicom.models.values.data_element_value.DataElementValue.raw`

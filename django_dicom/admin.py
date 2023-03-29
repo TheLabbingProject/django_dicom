@@ -20,9 +20,7 @@ SERVER_STATUS_COLOR = {
     ServerStatus.INACTIVE: "orange",
     ServerStatus.DOWN: "red",
 }
-SERVER_STATUS_INDICATOR = (
-    '<div style="color: {color}; font-size: 40px;">&bull;</div>'
-)
+SERVER_STATUS_INDICATOR = '<div style="color: {color}; font-size: 40px;">&bull;</div>'
 
 
 class DataElementInLine(admin.TabularInline):
@@ -439,6 +437,4 @@ admin.site.register(Image, ImageAdmin)
 admin.site.register(Series, SeriesAdmin)
 admin.site.register(Study, StudyAdmin)
 admin.site.register(Patient, PatientAdmin)
-admin.site.register(
-    StorageServiceClassProvider, StorageServiceClassProviderAdmin
-)
+admin.site.register(StorageServiceClassProvider, StorageServiceClassProviderAdmin)

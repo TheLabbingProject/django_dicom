@@ -52,10 +52,7 @@ class Migration(migrations.Migration):
                         base_field=models.CharField(max_length=4), size=2
                     ),
                 ),
-                (
-                    "keyword",
-                    models.CharField(blank=True, max_length=255, null=True),
-                ),
+                ("keyword", models.CharField(blank=True, max_length=255, null=True),),
                 (
                     "value_representation",
                     models.CharField(
@@ -211,24 +208,18 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "number",
-                    models.IntegerField(
-                        null=True, verbose_name="Instance Number"
-                    ),
+                    models.IntegerField(null=True, verbose_name="Instance Number"),
                 ),
                 (
                     "date",
                     models.DateField(
-                        blank=True,
-                        null=True,
-                        verbose_name="Instance Creation Date",
+                        blank=True, null=True, verbose_name="Instance Creation Date",
                     ),
                 ),
                 (
                     "time",
                     models.TimeField(
-                        blank=True,
-                        null=True,
-                        verbose_name="Instance Creation Time",
+                        blank=True, null=True, verbose_name="Instance Creation Time",
                     ),
                 ),
                 (
@@ -279,19 +270,12 @@ class Migration(migrations.Migration):
                     "sex",
                     models.CharField(
                         blank=True,
-                        choices=[
-                            ("M", "Male"),
-                            ("F", "Female"),
-                            ("O", "Other"),
-                        ],
+                        choices=[("M", "Male"), ("F", "Female"), ("O", "Other"),],
                         max_length=1,
                         null=True,
                     ),
                 ),
-                (
-                    "given_name",
-                    models.CharField(blank=True, max_length=64, null=True),
-                ),
+                ("given_name", models.CharField(blank=True, max_length=64, null=True),),
                 (
                     "family_name",
                     models.CharField(blank=True, max_length=64, null=True),
@@ -372,17 +356,13 @@ class Migration(migrations.Migration):
                 (
                     "date",
                     models.DateField(
-                        blank=True,
-                        help_text="Date the series started",
-                        null=True,
+                        blank=True, help_text="Date the series started", null=True,
                     ),
                 ),
                 (
                     "time",
                     models.TimeField(
-                        blank=True,
-                        help_text="Time the series started",
-                        null=True,
+                        blank=True, help_text="Time the series started", null=True,
                     ),
                 ),
                 (
@@ -391,9 +371,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         help_text="Time in ms between the middle of the excitation pulse and the peak of the echo produced",
                         null=True,
-                        validators=[
-                            django.core.validators.MinValueValidator(0)
-                        ],
+                        validators=[django.core.validators.MinValueValidator(0)],
                     ),
                 ),
                 (
@@ -410,9 +388,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         help_text="Time in milliseconds after the middle of inverting RF pulse to middle of excitation pulse to detect the amount of longitudinal magnetization",
                         null=True,
-                        validators=[
-                            django.core.validators.MinValueValidator(0)
-                        ],
+                        validators=[django.core.validators.MinValueValidator(0)],
                     ),
                 ),
                 (
@@ -421,9 +397,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         help_text="The period of time in milliseconds between the beginning of a pulse sequence and the beginning of the succeeding pulse sequence.",
                         null=True,
-                        validators=[
-                            django.core.validators.MinValueValidator(0)
-                        ],
+                        validators=[django.core.validators.MinValueValidator(0)],
                     ),
                 ),
                 (
@@ -471,9 +445,7 @@ class Migration(migrations.Migration):
                     "pixel_spacing",
                     django.contrib.postgres.fields.ArrayField(
                         base_field=models.FloatField(
-                            validators=[
-                                django.core.validators.MinValueValidator(0)
-                            ]
+                            validators=[django.core.validators.MinValueValidator(0)]
                         ),
                         blank=True,
                         help_text="Physical distance in the patient between the center of each pixel, specified by a numeric pair: adjacent row spacing (delimiter) adjacent column spacing in mm",
@@ -487,9 +459,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         help_text="Nominal slice thickness, in millimeters.",
                         null=True,
-                        validators=[
-                            django.core.validators.MinValueValidator(0)
-                        ],
+                        validators=[django.core.validators.MinValueValidator(0)],
                     ),
                 ),
                 (
@@ -516,9 +486,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         help_text="Nominal field strength of MR magnet, in Tesla",
                         null=True,
-                        validators=[
-                            django.core.validators.MinValueValidator(0)
-                        ],
+                        validators=[django.core.validators.MinValueValidator(0)],
                     ),
                 ),
                 (
@@ -591,10 +559,7 @@ class Migration(migrations.Migration):
                             ("HD", "Hemodynamic Waveform"),
                             ("IO", "Intra-Oral Radiography"),
                             ("IOL", "Intraocular Lens Data"),
-                            (
-                                "IVOCT",
-                                "Intravascular Optical Coherence Tomography",
-                            ),
+                            ("IVOCT", "Intravascular Optical Coherence Tomography",),
                             ("IVUS", "Intravascular Ultrasound"),
                             ("KER", "Keratometry"),
                             ("KO", "Key Object Selection"),
@@ -605,17 +570,11 @@ class Migration(migrations.Migration):
                             ("M3D", "Model for 3D Manufacturing"),
                             ("NM", "Nuclear Medicine"),
                             ("OAM", "Ophthalmic Axial Measurements"),
-                            (
-                                "OCT",
-                                "Optical Coherence Tomography (non-Ophthalmic)",
-                            ),
+                            ("OCT", "Optical Coherence Tomography (non-Ophthalmic)",),
                             ("OP", "Ophthalmic Photography"),
                             ("OPM", "Ophthalmic Mapping"),
                             ("OPT", "Ophthalmic Tomography"),
-                            (
-                                "OPTBSV",
-                                "Ophthalmic Tomography B-scan Volume Analysis",
-                            ),
+                            ("OPTBSV", "Ophthalmic Tomography B-scan Volume Analysis",),
                             ("OPTENF", "Ophthalmic Tomography En Face"),
                             ("OPV", "Ophthalmic Visual Field"),
                             ("OSS", "Optical Surface Scan"),
@@ -627,10 +586,7 @@ class Migration(migrations.Migration):
                             ("REG", "Registration"),
                             ("RESP", "Respiratory Waveform"),
                             ("RF", "Radio Fluoroscopy"),
-                            (
-                                "RG",
-                                "Radiographic imaging (conventional film/screen)",
-                            ),
+                            ("RG", "Radiographic imaging (conventional film/screen)",),
                             ("RTDOSE", "Radiotherapy Dose"),
                             ("RTIMAGE", "Radiotherapy Image"),
                             ("RTPLAN", "Radiotherapy Plan"),
@@ -790,14 +746,8 @@ class Migration(migrations.Migration):
                         to="django_dicom.DataElementValue",
                     ),
                 ),
-                (
-                    "value",
-                    models.CharField(blank=True, max_length=16, null=True),
-                ),
-                (
-                    "raw",
-                    models.CharField(blank=True, max_length=16, null=True),
-                ),
+                ("value", models.CharField(blank=True, max_length=16, null=True),),
+                ("raw", models.CharField(blank=True, max_length=16, null=True),),
             ],
             bases=("django_dicom.dataelementvalue",),
         ),
@@ -815,14 +765,8 @@ class Migration(migrations.Migration):
                         to="django_dicom.DataElementValue",
                     ),
                 ),
-                (
-                    "value",
-                    models.CharField(blank=True, max_length=16, null=True),
-                ),
-                (
-                    "raw",
-                    models.CharField(blank=True, max_length=16, null=True),
-                ),
+                ("value", models.CharField(blank=True, max_length=16, null=True),),
+                ("raw", models.CharField(blank=True, max_length=16, null=True),),
             ],
             bases=("django_dicom.dataelementvalue",),
         ),
@@ -868,10 +812,7 @@ class Migration(migrations.Migration):
                 (
                     "raw",
                     models.CharField(
-                        blank=True,
-                        help_text="YYYYMMDD",
-                        max_length=8,
-                        null=True,
+                        blank=True, help_text="YYYYMMDD", max_length=8, null=True,
                     ),
                 ),
             ],
@@ -916,10 +857,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("value", models.FloatField(blank=True, null=True)),
-                (
-                    "raw",
-                    models.CharField(blank=True, max_length=16, null=True),
-                ),
+                ("raw", models.CharField(blank=True, max_length=16, null=True),),
             ],
             bases=("django_dicom.dataelementvalue",),
         ),
@@ -938,10 +876,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("value", models.FloatField(blank=True, null=True)),
-                (
-                    "raw",
-                    models.CharField(blank=True, max_length=64, null=True),
-                ),
+                ("raw", models.CharField(blank=True, max_length=64, null=True),),
             ],
             bases=("django_dicom.dataelementvalue",),
         ),
@@ -960,10 +895,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("value", models.FloatField(blank=True, null=True)),
-                (
-                    "raw",
-                    models.CharField(blank=True, max_length=32, null=True),
-                ),
+                ("raw", models.CharField(blank=True, max_length=32, null=True),),
             ],
             bases=("django_dicom.dataelementvalue",),
         ),
@@ -987,19 +919,12 @@ class Migration(migrations.Migration):
                         blank=True,
                         null=True,
                         validators=[
-                            django.core.validators.MinValueValidator(
-                                -2147483648
-                            ),
-                            django.core.validators.MaxValueValidator(
-                                2147483647
-                            ),
+                            django.core.validators.MinValueValidator(-2147483648),
+                            django.core.validators.MaxValueValidator(2147483647),
                         ],
                     ),
                 ),
-                (
-                    "raw",
-                    models.CharField(blank=True, max_length=12, null=True),
-                ),
+                ("raw", models.CharField(blank=True, max_length=12, null=True),),
             ],
             bases=("django_dicom.dataelementvalue",),
         ),
@@ -1017,14 +942,8 @@ class Migration(migrations.Migration):
                         to="django_dicom.DataElementValue",
                     ),
                 ),
-                (
-                    "value",
-                    models.CharField(blank=True, max_length=64, null=True),
-                ),
-                (
-                    "raw",
-                    models.CharField(blank=True, max_length=64, null=True),
-                ),
+                ("value", models.CharField(blank=True, max_length=64, null=True),),
+                ("raw", models.CharField(blank=True, max_length=64, null=True),),
             ],
             bases=("django_dicom.dataelementvalue",),
         ),
@@ -1094,10 +1013,7 @@ class Migration(migrations.Migration):
                         blank=True, null=True
                     ),
                 ),
-                (
-                    "raw",
-                    models.CharField(blank=True, max_length=64, null=True),
-                ),
+                ("raw", models.CharField(blank=True, max_length=64, null=True),),
             ],
             bases=("django_dicom.dataelementvalue",),
         ),
@@ -1132,14 +1048,8 @@ class Migration(migrations.Migration):
                         to="django_dicom.DataElementValue",
                     ),
                 ),
-                (
-                    "value",
-                    models.CharField(blank=True, max_length=16, null=True),
-                ),
-                (
-                    "raw",
-                    models.CharField(blank=True, max_length=16, null=True),
-                ),
+                ("value", models.CharField(blank=True, max_length=16, null=True),),
+                ("raw", models.CharField(blank=True, max_length=16, null=True),),
             ],
             bases=("django_dicom.dataelementvalue",),
         ),
@@ -1157,14 +1067,8 @@ class Migration(migrations.Migration):
                         to="django_dicom.DataElementValue",
                     ),
                 ),
-                (
-                    "value",
-                    models.CharField(blank=True, max_length=1024, null=True),
-                ),
-                (
-                    "raw",
-                    models.CharField(blank=True, max_length=1024, null=True),
-                ),
+                ("value", models.CharField(blank=True, max_length=1024, null=True),),
+                ("raw", models.CharField(blank=True, max_length=1024, null=True),),
             ],
             bases=("django_dicom.dataelementvalue",),
         ),
@@ -1188,12 +1092,8 @@ class Migration(migrations.Migration):
                         blank=True,
                         null=True,
                         validators=[
-                            django.core.validators.MaxValueValidator(
-                                2147483647
-                            ),
-                            django.core.validators.MinValueValidator(
-                                -2147483648
-                            ),
+                            django.core.validators.MaxValueValidator(2147483647),
+                            django.core.validators.MinValueValidator(-2147483648),
                         ],
                     ),
                 ),
@@ -1203,12 +1103,8 @@ class Migration(migrations.Migration):
                         blank=True,
                         null=True,
                         validators=[
-                            django.core.validators.MaxValueValidator(
-                                2147483647
-                            ),
-                            django.core.validators.MinValueValidator(
-                                -2147483648
-                            ),
+                            django.core.validators.MaxValueValidator(2147483647),
+                            django.core.validators.MinValueValidator(-2147483648),
                         ],
                     ),
                 ),
@@ -1272,10 +1168,7 @@ class Migration(migrations.Migration):
                 (
                     "raw",
                     models.CharField(
-                        blank=True,
-                        help_text="HHMMSS.FFFFFF",
-                        max_length=16,
-                        null=True,
+                        blank=True, help_text="HHMMSS.FFFFFF", max_length=16, null=True,
                     ),
                 ),
             ],
@@ -1310,10 +1203,7 @@ class Migration(migrations.Migration):
                         ],
                     ),
                 ),
-                (
-                    "raw",
-                    models.CharField(blank=True, max_length=64, null=True),
-                ),
+                ("raw", models.CharField(blank=True, max_length=64, null=True),),
             ],
             bases=("django_dicom.dataelementvalue",),
         ),
@@ -1375,9 +1265,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         null=True,
                         validators=[
-                            django.core.validators.MaxValueValidator(
-                                4294967296
-                            )
+                            django.core.validators.MaxValueValidator(4294967296)
                         ],
                     ),
                 ),
@@ -1387,9 +1275,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         null=True,
                         validators=[
-                            django.core.validators.MaxValueValidator(
-                                4294967296
-                            )
+                            django.core.validators.MaxValueValidator(4294967296)
                         ],
                     ),
                 ),
@@ -1415,9 +1301,7 @@ class Migration(migrations.Migration):
                     models.PositiveIntegerField(
                         blank=True,
                         null=True,
-                        validators=[
-                            django.core.validators.MaxValueValidator(65536)
-                        ],
+                        validators=[django.core.validators.MaxValueValidator(65536)],
                     ),
                 ),
                 (
@@ -1425,9 +1309,7 @@ class Migration(migrations.Migration):
                     models.PositiveIntegerField(
                         blank=True,
                         null=True,
-                        validators=[
-                            django.core.validators.MaxValueValidator(65536)
-                        ],
+                        validators=[django.core.validators.MaxValueValidator(65536)],
                     ),
                 ),
             ],
@@ -1435,9 +1317,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="study",
-            index=models.Index(
-                fields=["uid"], name="django_dico_uid_5f639a_idx"
-            ),
+            index=models.Index(fields=["uid"], name="django_dico_uid_5f639a_idx"),
         ),
         migrations.AddField(
             model_name="series",
@@ -1461,9 +1341,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="patient",
-            index=models.Index(
-                fields=["uid"], name="django_dico_uid_285d78_idx"
-            ),
+            index=models.Index(fields=["uid"], name="django_dico_uid_285d78_idx"),
         ),
         migrations.AddIndex(
             model_name="patient",
@@ -1503,8 +1381,7 @@ class Migration(migrations.Migration):
             model_name="dataelement",
             name="_values",
             field=models.ManyToManyField(
-                related_name="data_element_set",
-                to="django_dicom.DataElementValue",
+                related_name="data_element_set", to="django_dicom.DataElementValue",
             ),
         ),
         migrations.AddField(
@@ -1527,9 +1404,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="series",
-            index=models.Index(
-                fields=["uid"], name="django_dico_uid_95ea17_idx"
-            ),
+            index=models.Index(fields=["uid"], name="django_dico_uid_95ea17_idx"),
         ),
         migrations.AddIndex(
             model_name="series",
@@ -1539,9 +1414,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="image",
-            index=models.Index(
-                fields=["uid"], name="django_dico_uid_d005ca_idx"
-            ),
+            index=models.Index(fields=["uid"], name="django_dico_uid_d005ca_idx"),
         ),
         migrations.AddIndex(
             model_name="image",

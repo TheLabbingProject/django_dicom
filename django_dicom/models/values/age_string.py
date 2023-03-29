@@ -11,9 +11,7 @@ class AgeString(DataElementValue):
     element value.
     """
 
-    value = models.FloatField(
-        verbose_name="Age in years", blank=True, null=True
-    )
+    value = models.FloatField(verbose_name="Age in years", blank=True, null=True)
     """
     Overrides
     :attr:`~django_dicom.models.values.data_element_value.DataElementValue.value`

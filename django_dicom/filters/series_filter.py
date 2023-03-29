@@ -89,9 +89,7 @@ def filter_in_string(queryset: QuerySet, field_name: str, values: list):
         return queryset
     # We check both content and length in order to return only exact matches
     icontains = f"{field_name}__icontains"
-    condition = reduce(
-        operator.or_, [Q(**{icontains: value}) for value in values]
-    )
+    condition = reduce(operator.or_, [Q(**{icontains: value}) for value in values])
     return queryset.filter(condition).all()
 
 
@@ -154,9 +152,7 @@ class SeriesFilter(filters.FilterSet):
           (in-icontains)
     """
 
-    study_uid = filters.CharFilter(
-        "study__uid", lookup_expr="exact", label="Study UID"
-    )
+    study_uid = filters.CharFilter("study__uid", lookup_expr="exact", label="Study UID")
     study_description = CharInFilter(
         field_name="study__description",
         lookup_expr="in",
@@ -164,12 +160,8 @@ class SeriesFilter(filters.FilterSet):
         method=filter_in_string,
     )
     modality = filters.ChoiceFilter("modality", choices=Modality.choices())
-    description = filters.LookupChoiceFilter(
-        lookup_choices=DEFAULT_LOOKUP_CHOICES
-    )
-    protocol_name = filters.CharFilter(
-        "protocol_name", lookup_expr="icontains"
-    )
+    description = filters.LookupChoiceFilter(lookup_choices=DEFAULT_LOOKUP_CHOICES)
+    protocol_name = filters.CharFilter("protocol_name", lookup_expr="icontains")
     scanning_sequence = filters.MultipleChoiceFilter(
         "scanning_sequence",
         choices=ScanningSequence.choices(),
@@ -186,12 +178,8 @@ class SeriesFilter(filters.FilterSet):
     date = filters.DateRangeFilter()
     time = filters.TimeRangeFilter()
     manufacturer = filters.AllValuesFilter("manufacturer")
-    manufacturer_model_name = filters.AllValuesFilter(
-        "manufacturer_model_name"
-    )
-    magnetic_field_strength = filters.AllValuesFilter(
-        "magnetic_field_strength"
-    )
+    manufacturer_model_name = filters.AllValuesFilter("manufacturer_model_name")
+    magnetic_field_strength = filters.AllValuesFilter("magnetic_field_strength")
     device_serial_number = filters.AllValuesFilter("device_serial_number")
     institution_name = filters.AllValuesFilter("institution_name")
     pulse_sequence_name = CharInFilter(
@@ -200,9 +188,7 @@ class SeriesFilter(filters.FilterSet):
         method=filter_in_string,
     )
     sequence_name = CharInFilter(
-        field_name="sequence_name",
-        lookup_expr="icontains",
-        method=filter_in_string,
+        field_name="sequence_name", lookup_expr="icontains", method=filter_in_string,
     )
     pixel_spacing = filters.RangeFilter("pixel_spacing__0")
     slice_thickness = filters.RangeFilter("slice_thickness")

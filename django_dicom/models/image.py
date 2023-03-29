@@ -84,9 +84,7 @@ class Image(DicomEntity):
     #: In case any warnings are raised by
     #: `dicom_parser <https://github.com/ZviBaratz/dicom_parser/>`_ upon
     #: reading the image's header information, they are stored in this field.
-    warnings = ArrayField(
-        models.TextField(), blank=True, null=True, default=list
-    )
+    warnings = ArrayField(models.TextField(), blank=True, null=True, default=list)
 
     #: The :class:`~django_dicom.models.series.Series` instance to which this
     #: image belongs.
@@ -176,9 +174,7 @@ class Image(DicomEntity):
 
         created_series = False
         if not self.series and "header" in kwargs:
-            self.series, created_series = Series.objects.from_header(
-                kwargs["header"]
-            )
+            self.series, created_series = Series.objects.from_header(kwargs["header"])
         if self.dcm and rename:
             # Move to default destination.
             self.rename(self.default_path)

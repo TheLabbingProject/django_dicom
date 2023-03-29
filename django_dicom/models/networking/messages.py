@@ -1,9 +1,5 @@
-APPLICATION_ENTITY_START = (
-    "Starting DICOM networking application entity '{title}'..."
-)
-APPLICATION_ENTITY_SUCCESS = (
-    "DICOM networking application entity successfully created."
-)
+APPLICATION_ENTITY_START = "Starting DICOM networking application entity '{title}'..."
+APPLICATION_ENTITY_SUCCESS = "DICOM networking application entity successfully created."
 C_ECHO_ENABLED = "C-ECHO request handling enabled."
 C_ECHO_RECEIVED = "C-ECHO request received."
 C_STORE_RECEIVED = "C-STORE request received."
@@ -16,7 +12,9 @@ TEMP_DICOM_REMOVAL_END = "Successfully deleted {file_name}."
 TEMP_DICOM_REMOVAL_START = "Removing temporary file {file_name}..."
 SERVER_START = "Starting storage SCP at {provider}..."
 SERVER_START_SUCCESS = "SUCCESS! Storage SCP server successfully started."
-SERVER_START_ERROR = "Failed to start storage SCP server with the following exception: {exception}"
+SERVER_START_ERROR = (
+    "Failed to start storage SCP server with the following exception: {exception}"
+)
 SERVER_NOT_CREATED = "Server instantiation failed with no exception! No new server found in the app's application entity."
 WRITE_DICOM_DATASET = "Writing DICOM dataset..."
 WRITE_DICOM_END = "DICOM dataset successfully created as {file_name}."

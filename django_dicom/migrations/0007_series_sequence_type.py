@@ -26,10 +26,7 @@ class Migration(migrations.Migration):
                             ("t2w", "T2-weighted"),
                         ),
                     ),
-                    (
-                        "Diffusion",
-                        (("dwi", "DWI"), ("dwi_fieldmap", "DWI Fieldmap")),
-                    ),
+                    ("Diffusion", (("dwi", "DWI"), ("dwi_fieldmap", "DWI Fieldmap")),),
                     (
                         "Functional",
                         (

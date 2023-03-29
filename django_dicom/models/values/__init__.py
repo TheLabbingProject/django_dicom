@@ -20,12 +20,8 @@ from django_dicom.models.values.data_element_value import DataElementValue
 from django_dicom.models.values.date import Date
 from django_dicom.models.values.datetime import DateTime
 from django_dicom.models.values.decimal_string import DecimalString
-from django_dicom.models.values.floating_point_double import (
-    FloatingPointDouble,
-)
-from django_dicom.models.values.floating_point_single import (
-    FloatingPointSingle,
-)
+from django_dicom.models.values.floating_point_double import FloatingPointDouble
+from django_dicom.models.values.floating_point_single import FloatingPointSingle
 from django_dicom.models.values.integer_string import IntegerString
 from django_dicom.models.values.long_string import LongString
 from django_dicom.models.values.long_text import LongText

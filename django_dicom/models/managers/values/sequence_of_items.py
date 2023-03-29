@@ -2,9 +2,7 @@
 Definition of the :class:`SequenceOfItemsManager` class.
 """
 from dicom_parser.data_element import DataElement as DicomDataElement
-from django_dicom.models.managers.data_element_value import (
-    DataElementValueManager,
-)
+from django_dicom.models.managers.data_element_value import DataElementValueManager
 from django_dicom.models.utils.meta import get_model
 
 

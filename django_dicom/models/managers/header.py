@@ -49,8 +49,6 @@ class HeaderManager(models.Manager):
                             new_instance, data_element
                         )
                     except DicomImportError as exception:
-                        message = HEADER_CREATION_FAILURE.format(
-                            exception=exception
-                        )
+                        message = HEADER_CREATION_FAILURE.format(exception=exception)
                         raise DicomImportError(message)
         return new_instance

@@ -66,9 +66,7 @@ def check_element_inclusion(data_element) -> bool:
         return False
     tags = import_configuration["tags"]
     vrs = import_configuration["vrs"]
-    excluded_tag = any(
-        [data_element.tag in (tag, PIXEL_ARRAY_TAG) for tag in tags]
-    )
+    excluded_tag = any([data_element.tag in (tag, PIXEL_ARRAY_TAG) for tag in tags])
     excluded_vr = any([vr == data_element.VALUE_REPRESENTATION for vr in vrs])
     return not (excluded_tag or excluded_vr)
 

@@ -23,9 +23,7 @@ class Patient(DicomEntity):
     #: `Patient ID
     #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100020>`_
     #: value.
-    uid = models.CharField(
-        max_length=64, unique=True, verbose_name="Patient UID"
-    )
+    uid = models.CharField(max_length=64, unique=True, verbose_name="Patient UID")
 
     #: `Patient Birth Date
     #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100030>`_
@@ -35,9 +33,7 @@ class Patient(DicomEntity):
     #: `Patient's Sex
     #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100040>`_
     #: value.
-    sex = models.CharField(
-        max_length=1, choices=Sex.choices(), blank=True, null=True
-    )
+    sex = models.CharField(max_length=1, choices=Sex.choices(), blank=True, null=True)
 
     #: `Patient's Name
     #: <https://dicom.innolitics.com/ciods/mr-image/patient/00100010>`_
@@ -208,9 +204,7 @@ class Patient(DicomEntity):
         Subject = get_subject_model()
         if Subject:
             subject_id = set(
-                self.series_set.values_list(
-                    "scan__session__subject", flat=True
-                )
+                self.series_set.values_list("scan__session__subject", flat=True)
             )
             try:
                 return Subject.objects.get(id__in=subject_id)

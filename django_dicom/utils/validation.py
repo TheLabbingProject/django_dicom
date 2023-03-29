@@ -72,14 +72,11 @@ def positive_string_checker(values, field, header_value):
     if header_value:
         if isinstance(values, (tuple, list)):
             return any(
-                value in str(header_value)
-                or value.lower() in str(header_value)
+                value in str(header_value) or value.lower() in str(header_value)
                 for value in values
             )
         else:
-            return values in str(header_value) or values.lower() in str(
-                header_value
-            )
+            return values in str(header_value) or values.lower() in str(header_value)
     return False
 
 
@@ -87,14 +84,13 @@ def negative_string_checker(values, field, header_value):
     if header_value:
         if isinstance(values, (tuple, list)):
             return not any(
-                value in str(header_value)
-                or value.lower() in str(header_value)
+                value in str(header_value) or value.lower() in str(header_value)
                 for value in values
             )
         else:
-            return values not in str(
+            return values not in str(header_value) and values.lower() not in str(
                 header_value
-            ) and values.lower() not in str(header_value)
+            )
     return False
 
 
@@ -118,8 +114,7 @@ def negative_list_checker(values, field, header_value):
 
 def run_checks(search_values, header):
     fields_check = [
-        field_checker(item, search_values[item], header)
-        for item in search_values
+        field_checker(item, search_values[item], header) for item in search_values
     ]
     return all(fields_check)
 
@@ -159,9 +154,7 @@ def scan_details(scan_id, header):
         "SliceThickness": header_getter("SliceThickness", header),
         "SeriesDescription": header_getter("SeriesDescription", header),
         "SequenceName": header_getter("SequenceName", header),
-        "InternalPulseSequenceName": header_getter(
-            "InternalPulseSequenceName", header
-        ),
+        "InternalPulseSequenceName": header_getter("InternalPulseSequenceName", header),
         "StudyTime": header_getter("StudyTime", header),
         "StudyDate": header_getter("StudyDate", header),
         "Manufacturer": header_getter("Manufacturer", header),

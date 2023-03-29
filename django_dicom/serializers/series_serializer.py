@@ -14,9 +14,7 @@ class SeriesSerializer(serializers.ModelSerializer):
     """
 
     study = serializers.PrimaryKeyRelatedField(queryset=Study.objects.all())
-    patient = serializers.PrimaryKeyRelatedField(
-        queryset=Patient.objects.all()
-    )
+    patient = serializers.PrimaryKeyRelatedField(queryset=Patient.objects.all())
 
     class Meta:
         model = Series

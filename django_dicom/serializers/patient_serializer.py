@@ -32,9 +32,7 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
     :class:`~django_dicom.models.patient.Patient` model.
     """
 
-    url = serializers.HyperlinkedIdentityField(
-        view_name="dicom:patient-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="dicom:patient-detail")
     latest_study_time = serializers.DateTimeField()
     research_subject = serializers.PrimaryKeyRelatedField(read_only=True)
 

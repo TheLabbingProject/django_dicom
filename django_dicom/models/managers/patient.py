@@ -26,9 +26,7 @@ class PatientQuerySet(QuerySet):
             .annotate(datetime=STUDY_DATETIME_ANNOTATION)
             .order_by("-datetime")
         )
-        return self.annotate(
-            latest_study_time=Subquery(studies.values("datetime")[:1])
-        )
+        return self.annotate(latest_study_time=Subquery(studies.values("datetime")[:1]))
 
     def with_counts(self) -> QuerySet:
         return self.annotate(

@@ -41,27 +41,15 @@ class PatientFilter(filters.FilterSet):
     name_prefix = filters.AllValuesFilter("name_prefix")
     sex = filters.ChoiceFilter("sex", choices=Sex.choices())
     uid = filters.LookupChoiceFilter(lookup_choices=DEFAULT_LOOKUP_CHOICES)
-    given_name = filters.LookupChoiceFilter(
-        lookup_choices=DEFAULT_LOOKUP_CHOICES
-    )
-    middle_name = filters.LookupChoiceFilter(
-        lookup_choices=DEFAULT_LOOKUP_CHOICES
-    )
-    family_name = filters.LookupChoiceFilter(
-        lookup_choices=DEFAULT_LOOKUP_CHOICES
-    )
+    given_name = filters.LookupChoiceFilter(lookup_choices=DEFAULT_LOOKUP_CHOICES)
+    middle_name = filters.LookupChoiceFilter(lookup_choices=DEFAULT_LOOKUP_CHOICES)
+    family_name = filters.LookupChoiceFilter(lookup_choices=DEFAULT_LOOKUP_CHOICES)
     name_suffix = filters.AllValuesFilter("name_suffix")
     study__id = filters.NumberFilter(method="filter_by_study")
     if ENABLE_COUNT_FILTERING:
-        n_studies = filters.RangeFilter(
-            label="Number of associated studies between:"
-        )
-        n_series = filters.RangeFilter(
-            label="Number of associated series between:"
-        )
-        n_images = filters.RangeFilter(
-            label="Number of associated images between:"
-        )
+        n_studies = filters.RangeFilter(label="Number of associated studies between:")
+        n_series = filters.RangeFilter(label="Number of associated series between:")
+        n_images = filters.RangeFilter(label="Number of associated images between:")
 
     class Meta:
         model = Patient
@@ -70,9 +58,7 @@ class PatientFilter(filters.FilterSet):
             "uid",
         )
 
-    def filter_by_study(
-        self, queryset: QuerySet, name: str, value: int
-    ) -> QuerySet:
+    def filter_by_study(self, queryset: QuerySet, name: str, value: int) -> QuerySet:
         """
         Returns all :class:`~django_dicom.models.patient.Patient` instances
         that have :class:`~django_dicom.models.series.Series` instances

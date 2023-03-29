@@ -85,4 +85,3 @@ PATIENT_AGGREGATIONS: Dict[str, Aggregate] = {
     "nImagesMin": Min("n_images"),
     "nImagesMax": Max("n_images"),
 }
-
