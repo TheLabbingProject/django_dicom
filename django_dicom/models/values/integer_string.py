@@ -1,4 +1,4 @@
-"""Definition of the :class:`IntegerString` model."""  # noqa: E902
+"""Definition of the :class:`IntegerString` model."""
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
